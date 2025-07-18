@@ -16,8 +16,6 @@ interface VideoCardProps {
   showImageCard?: boolean;
 }
 
-const FIXED_WIDTH = 600;
-const FIXED_HEIGHT = 400;
 const VIDEO_WIDTH_WITH_IMAGE = 600;
 const VIDEO_HEIGHT_WITH_IMAGE = 400;
 const VIDEO_WIDTH_ONLY = 800;
@@ -95,8 +93,13 @@ const VideoCard: React.FC<VideoCardProps> = ({ onVideoSelect, videoUrl: controll
           ref={videoRef}
           src={url}
           controls
-          className="rounded shadow-lg"
-          style={{ background: "#000", width: videoWidth, height: videoHeight }}
+          className="rounded shadow-lg transition-all duration-500"
+          style={{
+            background: "#000",
+            width: videoWidth,
+            height: videoHeight,
+            transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1)',
+          }}
           onTimeUpdate={handleTimeUpdate}
         />
         {showImageCard && (

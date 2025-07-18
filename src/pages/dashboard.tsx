@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
           videoUrl={videoUrl}
           currentTime={currentTime}
           onCurrentTimeChange={setCurrentTime}
-          showImageCard={false}
+          showImageCard={true}
         />
         <VideoTimeline
           videoUrl={videoUrl}
