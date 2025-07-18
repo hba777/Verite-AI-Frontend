@@ -1,13 +1,27 @@
+import React, { useState } from "react";
+import VideoCard from "@/features/Dashboard/VideoCard/VideoCard";
+import VideoTimeline from "@/features/Dashboard/VideoTimeline/VideoTimeline";
+
 const Dashboard: React.FC = () => {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(0);
 
   return (
-      <div className="min-h-screen flex bg-[#f7f9fc]">
-      <main className="flex-1 flex flex-col">
-        <div className="flex-1 flex flex-col items-center px-4 py-12">
-          <div className="w-full flex justify-start mb-6">
-          </div>
-        </div>
-      </main>
+    <div className="min-h-screen flex flex-col items-center bg-[#181a20] text-white py-12">
+      <div className="w-full flex flex-col gap-8">
+        <VideoCard
+          onVideoSelect={setVideoUrl}
+          videoUrl={videoUrl}
+          currentTime={currentTime}
+          onCurrentTimeChange={setCurrentTime}
+          showImageCard={true}
+        />
+        <VideoTimeline
+          videoUrl={videoUrl}
+          currentTime={currentTime}
+          onSeek={setCurrentTime}
+        />
+      </div>
     </div>
   );
 };
