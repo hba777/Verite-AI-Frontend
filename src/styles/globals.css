@@ -133,3 +133,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+/* Starfield styles using complex box-shadows */
+#stars1 {
+  box-shadow: 75px 989px 1px #fff, 1693px 173px 1px #fff, 1192px 63px 1px #fff,
+    146px 211px 1px #fff, 1823px 455px 1px #fff, 1318px 449px 1px #fff,
+    1194px 56px 1px #fff, 379px 780px 1px #fff, 638px 434px 1px #fff,
+    422px 577px 1px #fff, 1757px 424px 1px #fff, 1222px 55px 1px #fff;
+}
+#stars2 {
+  box-shadow: 1793px 214px 1px #fff, 6px 402px 1px #fff, 735px 956px 1px #fff,
+    1163px 197px 1px #fff, 144px 219px 1px #fff, 1149px 235px 1px #fff,
+    1078px 574px 1px #fff, 219px 700px 1px #fff, 105px 78px 1px #fff,
+    1636px 409px 1px #fff, 1565px 381px 1px #fff, 1699px 929px 1px #fff,
+    1298px 899px 1px #fff, 1475px 173px 1px #fff, 1289px 414px 1px #fff;
+}
