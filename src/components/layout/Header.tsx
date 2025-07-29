@@ -2,9 +2,16 @@
 
 import React from "react";
 
-const Header = () => {
+// Add isVisible to the props
+const Header = ({ isVisible }: { isVisible: boolean }) => {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-black/30 backdrop-blur-sm">
+    // Add transition classes and conditionally change transform
+    <header
+      className={`fixed inset-x-0 top-0 z-50 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      {/* ... rest of the header code is the same ... */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex h-20 items-center justify-between">
           <div className="flex items-center space-x-8">
