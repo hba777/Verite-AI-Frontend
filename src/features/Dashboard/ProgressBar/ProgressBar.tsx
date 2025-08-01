@@ -4,13 +4,18 @@ import * as React from "react"
 
 import { Progress } from "@/features/Dashboard/ProgressBar/progress"
 
-export function ProgressDemo() {
-  const [progress, setProgress] = React.useState(13)
+interface ProgressDemoProps {
+  uploadProgress?: number;
+}
+
+export function ProgressDemo({ uploadProgress }: ProgressDemoProps) {
+  const [progress, setProgress] = React.useState(0)
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setProgress(66), 500)
-    return () => clearTimeout(timer)
-  }, [])
+    if (uploadProgress !== undefined) {
+      setProgress(uploadProgress);
+    }
+  }, [uploadProgress]);
 
   return <Progress value={progress} className="w-[80%]" />
 }

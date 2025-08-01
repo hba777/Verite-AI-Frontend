@@ -14,6 +14,7 @@ interface VideoCardProps {
   onCurrentTimeChange?: (time: number) => void;
   currentTime?: number;
   showImageCard?: boolean;
+  onUploadProgress?: (progress: number) => void;
 }
 
 const VIDEO_WIDTH_WITH_IMAGE = 600;
@@ -27,6 +28,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   onCurrentTimeChange,
   currentTime,
   showImageCard,
+  onUploadProgress,
 }) => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -35,6 +37,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const [status, setStatus] = useState<string>("");
   const [taskId, setTaskId] = useState<string | null>(null);
   const [previewFrames, setPreviewFrames] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   // Use controlled videoUrl if provided
   const url = controlledUrl !== undefined ? controlledUrl : videoUrl;
@@ -47,6 +50,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
   async function uploadVideoViaWebSocket(file: File) {
     try {
+      setUploadProgress(0);
       // 1. Start task via HTTP POST
       const res = await fetch("http://localhost:8000/video/start-task", {
         method: "POST",
@@ -80,10 +84,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 if (e.target?.result) {
                   ws.send(e.target.result as ArrayBuffer);
                   offset += chunkSize;
+                  // Update progress
+                  const progress = Math.min((offset / file.size) * 100, 100);
+                  setUploadProgress(progress);
+                  onUploadProgress?.(progress);
                   if (offset < file.size) {
                     sendNext();
                   } else {
                     ws.send("END");
+                    setUploadProgress(100);
+                    onUploadProgress?.(100);
                   }
                 }
               };
@@ -92,6 +102,8 @@ const VideoCard: React.FC<VideoCardProps> = ({
             sendNext();
           } else if (event.data === "Processing...") {
             setStatus("Processing video...");
+            setUploadProgress(100); // Upload complete, now processing
+            onUploadProgress?.(100);
           } else if (event.data === "DONE") {
             setStatus("Processing complete!");
             // Next message will contain JSON result
