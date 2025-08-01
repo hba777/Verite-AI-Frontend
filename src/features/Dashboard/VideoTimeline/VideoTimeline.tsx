@@ -5,9 +5,10 @@ interface VideoTimelineProps {
   videoUrl: string | null;
   onSeek?: (time: number) => void;
   currentTime?: number;
+  uploadProgress?: number;
 }
 
-const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, currentTime }) => {
+const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, currentTime, uploadProgress }) => {
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -150,7 +151,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
 
           {/* Progress Bar */}
           <div className="w-full max-w-2xl flex justify-center items-center mt-2">
-              <ProgressDemo />
+              <ProgressDemo uploadProgress={uploadProgress} />
           </div>
         </>
       ) : (
