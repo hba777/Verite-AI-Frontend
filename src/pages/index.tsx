@@ -7,16 +7,26 @@ import ModelFamilySection from "@/components/home/ModelFamilySection";
 import ReasoningSection from "@/components/home/ReasoningSection";
 import React, { useState, useEffect, useRef } from "react";
 import StickyNav from "@/components/layout/StickyNav";
+import HandsOnSection from "@/components/home/HandsOnSection";
+import Footer from "@/components/layout/Footer";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
-  // This state now controls the visibility of the *fixed* nav
   const [isFixedNavVisible, setFixedNavVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("Models");
   const router = useRouter();
 
   // Refs for scrolling targets and triggers
+  const staticNavRef = useRef<HTMLDivElement>(null);
   const modelFamilyRef = useRef<HTMLDivElement>(null);
-  const staticNavRef = useRef<HTMLDivElement>(null); // Ref for the nav in ReasoningSection
+  const handsOnRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  const sectionRefs = [
+    { name: "Models", ref: modelFamilyRef },
+    { name: "Hands-on", ref: handsOnRef },
+    { name: "Footer", ref: footerRef },
+  ];
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -32,9 +42,18 @@ const Home: NextPage = () => {
 
       // Logic for the fixed sticky nav
       if (staticNavRef.current) {
-        // Show the fixed nav if the static nav has scrolled off-screen (above the viewport)
-        const rect = staticNavRef.current.getBoundingClientRect();
-        setFixedNavVisible(rect.top < 0);
+        setFixedNavVisible(
+          staticNavRef.current.getBoundingClientRect().top < 0
+        );
+      }
+
+      // Logic for active tab highlighting
+      for (const section of sectionRefs) {
+        const rect = section.ref.current?.getBoundingClientRect();
+        if (rect && rect.top <= 150 && rect.bottom >= 150) {
+          setActiveTab(section.name);
+          break;
+        }
       }
     };
 
@@ -42,12 +61,10 @@ const Home: NextPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleScrollToModels = () => {
-    modelFamilyRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+  const createScrollHandler =
+    (ref: React.RefObject<HTMLDivElement | null>) => () => {
+      ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
 
   return (
     <div className="font-sans bg-black">
@@ -56,26 +73,26 @@ const Home: NextPage = () => {
         <meta name="description" content="Our most intelligent AI models" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <Header isVisible={isHeaderVisible} />
-
+      {/* RENDER ALL SECTIONS IN ORDER */}
       <HeroSection />
-      {/* Pass the ref and click handler to the section */}
       <ReasoningSection
         navRef={staticNavRef}
-        onModelsClick={handleScrollToModels}
+        onModelsClick={createScrollHandler(modelFamilyRef)}
       />
       <ModelFamilySection ref={modelFamilyRef} />
-
-      {/* This is the FIXED navigation bar that appears only when needed */}
+      <HandsOnSection ref={handsOnRef} />
+      <Footer ref={footerRef} />
+      {/* RENDER THE FIXED NAVIGATION BAR */}
       {isFixedNavVisible && (
         <StickyNav
-          activeTab="Models"
-          onModelsClick={handleScrollToModels}
+          activeTab={activeTab}
+          onModelsClick={createScrollHandler(modelFamilyRef)}
+          onHandsOnClick={createScrollHandler(handsOnRef)}
+          onFooterClick={createScrollHandler(footerRef)}
           className="fixed top-5 left-0 right-0 z-40 animate-in fade-in duration-300"
         />
       )}
-
       <div
         className={
           "grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20"

@@ -1,7 +1,7 @@
 // src/components/home/ModelFamilySection.tsx
 
 import React from "react";
-import ModelCard from "./ModelCard"; // StickyNav import is removed
+import ModelCard from "./ModelCard";
 
 const models = [
   { title: "2.5 Pro", description: "Best for coding and highly complex tasks" },
@@ -20,10 +20,9 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
     // Attach the ref to the root element of this section
     <div ref={ref} className="bg-black text-white relative">
-      {/* The duplicated StickyNav has been removed from here */}
       <section className="container mx-auto px-6 py-20 text-center">
         <h2 className="text-5xl font-medium">Model family</h2>
-        <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-400">
+        <p className="mt-4 max-w-2xl mx-auto text-2xl text-gray-400">
           Gemini 2.5 builds on the best of Gemini — with native multimodality
           and a long context window.
         </p>

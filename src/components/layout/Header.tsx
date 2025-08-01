@@ -2,16 +2,33 @@
 
 import React from "react";
 
+// Helper component for the arrow icon
+const ArrowIcon = () => (
+  <svg
+    className="ml-2 h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M9 5l7 7-7 7"
+    ></path>
+  </svg>
+);
+
 // Add isVisible to the props
 const Header = ({ isVisible }: { isVisible: boolean }) => {
   return (
-    // Add transition classes and conditionally change transform
+    // The transition classes and conditional transform make the header slide in and out
     <header
       className={`fixed inset-x-0 top-0 z-50 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
-      {/* ... rest of the header code is the same ... */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex h-20 items-center justify-between">
           <div className="flex items-center space-x-8">
@@ -46,22 +63,23 @@ const Header = ({ isVisible }: { isVisible: boolean }) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            {/* The header buttons have a lighter gray border to match the image */}
             <a
               href="#"
-              className="hidden rounded-full border border-gray-700 bg-gray-800/50 py-2 px-4 font-medium text-white transition-colors hover:bg-gray-700 sm:inline-block"
+              className="hidden items-center rounded-full border border-gray-600 bg-gray-800/50 py-2 px-4 font-medium text-white transition-colors hover:bg-gray-700 sm:inline-flex"
             >
-              Try Google AI Studio
+              Build with Gemini <ArrowIcon />
             </a>
             <a
               href="#"
-              className="hidden rounded-full border border-gray-700 bg-gray-800/50 py-2 px-4 font-medium text-white transition-colors hover:bg-gray-700 sm:inline-block"
+              className="hidden items-center rounded-full border border-gray-600 bg-gray-800/50 py-2 px-4 font-medium text-white transition-colors hover:bg-gray-700 sm:inline-flex"
             >
-              Try Gemini
+              Try Gemini <ArrowIcon />
             </a>
-            <button className="rounded-full p-2 hover:bg-gray-800">
+            <button className="rounded-full p-2 text-white hover:bg-gray-800">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
