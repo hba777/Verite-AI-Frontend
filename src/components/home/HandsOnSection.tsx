@@ -40,7 +40,7 @@ const HandsOnSection = React.forwardRef<HTMLDivElement>((props, ref) => {
 
       {/* Bottom Part: Get Updates Form */}
       <section className="flex justify-center items-center min-h-screen bg-black px-4">
-        <div className="w-full max-w-6xl bg-gradient-to-r from-[#d0e2ff] to-[#dfe3ff] rounded-[300px] px-20 sm:px-60 py-40 text-center">
+        <div className="w-full max-w-6xl bg-gradient-to-r from-[#d0e2ff] to-[#dfe3ff] rounded-[3rem] lg:rounded-[300px] px-8 py-20 sm:px-20 lg:px-60 sm:py-32 text-center">
           <h3 className="text-3xl sm:text-5xl font-medium text-black pb-4">
             Get the latest updates
           </h3>
@@ -72,7 +72,7 @@ const HandsOnSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             </div>
             <button
               type="submit"
-              className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-3 font-bold text-white transition-all duration-300 hover:brightness-110 shadow-md"
+              className="w-full sm:w-auto rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-3 font-bold text-white transition-all duration-300 hover:brightness-110 shadow-md"
             >
               Sign up
             </button>
