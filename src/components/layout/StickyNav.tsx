@@ -1,24 +1,26 @@
+// src/components/layout/StickyNav.tsx
+
 import React from "react";
 
 interface StickyNavProps {
   activeTab: string;
   onModelsClick?: () => void;
-  onHandsOnClick?: () => void;
-  onFooterClick?: () => void;
+  onSafetyClick?: () => void;
+  onBuildClick?: () => void;
   className?: string;
 }
 
 const StickyNav: React.FC<StickyNavProps> = ({
   activeTab,
   onModelsClick,
-  onHandsOnClick,
-  onFooterClick,
+  onBuildClick,
+  onSafetyClick,
   className = "",
 }) => {
   const navItems = [
     { name: "Models", handler: onModelsClick },
-    { name: "Hands-on", handler: onHandsOnClick },
-    { name: "Footer", handler: onFooterClick },
+    { name: "Safety", handler: onSafetyClick },
+    { name: "Build", handler: onBuildClick },
   ];
 
   return (

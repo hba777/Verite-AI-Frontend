@@ -9,6 +9,9 @@ import React, { useState, useEffect, useRef } from "react";
 import StickyNav from "@/components/layout/StickyNav";
 import HandsOnSection from "@/components/home/HandsOnSection";
 import Footer from "@/components/layout/Footer";
+import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection";
+import DeveloperBuildSection from "@/components/home/DeveloperBuildSection";
+import SafetySection from "@/components/home/SafetySection";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
@@ -16,23 +19,26 @@ const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState("Models");
   const router = useRouter();
 
-  // Refs for scrolling targets and triggers
   const staticNavRef = useRef<HTMLDivElement>(null);
   const modelFamilyRef = useRef<HTMLDivElement>(null);
   const handsOnRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
+  const ecosystemRef = useRef<HTMLDivElement>(null);
+  const buildRef = useRef<HTMLDivElement>(null);
+  const safetyRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = [
     { name: "Models", ref: modelFamilyRef },
-    { name: "Hands-on", ref: handsOnRef },
-    { name: "Footer", ref: footerRef },
+    { name: "Safety", ref: safetyRef },
+    { name: "Build", ref: buildRef },
+    { name: "Build", ref: ecosystemRef }, // still considered part of Build
   ];
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
-      // Logic for top header visibility
+      // Header visibility logic
       if (window.scrollY > lastScrollY && window.scrollY > 100) {
         setHeaderVisible(false);
       } else {
@@ -40,21 +46,27 @@ const Home: NextPage = () => {
       }
       lastScrollY = window.scrollY;
 
-      // Logic for the fixed sticky nav
+      // Sticky nav anchor tracking
       if (staticNavRef.current) {
         setFixedNavVisible(
           staticNavRef.current.getBoundingClientRect().top < 0
         );
       }
 
-      // Logic for active tab highlighting
+      // Track which tab is active
+      let currentTab: string | null = null;
+
       for (const section of sectionRefs) {
         const rect = section.ref.current?.getBoundingClientRect();
         if (rect && rect.top <= 150 && rect.bottom >= 150) {
-          setActiveTab(section.name);
+          currentTab = section.name;
           break;
         }
       }
+
+      // Update active tab and nav visibility
+      setActiveTab(currentTab || "");
+      setFixedNavVisible(!!currentTab); // hide nav if no tab matches
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -74,30 +86,29 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header isVisible={isHeaderVisible} />
-      {/* RENDER ALL SECTIONS IN ORDER */}
       <HeroSection />
       <ReasoningSection
         navRef={staticNavRef}
         onModelsClick={createScrollHandler(modelFamilyRef)}
       />
       <ModelFamilySection ref={modelFamilyRef} />
+      <SafetySection ref={safetyRef} />
+      <DeveloperBuildSection ref={buildRef} />
+      <DeveloperEcosystemSection ref={ecosystemRef} />
       <HandsOnSection ref={handsOnRef} />
       <Footer ref={footerRef} />
-      {/* RENDER THE FIXED NAVIGATION BAR */}
+
       {isFixedNavVisible && (
         <StickyNav
           activeTab={activeTab}
           onModelsClick={createScrollHandler(modelFamilyRef)}
-          onHandsOnClick={createScrollHandler(handsOnRef)}
-          onFooterClick={createScrollHandler(footerRef)}
+          onSafetyClick={createScrollHandler(safetyRef)}
+          onBuildClick={createScrollHandler(buildRef)}
           className="fixed top-5 left-0 right-0 z-40 animate-in fade-in duration-300"
         />
       )}
-      <div
-        className={
-          "grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20"
-        }
-      >
+
+      <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
         <button
           className="bg-white rounded text-black px-6 cursor-pointer"
           onClick={() => router.push("/dashboard")}
