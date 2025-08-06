@@ -12,6 +12,8 @@ import Footer from "@/components/layout/Footer";
 import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection";
 import DeveloperBuildSection from "@/components/home/DeveloperBuildSection";
 import SafetySection from "@/components/home/SafetySection";
+import PerformanceSection from "@/components/home/PerformanceSection";
+import BenchmarkTable from "@/components/home/BenchmarkTable";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
@@ -26,12 +28,14 @@ const Home: NextPage = () => {
   const ecosystemRef = useRef<HTMLDivElement>(null);
   const buildRef = useRef<HTMLDivElement>(null);
   const safetyRef = useRef<HTMLDivElement>(null);
+  const performanceRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = [
     { name: "Models", ref: modelFamilyRef },
     { name: "Safety", ref: safetyRef },
     { name: "Build", ref: buildRef },
     { name: "Build", ref: ecosystemRef }, // still considered part of Build
+    { name: "Performance", ref: performanceRef },
   ];
 
   useEffect(() => {
@@ -92,6 +96,10 @@ const Home: NextPage = () => {
         onModelsClick={createScrollHandler(modelFamilyRef)}
       />
       <ModelFamilySection ref={modelFamilyRef} />
+      <div ref={performanceRef}>
+        <PerformanceSection />
+        <BenchmarkTable />
+      </div>
       <SafetySection ref={safetyRef} />
       <DeveloperBuildSection ref={buildRef} />
       <DeveloperEcosystemSection ref={ecosystemRef} />

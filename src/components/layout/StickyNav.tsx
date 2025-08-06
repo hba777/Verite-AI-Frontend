@@ -7,6 +7,7 @@ interface StickyNavProps {
   onModelsClick?: () => void;
   onSafetyClick?: () => void;
   onBuildClick?: () => void;
+  onPerformanceClick?: () => void;
   className?: string;
 }
 
@@ -15,10 +16,12 @@ const StickyNav: React.FC<StickyNavProps> = ({
   onModelsClick,
   onBuildClick,
   onSafetyClick,
+  onPerformanceClick,
   className = "",
 }) => {
   const navItems = [
     { name: "Models", handler: onModelsClick },
+    { name: "Performance", handler: onPerformanceClick },
     { name: "Safety", handler: onSafetyClick },
     { name: "Build", handler: onBuildClick },
   ];
