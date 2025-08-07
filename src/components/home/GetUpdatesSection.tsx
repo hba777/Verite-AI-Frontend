@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const HandsOnSection = React.forwardRef<HTMLDivElement>((props, ref) => {
+const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
     <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4">
       <div className="container mx-auto text-center">
@@ -91,5 +91,5 @@ const HandsOnSection = React.forwardRef<HTMLDivElement>((props, ref) => {
   );
 });
 
-HandsOnSection.displayName = "HandsOnSection";
-export default HandsOnSection;
+GetUpdatesSection.displayName = "GetUpdatesSection";
+export default GetUpdatesSection;

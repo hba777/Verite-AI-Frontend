@@ -7,34 +7,40 @@ import ModelFamilySection from "@/components/home/ModelFamilySection";
 import ReasoningSection from "@/components/home/ReasoningSection";
 import React, { useState, useEffect, useRef } from "react";
 import StickyNav from "@/components/layout/StickyNav";
-import HandsOnSection from "@/components/home/HandsOnSection";
+import GetUpdatesSection from "@/components/home/GetUpdatesSection";
 import Footer from "@/components/layout/Footer";
 import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection";
 import DeveloperBuildSection from "@/components/home/DeveloperBuildSection";
 import SafetySection from "@/components/home/SafetySection";
 import PerformanceSection from "@/components/home/PerformanceSection";
 import BenchmarkTable from "@/components/home/BenchmarkTable";
+import HandsOn from "@/components/home/Hands-OnSection";
+import CardCarousel from "@/components/home/CardCarousel";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
   const [isFixedNavVisible, setFixedNavVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("Models");
+
   const router = useRouter();
 
+  // Refs
   const staticNavRef = useRef<HTMLDivElement>(null);
   const modelFamilyRef = useRef<HTMLDivElement>(null);
-  const handsOnRef = useRef<HTMLDivElement>(null);
+  const getUpdatesRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const ecosystemRef = useRef<HTMLDivElement>(null);
   const buildRef = useRef<HTMLDivElement>(null);
   const safetyRef = useRef<HTMLDivElement>(null);
   const performanceRef = useRef<HTMLDivElement>(null);
+  const handsOnRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = [
     { name: "Models", ref: modelFamilyRef },
+    { name: "Hands-on", ref: handsOnRef },
     { name: "Safety", ref: safetyRef },
     { name: "Build", ref: buildRef },
-    { name: "Build", ref: ecosystemRef }, // still considered part of Build
+    { name: "Build", ref: ecosystemRef },
     { name: "Performance", ref: performanceRef },
   ];
 
@@ -42,7 +48,7 @@ const Home: NextPage = () => {
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
-      // Header visibility logic
+      // 1. Header hide/show
       if (window.scrollY > lastScrollY && window.scrollY > 100) {
         setHeaderVisible(false);
       } else {
@@ -50,16 +56,14 @@ const Home: NextPage = () => {
       }
       lastScrollY = window.scrollY;
 
-      // Sticky nav anchor tracking
+      // 2. Show floating StickyNav only if static one is out of view
       if (staticNavRef.current) {
-        setFixedNavVisible(
-          staticNavRef.current.getBoundingClientRect().top < 0
-        );
+        const staticRect = staticNavRef.current.getBoundingClientRect();
+        setFixedNavVisible(staticRect.bottom < 0);
       }
 
-      // Track which tab is active
+      // 3. Active tab tracking
       let currentTab: string | null = null;
-
       for (const section of sectionRefs) {
         const rect = section.ref.current?.getBoundingClientRect();
         if (rect && rect.top <= 150 && rect.bottom >= 150) {
@@ -67,10 +71,7 @@ const Home: NextPage = () => {
           break;
         }
       }
-
-      // Update active tab and nav visibility
       setActiveTab(currentTab || "");
-      setFixedNavVisible(!!currentTab); // hide nav if no tab matches
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -89,13 +90,38 @@ const Home: NextPage = () => {
         <meta name="description" content="Our most intelligent AI models" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Header isVisible={isHeaderVisible} />
+
+      {/* Main Header */}
+      <div className="relative z-[1000]">
+        <Header isVisible={isHeaderVisible} />
+      </div>
+
+      {/* Floating StickyNav (appears only after ReasoningSection nav scrolls away) */}
+      {isFixedNavVisible && (
+        <StickyNav
+          activeTab={activeTab}
+          onModelsClick={createScrollHandler(modelFamilyRef)}
+          onHandsOnClick={createScrollHandler(handsOnRef)}
+          onPerformanceClick={createScrollHandler(performanceRef)}
+          onSafetyClick={createScrollHandler(safetyRef)}
+          onBuildClick={createScrollHandler(buildRef)}
+          className={`w-full transition-all duration-300 fixed left-0 right-0 ${
+            isHeaderVisible ? "top-[100px] z-[999]" : "top-5 z-[1000]"
+          }`}
+        />
+      )}
+
+      {/* Sections */}
       <HeroSection />
       <ReasoningSection
         navRef={staticNavRef}
         onModelsClick={createScrollHandler(modelFamilyRef)}
       />
       <ModelFamilySection ref={modelFamilyRef} />
+      <div ref={handsOnRef}>
+        <CardCarousel />
+        <HandsOn />
+      </div>
       <div ref={performanceRef}>
         <PerformanceSection />
         <BenchmarkTable />
@@ -103,18 +129,8 @@ const Home: NextPage = () => {
       <SafetySection ref={safetyRef} />
       <DeveloperBuildSection ref={buildRef} />
       <DeveloperEcosystemSection ref={ecosystemRef} />
-      <HandsOnSection ref={handsOnRef} />
+      <GetUpdatesSection ref={getUpdatesRef} />
       <Footer ref={footerRef} />
-
-      {isFixedNavVisible && (
-        <StickyNav
-          activeTab={activeTab}
-          onModelsClick={createScrollHandler(modelFamilyRef)}
-          onSafetyClick={createScrollHandler(safetyRef)}
-          onBuildClick={createScrollHandler(buildRef)}
-          className="fixed top-5 left-0 right-0 z-40 animate-in fade-in duration-300"
-        />
-      )}
 
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
         <button

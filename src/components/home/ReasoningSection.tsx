@@ -61,7 +61,7 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
       </div>
 
       <div ref={navRef} className="absolute bottom-10 left-0 right-0">
-        <StickyNav activeTab="Models" onModelsClick={onModelsClick} />
+        <StickyNav activeTab="" onModelsClick={onModelsClick} />
       </div>
     </section>
   );

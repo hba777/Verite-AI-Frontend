@@ -25,7 +25,7 @@ const Header = ({ isVisible }: { isVisible: boolean }) => {
   return (
     // The transition classes and conditional transform make the header slide in and out
     <header
-      className={`fixed inset-x-0 top-0 z-50 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${
+      className={`fixed inset-x-0 top-0 z-1000 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
