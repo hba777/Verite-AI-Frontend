@@ -21,6 +21,7 @@ const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
   const [isFixedNavVisible, setFixedNavVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("Models");
+  const [isAtTop, setIsAtTop] = useState(true);
 
   const router = useRouter();
 
@@ -72,6 +73,13 @@ const Home: NextPage = () => {
         }
       }
       setActiveTab(currentTab || "");
+
+      // 4. Track if at top (inside hero section) for header border toggle
+      if (window.scrollY > 100) {
+        setIsAtTop(false);
+      } else {
+        setIsAtTop(true);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -93,7 +101,7 @@ const Home: NextPage = () => {
 
       {/* Main Header */}
       <div className="relative z-[1000]">
-        <Header isVisible={isHeaderVisible} />
+        <Header isVisible={isHeaderVisible} isAtTop={isAtTop} />
       </div>
 
       {/* Floating StickyNav (appears only after ReasoningSection nav scrolls away) */}

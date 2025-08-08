@@ -1,5 +1,3 @@
-// src/components/layout/Header.tsx
-
 import React from "react";
 
 // Helper component for the arrow icon
@@ -20,8 +18,14 @@ const ArrowIcon = () => (
   </svg>
 );
 
-// Add isVisible to the props
-const Header = ({ isVisible }: { isVisible: boolean }) => {
+// Added isAtTop prop
+const Header = ({
+  isVisible,
+  isAtTop,
+}: {
+  isVisible: boolean;
+  isAtTop: boolean;
+}) => {
   return (
     <>
       {/* Load Google Sans font */}
@@ -35,9 +39,9 @@ const Header = ({ isVisible }: { isVisible: boolean }) => {
       ></link>
 
       <header
-        className={`fixed inset-x-0 top-0 z-1000 bg-black backdrop-blur-sm transition-transform duration-300 ${
+        className={`fixed inset-x-0 top-0 z-[1000] bg-black backdrop-blur-sm transition-transform duration-300 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        } ${isVisible && !isAtTop ? "border-b border-white/20" : ""}`}
       >
         <div className="w-full px-2 sm:px-4 lg:px-6">
           <nav className="flex h-14 items-center justify-between">
