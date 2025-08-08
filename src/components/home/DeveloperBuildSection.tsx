@@ -1,9 +1,21 @@
 // src/components/home/DeveloperBuildSection.tsx
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 
 const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
+  // Dynamically add Google Sans font link once on mount
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Google+Sans&display=swap";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
   return (
     <section
       ref={ref}
@@ -20,7 +32,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
 
         <div className="relative z-10 px-6 py-10 text-center max-w-3xl">
           <motion.p
-            className="text-sm uppercase tracking-wide text-gray-300 mb-4"
+            className="text-sm uppercase tracking-wide text-gray-300 mb-4 font-semibold"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -29,7 +41,8 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </motion.p>
 
           <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight mb-6"
+            className="text-2xl sm:text-3xl md:text-[2.5rem] font-medium leading-tight mb-6"
+            style={{ fontFamily: "'Google Sans', sans-serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -40,7 +53,25 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
 
           <motion.a
             href="#"
-            className="inline-flex items-center px-6 py-3 rounded-full bg-black text-white border border-blue-500 hover:bg-gray-200/10 transition-colors duration-200 font-medium"
+            className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
+            style={{
+              fontFamily: '"Google Sans", sans-serif',
+              backgroundImage:
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+              backgroundOrigin: "border-box",
+              backgroundClip: "padding-box, border-box",
+              border: "2px solid transparent",
+              transition:
+                "background-color 0.3s ease, background-image 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}

@@ -19,10 +19,10 @@ const models = [
 const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
     // Attach the ref to the root element of this section
-    <div ref={ref} className="bg-black text-white relative">
+    <div ref={ref} className="text-white relative">
       <section className="container mx-auto px-6 py-20 text-center">
-        <h2 className="text-5xl font-medium">Model family</h2>
-        <p className="mt-4 max-w-2xl mx-auto text-2xl text-gray-400">
+        <h2 className="text-5xl font-medium pb-5">Model family</h2>
+        <p className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5">
           Gemini 2.5 builds on the best of Gemini — with native multimodality
           and a long context window.
         </p>

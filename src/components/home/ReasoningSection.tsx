@@ -1,12 +1,16 @@
 // src/components/home/ReasoningSection.tsx
-
 import React from "react";
 import StickyNav from "../layout/StickyNav";
 import { motion, Variants } from "framer-motion";
 
 interface ReasoningSectionProps {
   navRef: React.RefObject<HTMLDivElement | null>;
+  activeTab: string;
   onModelsClick: () => void;
+  onHandsOnClick: () => void;
+  onPerformanceClick: () => void;
+  onSafetyClick: () => void;
+  onBuildClick: () => void;
 }
 
 const containerVariants: Variants = {
@@ -21,30 +25,25 @@ const containerVariants: Variants = {
   },
 };
 
-const wordVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4 },
-  },
-};
-
 const ReasoningSection: React.FC<ReasoningSectionProps> = ({
   navRef,
+  activeTab,
   onModelsClick,
+  onHandsOnClick,
+  onPerformanceClick,
+  onSafetyClick,
+  onBuildClick,
 }) => {
-  const paragraph =
-    "Gemini 2.5 models are capable of reasoning through their thoughts before responding, resulting in enhanced performance and improved accuracy.";
-
-  const words = paragraph.split(" ");
-
   return (
-    <section className="relative h-screen bg-black text-white flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[80vh] text-white flex items-center justify-center overflow-hidden">
       <div className="max-w-4xl px-6 text-center">
         <motion.h2
-          className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text break-words"
+          className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-clip-text break-words"
           style={{
+            backgroundImage:
+              "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+            WebkitBackgroundClip: "text", // Safari support
+            backgroundClip: "text",
             backgroundRepeat: "repeat",
             backgroundSize: "100% 1.2em", // height of one line
             lineHeight: "1.2em",
@@ -61,7 +60,14 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
       </div>
 
       <div ref={navRef} className="absolute bottom-10 left-0 right-0">
-        <StickyNav activeTab="" onModelsClick={onModelsClick} />
+        <StickyNav
+          activeTab={activeTab}
+          onModelsClick={onModelsClick}
+          onHandsOnClick={onHandsOnClick}
+          onPerformanceClick={onPerformanceClick}
+          onSafetyClick={onSafetyClick}
+          onBuildClick={onBuildClick}
+        />
       </div>
     </section>
   );

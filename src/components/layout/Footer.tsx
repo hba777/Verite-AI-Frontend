@@ -16,7 +16,7 @@ const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
       <div className="container mx-auto">
         {/* Top: Social Links */}
         <div className="flex flex-wrap items-center gap-6 border-b border-gray-800 pb-8">
-          <span className="text-white text-2xl font-bold">Follow us</span>
+          <span className="text-white text-lg font-medium">Follow us</span>
 
           <a
             href="#"
@@ -53,7 +53,7 @@ const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
         {/* Middle: Main Links Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-16 gap-y-10 py-12">
           {/* Column 1 */}
-          <div className="text-2xl font-bold text-white col-span-1">
+          <div className="text-3xl font-bold text-white col-span-1">
             Build AI responsibly to benefit humanity
           </div>
 
@@ -153,27 +153,28 @@ const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
 
           {/* Sign-up Form */}
           <div>
-            <p className="text-base font-normal">
+            <p className="text-base font-normal text-gray-400">
               Sign up for updates on our latest innovations
             </p>
 
-            <form className="mt-4">
-              <button
-                type="submit"
-                className="w-full text-left flex justify-between items-center rounded-full border border-gray-600 bg-gray-900/50 p-3 hover:border-gray-400"
-              >
-                Email address
-                <span>&gt;</span>
-              </button>
-            </form>
-
-            <p className="mt-4 text-sm text-gray-500">
+            <p className="mt-4 text-sm text-gray-400">
               I accept Google's Terms and Conditions and acknowledge that my
               information will be used in accordance with{" "}
               <a href="#" className="underline hover:text-gray-300">
                 Google's Privacy Policy.
               </a>
             </p>
+
+            <form className="mt-4">
+              <button
+                type="submit"
+                className="w-full text-left flex justify-between items-center rounded-full bg-[#141414] p-5 text-gray-400"
+              >
+                <span></span> {/* empty left spacer */}
+                <span className="pr-3 text-xl">&gt;</span>{" "}
+                {/* bigger and padded */}
+              </button>
+            </form>
           </div>
         </div>
 

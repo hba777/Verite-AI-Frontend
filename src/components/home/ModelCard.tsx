@@ -7,7 +7,7 @@ interface ModelCardProps {
 
 const ModelCard = ({ title, description }: ModelCardProps) => {
   return (
-    <div className="flex flex-col rounded-2xl border border-white/10 bg-[#0d0d0d] p-8 text-center transition-all duration-300 hover:border-blue-500 hover:shadow-lg max-w-sm mx-auto">
+    <div className="flex flex-col rounded-2xl border border-white/10 bg-[#141414] p-8 text-center transition-all duration-300 hover:border-blue-500 hover:shadow-lg max-w-sm mx-auto font-medium">
       <div className="mb-8 flex justify-center">
         <svg
           width="200"
@@ -75,7 +75,7 @@ const ModelCard = ({ title, description }: ModelCardProps) => {
       <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
         General Availability
       </p>
-      <h3 className="mt-3 text-3xl font-semibold">{title}</h3>
+      <h3 className="mt-3 text-2xl font-semibold">{title}</h3>
       <p className="mt-3 text-gray-400 flex-grow text-base">{description}</p>
       <a
         href="#"

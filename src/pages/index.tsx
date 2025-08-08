@@ -84,7 +84,7 @@ const Home: NextPage = () => {
     };
 
   return (
-    <div className="font-sans bg-black">
+    <div className="font-sans bg-[#060606]">
       <Head>
         <title>Gemini</title>
         <meta name="description" content="Our most intelligent AI models" />
@@ -115,7 +115,12 @@ const Home: NextPage = () => {
       <HeroSection />
       <ReasoningSection
         navRef={staticNavRef}
+        activeTab={activeTab}
         onModelsClick={createScrollHandler(modelFamilyRef)}
+        onHandsOnClick={createScrollHandler(handsOnRef)}
+        onPerformanceClick={createScrollHandler(performanceRef)}
+        onSafetyClick={createScrollHandler(safetyRef)}
+        onBuildClick={createScrollHandler(buildRef)}
       />
       <ModelFamilySection ref={modelFamilyRef} />
       <div ref={handsOnRef}>

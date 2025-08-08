@@ -122,15 +122,15 @@ const BenchmarkTable: React.FC = () => {
   ];
 
   return (
-    <div className="bg-black text-white p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-black text-white">
+    <div className="text-white p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 text-white">
         {/* Benchmarks Title */}
-        <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-center">
+        <h2 className="text-4xl sm:text-5xl font-medium mb-6 text-center pb-3">
           Benchmarks
         </h2>
 
         {/* Description Text */}
-        <p className="text-lg sm:text-2xl text-center max-w-2xl leading-relaxed text-gray-400">
+        <p className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5 text-center">
           In addition to its strong performance on academic benchmarks, Gemini
           2.5 tops the popular coding leaderboard WebDev Arena.
         </p>
@@ -212,7 +212,7 @@ const BenchmarkTable: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex flex-col items-start justify-center py-8 px-4 sm:px-6 lg:px-8 bg-black text-gray-400">
+        <div className="flex flex-col items-start justify-center py-8 px-4 sm:px-6 lg:px-8 text-gray-400">
           {/* Methodology Title */}
           <p className="text-xs sm:text-xs text-left mb-4 leading-snug uppercase tracking-wide">
             Methodology

@@ -8,16 +8,26 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
       <div className="container mx-auto text-center">
         {/* Top Part: Accessing Models */}
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-medium">
+          <h2 className="text-4xl sm:text-5xl font-medium pb-5">
             Accessing our latest AI models
           </h2>
-          <p className="mt-4 text-2xl text-gray-400">
+          <p className="mt-4 text-3xl text-gray-400 max-w-2xl text-center mx-auto">
             We want developers to gain access to our models as quickly as
             possible. We're making these available through Google AI Studio.
           </p>
           <a
             href="#"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 font-bold text-white transition-all duration-300 hover:brightness-110 shadow-md"
+            className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-white transition-all duration-300 shadow-md"
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.filter = "brightness(0.9)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.filter = "brightness(1)")
+            }
           >
             Sign in to Google AI Studio
             <svg
@@ -39,12 +49,18 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
       </div>
 
       {/* Bottom Part: Get Updates Form */}
-      <section className="flex justify-center items-center min-h-screen bg-black px-4">
-        <div className="w-full max-w-6xl bg-gradient-to-r from-[#d0e2ff] to-[#dfe3ff] rounded-[3rem] lg:rounded-[300px] px-8 py-20 sm:px-20 lg:px-60 sm:py-32 text-center">
+      <section className="flex justify-center items-center pt-20 bg-black px-4">
+        <div
+          className="w-full max-w-6xl rounded-[3rem] lg:rounded-[300px] px-8 py-20 sm:px-20 lg:px-60 sm:py-32 text-center"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, #d7e6ff 6.02%, #c7e4ff 51.92%, #dce2ff 96.44%)",
+          }}
+        >
           <h3 className="text-3xl sm:text-5xl font-medium text-black pb-4">
             Get the latest updates
           </h3>
-          <p className="mt-2 text-gray-700">
+          <p className="mt-2 text-gray-900">
             Sign up for news on the latest innovations from Google DeepMind.
           </p>
 
@@ -67,18 +83,28 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
               <input
                 type="email"
                 placeholder="Email address"
-                className="w-full rounded-full border border-black bg-transparent py-3 pl-11 pr-4 placeholder:text-black text-black focus:border-black focus:ring-black"
+                className="w-full rounded-lg border border-black bg-transparent py-3 pl-11 pr-4 placeholder:text-black text-black focus:border-black focus:ring-black"
               />
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-3 font-bold text-white transition-all duration-300 hover:brightness-110 shadow-md"
+              className="w-full sm:w-auto rounded-full px-8 py-3 font-bold text-white transition-all duration-300 shadow-md"
+              style={{
+                backgroundImage:
+                  "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.filter = "brightness(0.9)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.filter = "brightness(1)")
+              }
             >
               Sign up
             </button>
           </form>
 
-          <p className="mt-4 text-xs text-gray-600">
+          <p className="mt-4 text-xs text-gray-900">
             I accept Google's Terms and Conditions and acknowledge that my
             information will be used in accordance with{" "}
             <a href="#" className="underline text-black hover:text-gray-900">

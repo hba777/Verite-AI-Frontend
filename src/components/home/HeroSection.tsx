@@ -22,30 +22,85 @@ const ArrowIcon = () => (
 
 const HeroSection = () => {
   return (
-    <main className="relative flex h-screen items-center justify-center overflow-hidden bg-black text-center text-white bg-[radial-gradient(ellipse_at_40%_20%,rgba(15,32,67,0.6)_0%,#000_75%)]">
-      {/* Starfield Background Elements - These create the animated star background */}
+    <main
+      className="relative flex h-screen items-start justify-center overflow-hidden bg-black text-center text-white pt-60"
+      style={{
+        fontFamily: '"Google Sans", sans-serif',
+        backgroundImage: `
+      url('hero-bg.png'),
+      radial-gradient(ellipse at 40% 20%, rgba(15,32,67,0.6) 0%, #000 75%)
+    `,
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      {/* Starfield Background */}
       <div id="stars1" className="absolute inset-0"></div>
       <div id="stars2" className="absolute inset-0"></div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4">
-        <h1 className="mb-4 text-6xl font-medium tracking-tight md:text-8xl">
+        {/* Heading */}
+        <h1
+          className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3"
+          style={{ fontFamily: '"Google Sans", sans-serif' }}
+        >
           Gemini
         </h1>
-        <p className="mb-8 text-xl text-gray-300 md:text-2xl">
+
+        {/* Subheading */}
+        <p
+          className="mb-8 text-lg md:text-xl text-gray-300 font-extralight"
+          style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 200 }}
+        >
           Our most intelligent AI models
         </p>
+
         <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-          {/* Updated gradient to be bluer on the left and lighter on the right */}
+          {/* First Button */}
           <a
             href="#"
-            className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 py-3 px-8 font-bold text-white transition-opacity hover:opacity-90 sm:w-auto"
+            className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
+            style={{
+              fontFamily: '"Google Sans", sans-serif',
+              backgroundImage:
+                "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+              transition: "background-image 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(90deg, #345fe6, #2786e6 65%, #9ca6e6)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
           >
             Chat with Gemini <ArrowIcon />
           </a>
-          {/* Updated border to be blue */}
+
+          {/* Second Button with gradient border */}
           <a
             href="#"
-            className="flex w-full items-center justify-center rounded-full border border-blue-500 bg-gray-800/50 py-3 px-8 font-bold text-white transition-colors hover:bg-gray-700 sm:w-auto"
+            className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
+            style={{
+              fontFamily: '"Google Sans", sans-serif',
+              backgroundImage:
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+              backgroundOrigin: "border-box",
+              backgroundClip: "padding-box, border-box",
+              border: "2px solid transparent",
+              transition:
+                "background-color 0.3s ease, background-image 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
           >
             Build with Gemini <ArrowIcon />
           </a>

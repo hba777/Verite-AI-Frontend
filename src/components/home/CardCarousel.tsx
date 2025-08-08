@@ -79,7 +79,7 @@ const Card: React.FC<CardProps> = ({
             {title}
           </h2>
           <p
-            className="text-gray-400 text-sm md:text-base"
+            className="text-gray-400 text-base md:text-lg"
             style={{
               maxWidth: headingWidth ? `${headingWidth}px` : "100%",
             }}
@@ -194,13 +194,15 @@ const CardCarousel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-12 font-sans flex flex-col items-center justify-center overflow-hidden">
+    <div className="min-h-screen text-white p-6 md:p-12 font-sans flex flex-col items-center justify-center overflow-hidden">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Intro Section */}
-        <div className="bg-black text-white relative">
+        <div className="text-white relative">
           <section className="container mx-auto px-6 py-20 text-center">
-            <h2 className="text-5xl font-medium">Hands-on with Gemini 2.5</h2>
-            <p className="mt-4 max-w-2xl mx-auto text-2xl text-gray-400">
+            <h2 className="text-5xl font-medium pb-5">
+              Hands-on with Gemini 2.5
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto text-[1.75rem] text-gray-400 font-medium">
               See how Gemini 2.5 uses its reasoning capabilities to create
               interactive simulations and do advanced coding.
             </p>

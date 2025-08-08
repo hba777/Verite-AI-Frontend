@@ -9,7 +9,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
       <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4">
         <div className="container mx-auto text-center">
           <motion.h2
-            className="text-4xl sm:text-6xl font-medium mb-6"
+            className="text-4xl sm:text-5xl font-medium mb-6 pb-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
@@ -18,7 +18,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             Developer ecosystem
           </motion.h2>
           <motion.p
-            className="max-w-3xl mx-auto text-2xl text-gray-400 mb-16"
+            className="max-w-2xl mx-auto text-3xl text-gray-400 mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
@@ -31,7 +31,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
             {/* Google AI Studio Card */}
             <motion.div
-              className="relative min-h-[280px] rounded-2xl bg-[#0d0d0d] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
+              className="relative min-h-[280px] rounded-2xl bg-[#141414] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.4 }}
@@ -78,7 +78,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   </svg>
                 </div>
                 {/* Text Content */}
-                <div className="text-left sm:text-right w-full">
+                <div className="text-left w-full">
                   <h3 className="font-medium text-xl">Google AI Studio</h3>
                   <p className="text-base text-gray-400 mt-2">
                     Build with the latest models from Google DeepMind
@@ -105,7 +105,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
 
             {/* Gemini API Card */}
             <motion.div
-              className="relative min-h-[280px] rounded-2xl bg-[#0d0d0d] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
+              className="relative min-h-[280px] rounded-2xl bg-[#141414] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.6 }}
@@ -145,7 +145,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   </svg>
                 </div>
                 {/* Text Content */}
-                <div className="text-left sm:text-right w-full">
+                <div className="text-left w-full">
                   <h3 className="font-medium text-xl">Gemini API</h3>
                   <p className="text-base text-gray-400 mt-2">
                     Easily integrate Google’s most capable AI model to your apps

@@ -26,12 +26,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
 }) => (
-  <div className="bg-[#121316] rounded-2xl p-10 flex flex-col items-center text-center h-full border border-gray-700/50">
-    <div className="text-blue-400 mb-8 text-[48px]">{icon}</div>{" "}
+  <div className="bg-[#141414] rounded-2xl p-10 flex flex-col items-center text-center h-full border border-gray-700/50">
+    <div className="text-blue-400 mb-8 text-[48px] pb-7">{icon}</div>{" "}
     {/* Icon size increased */}
-    <h3 className="text-white font-semibold text-2xl mb-4">{title}</h3>{" "}
+    <h3 className="text-white font-semibold text-xl mb-4">{title}</h3>{" "}
     {/* Title size increased */}
-    <p className="text-gray-400 text-lg leading-relaxed">{description}</p>{" "}
+    <p className="text-gray-400 text-base leading-relaxed">
+      {description}
+    </p>{" "}
     {/* Description size increased */}
   </div>
 );
@@ -204,18 +206,18 @@ const HandsOn: React.FC = () => {
   ];
 
   return (
-    <div className="bg-black text-white min-h-screen py-16 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="text-white min-h-screen py-16 px-4 sm:px-6 lg:px-8 font-sans pt-30">
       <div className="max-w-7xl mx-auto">
         {/* Section 1: Adaptive and budgeted thinking */}
         <section className="text-center mb-24">
           <h2 className="text-4xl md:text-5xl font-medium mb-4 pb-12">
             Adaptive and budgeted thinking
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-2xl pb-12">
+          <p className="text-gray-400 max-w-xl mx-auto text-[1.75rem] font-medium pb-12">
             Adaptive controls and adjustable thinking budgets allow you to
             balance performance and cost.
           </p>
-          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24">
+          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24 ">
             {adaptiveFeatures.map((feature, index) => (
               <FeatureCard key={index} {...feature} />
             ))}
@@ -227,21 +229,56 @@ const HandsOn: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-medium mb-4 pb-12">
             Gemini 2.5 Deep Think
           </h2>
-          <p className="text-gray-400 max-w-3xl mx-auto text-2xl mb-8 pb-24">
+          <p className="text-gray-400 max-w-2xl mx-auto text-[1.75rem] mb-8 pb-24 font-medium">
             An enhanced reasoning mode that uses cutting edge research
             techniques in parallel thinking and reinforcement learning to
             significantly improve Gemini's ability to solve complex problems.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16 ">
+            {/* First Button (Try with Google AI Ultra) */}
             <a
               href="#"
-              className="flex w-full sm:w-auto items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 py-3 px-8 text-base font-bold text-white transition-opacity hover:opacity-90"
+              className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
+              style={{
+                fontFamily: '"Google Sans", sans-serif',
+                backgroundImage:
+                  "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+                transition: "background-image 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(90deg, #345fe6, #2786e6 65%, #9ca6e6)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+              }
             >
               Try with Google AI Ultra
             </a>
+
+            {/* Second Button (View model card) */}
             <a
               href="#"
-              className="flex w-full sm:w-auto items-center justify-center rounded-full border border-blue-500 bg-gray-800/50 py-3 px-8 text-base font-bold text-white transition-colors hover:bg-gray-700 gap-2"
+              className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white gap-2"
+              style={{
+                fontFamily: '"Google Sans", sans-serif',
+                backgroundImage:
+                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+                border: "2px solid transparent",
+                transition:
+                  "background-color 0.3s ease, background-image 0.3s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #9ca6e6)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+              }
             >
               View model card
               <svg
@@ -265,10 +302,14 @@ const HandsOn: React.FC = () => {
           <section className="flex items-center justify-center py-20">
             <div className="max-w-4xl px-6 text-center">
               <motion.h2
-                className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text break-words"
+                className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-clip-text break-words"
                 style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+                  WebkitBackgroundClip: "text", // Safari support
+                  backgroundClip: "text",
                   backgroundRepeat: "repeat",
-                  backgroundSize: "100% 1.2em",
+                  backgroundSize: "100% 1.2em", // height of one line
                   lineHeight: "1.2em",
                 }}
                 variants={containerVariants}
