@@ -83,7 +83,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
               <input
                 type="email"
                 placeholder="Email address"
-                className="w-full rounded-lg border border-black bg-transparent py-3 pl-11 pr-4 placeholder:text-black text-black focus:border-black focus:ring-black"
+                className="w-full rounded-lg border border-black bg-transparent py-3 pl-11 pr-4 text-black placeholder:text-black focus:border-black focus:outline-none autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_rgb(255,255,255,0)]"
               />
             </div>
             <button

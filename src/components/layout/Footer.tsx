@@ -165,15 +165,15 @@ const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
               </a>
             </p>
 
-            <form className="mt-4">
-              <button
-                type="submit"
-                className="w-full text-left flex justify-between items-center rounded-full bg-[#141414] p-5 text-gray-400"
-              >
-                <span></span> {/* empty left spacer */}
-                <span className="pr-3 text-xl">&gt;</span>{" "}
-                {/* bigger and padded */}
-              </button>
+            <form className="mt-4 relative">
+              <input
+                type="text"
+                placeholder="Email Address"
+                className="w-full rounded-full bg-[#141414] p-5 pr-10 text-gray-400 placeholder:text-gray-400 focus:outline-none"
+              />
+              <span className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 select-none">
+                &gt;
+              </span>
             </form>
           </div>
         </div>
