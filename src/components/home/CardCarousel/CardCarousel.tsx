@@ -93,7 +93,7 @@ const Card: React.FC<CardProps> = ({
 };
 
 const CardCarousel: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
   // --- States for drag functionality ---
@@ -154,11 +154,11 @@ const CardCarousel: React.FC = () => {
 
   // --- Navigation and Drag Handlers ---
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev === cardData.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === cardData.length - 1 ? prev : prev + 1));
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? cardData.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? 0 : prev - 1));
   };
 
   const goToSlide = (index: number) => setCurrentIndex(index);
@@ -174,7 +174,17 @@ const CardCarousel: React.FC = () => {
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
     const currentPosition = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const offset = currentPosition - startX;
+    let offset = currentPosition - startX;
+
+    // Clamp dragging beyond edges:
+    if (currentIndex === 0 && offset > 0) {
+      // Prevent dragging to right beyond first slide
+      offset = Math.min(offset, 50); // allow slight resistance
+    } else if (currentIndex === cardData.length - 1 && offset < 0) {
+      // Prevent dragging to left beyond last slide
+      offset = Math.max(offset, -50); // slight resistance left side
+    }
+
     setDragOffset(offset);
   };
 
@@ -194,15 +204,15 @@ const CardCarousel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-white p-6 md:p-12 font-sans flex flex-col items-center justify-center overflow-hidden">
+    <div className="min-h-screen text-white p-6 md:p-12 flex flex-col items-center justify-center overflow-hidden">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Intro Section */}
         <div className="text-white relative">
           <section className="container mx-auto px-6 py-20 text-center">
-            <h2 className="text-5xl font-medium pb-5">
+            <h2 className="text-5xl font-medium pb-7">
               Hands-on with Gemini 2.5
             </h2>
-            <p className="mt-4 max-w-xl mx-auto text-[1.75rem] text-gray-400 font-medium">
+            <p className="mt-4 max-w-xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5">
               See how Gemini 2.5 uses its reasoning capabilities to create
               interactive simulations and do advanced coding.
             </p>

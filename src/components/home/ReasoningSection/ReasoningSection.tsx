@@ -1,6 +1,6 @@
 // src/components/home/ReasoningSection.tsx
 import React from "react";
-import StickyNav from "../layout/StickyNav";
+import StickyNav from "../../layout/StickyNav/StickyNav";
 import { motion, Variants } from "framer-motion";
 
 interface ReasoningSectionProps {

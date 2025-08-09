@@ -206,7 +206,7 @@ const HandsOn: React.FC = () => {
   ];
 
   return (
-    <div className="text-white min-h-screen py-16 px-4 sm:px-6 lg:px-8 font-sans pt-30">
+    <div className="text-white min-h-screen py-16 px-4 sm:px-6 lg:px-8 pt-30">
       <div className="max-w-7xl mx-auto">
         {/* Section 1: Adaptive and budgeted thinking */}
         <section className="text-center mb-24">
@@ -240,7 +240,6 @@ const HandsOn: React.FC = () => {
               href="#"
               className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
               style={{
-                fontFamily: '"Google Sans", sans-serif',
                 backgroundImage:
                   "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
                 transition: "background-image 0.2s ease",
@@ -262,7 +261,6 @@ const HandsOn: React.FC = () => {
               href="#"
               className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white gap-2"
               style={{
-                fontFamily: '"Google Sans", sans-serif',
                 backgroundImage:
                   "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
                 backgroundOrigin: "border-box",

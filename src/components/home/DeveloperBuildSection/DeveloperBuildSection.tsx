@@ -4,17 +4,6 @@ import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 
 const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
-  // Dynamically add Google Sans font link once on mount
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Google+Sans&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, []);
 
   return (
     <section
@@ -41,8 +30,8 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </motion.p>
 
           <motion.h1
+
             className="text-2xl sm:text-3xl md:text-[2.5rem] font-medium leading-tight mb-6"
-            style={{ fontFamily: "'Google Sans', sans-serif" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -50,12 +39,11 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             Gemini’s advanced thinking, native multimodality and massive context
             window empowers developers to build next-generation experiences.
           </motion.h1>
-
           <motion.a
             href="#"
             className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
             style={{
-              fontFamily: '"Google Sans", sans-serif',
+
               backgroundImage:
                 "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
               backgroundOrigin: "border-box",

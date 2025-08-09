@@ -1,21 +1,21 @@
 import { useRouter } from "next/router";
 import type { NextPage } from "next";
 import Head from "next/head";
-import HeroSection from "@/components/home/HeroSection";
-import Header from "@/components/layout/Header";
-import ModelFamilySection from "@/components/home/ModelFamilySection";
-import ReasoningSection from "@/components/home/ReasoningSection";
+import HeroSection from "@/components/home/HeroSection/HeroSection";
+import Header from "@/components/layout/Header/Header";
+import ModelFamilySection from "@/components/home/ModelFamilySection/ModelFamilySection";
+import ReasoningSection from "@/components/home/ReasoningSection/ReasoningSection";
 import React, { useState, useEffect, useRef } from "react";
-import StickyNav from "@/components/layout/StickyNav";
-import GetUpdatesSection from "@/components/home/GetUpdatesSection";
-import Footer from "@/components/layout/Footer";
-import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection";
-import DeveloperBuildSection from "@/components/home/DeveloperBuildSection";
-import SafetySection from "@/components/home/SafetySection";
-import PerformanceSection from "@/components/home/PerformanceSection";
-import BenchmarkTable from "@/components/home/BenchmarkTable";
-import HandsOn from "@/components/home/Hands-OnSection";
-import CardCarousel from "@/components/home/CardCarousel";
+import StickyNav from "@/components/layout/StickyNav/StickyNav";
+import GetUpdatesSection from "@/components/home/GetUpdatesSection/GetUpdatesSection";
+import Footer from "@/components/layout/Footer/Footer";
+import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection/DeveloperEcosystemSection";
+import DeveloperBuildSection from "@/components/home/DeveloperBuildSection/DeveloperBuildSection";
+import SafetySection from "@/components/home/SafetySection/SafetySection";
+import PerformanceSection from "@/components/home/PerformanceSection/PerformanceSection";
+import BenchmarkTable from "@/components/home/BenchmarkTable/BenchmarkTable";
+import HandsOn from "@/components/home/Hands-OnSection/Hands-OnSection";
+import CardCarousel from "@/components/home/CardCarousel/CardCarousel";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);

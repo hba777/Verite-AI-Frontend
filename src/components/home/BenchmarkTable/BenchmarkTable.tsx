@@ -122,7 +122,7 @@ const BenchmarkTable: React.FC = () => {
   ];
 
   return (
-    <div className="text-white p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="text-white p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 text-white">
         {/* Benchmarks Title */}
         <h2 className="text-4xl sm:text-5xl font-medium mb-6 text-center pb-3">

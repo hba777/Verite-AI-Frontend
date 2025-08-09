@@ -25,7 +25,6 @@ const HeroSection = () => {
     <main
       className="relative flex h-screen items-start justify-center overflow-hidden bg-black text-center text-white pt-60"
       style={{
-        fontFamily: '"Google Sans", sans-serif',
         backgroundImage: `
       url('hero-bg.png'),
       radial-gradient(ellipse at 40% 20%, rgba(15,32,67,0.6) 0%, #000 75%)
@@ -43,7 +42,6 @@ const HeroSection = () => {
         {/* Heading */}
         <h1
           className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3"
-          style={{ fontFamily: '"Google Sans", sans-serif' }}
         >
           Gemini
         </h1>
@@ -51,7 +49,6 @@ const HeroSection = () => {
         {/* Subheading */}
         <p
           className="mb-8 text-lg md:text-xl text-gray-300 font-extralight"
-          style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 200 }}
         >
           Our most intelligent AI models
         </p>
@@ -62,7 +59,6 @@ const HeroSection = () => {
             href="#"
             className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
             style={{
-              fontFamily: '"Google Sans", sans-serif',
               backgroundImage:
                 "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
               transition: "background-image 0.2s ease",
@@ -84,7 +80,6 @@ const HeroSection = () => {
             href="#"
             className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
             style={{
-              fontFamily: '"Google Sans", sans-serif',
               backgroundImage:
                 "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
               backgroundOrigin: "border-box",
