@@ -1,6 +1,8 @@
 // src/components/home/HandsOnSection.tsx
 
 import React from "react";
+import { motion } from "framer-motion";
+import { LuSquareArrowOutUpRight } from "react-icons/lu";
 
 const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
@@ -8,14 +10,28 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
       <div className="container mx-auto text-center">
         {/* Top Part: Accessing Models */}
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-medium pb-5">
+          <motion.h2
+            className="text-4xl sm:text-5xl font-medium pb-5"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             Accessing our latest AI models
-          </h2>
-          <p className="mt-4 text-3xl text-gray-400 max-w-2xl text-center mx-auto">
+          </motion.h2>
+
+          <motion.p
+            className="mt-4 text-3xl text-gray-400 max-w-2xl text-center mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             We want developers to gain access to our models as quickly as
             possible. We're making these available through Google AI Studio.
-          </p>
-          <a
+          </motion.p>
+
+          <motion.a
             href="#"
             className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-white transition-all duration-300 shadow-md"
             style={{
@@ -28,23 +44,14 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             onMouseLeave={(e) =>
               (e.currentTarget.style.filter = "brightness(1)")
             }
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            viewport={{ once: false, amount: 0.4 }}
           >
             Sign in to Google AI Studio
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </a>
+            <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
+          </motion.a>
         </div>
       </div>
 

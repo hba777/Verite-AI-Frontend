@@ -34,9 +34,6 @@ const HeroSection = () => {
         backgroundSize: "cover",
       }}
     >
-      {/* Starfield Background */}
-      <div id="stars1" className="absolute inset-0"></div>
-      <div id="stars2" className="absolute inset-0"></div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4">
         {/* Heading */}

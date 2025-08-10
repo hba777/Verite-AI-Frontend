@@ -1,22 +1,51 @@
 import React from "react";
+import { RiGeminiFill } from "react-icons/ri";
+import { BiSquareRounded } from "react-icons/bi";
 
-// Helper component for the arrow icon
-const ArrowIcon = () => (
-  <svg
-    className="ml-2 h-4 w-4"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M9 5l7 7-7 7"
-    ></path>
-  </svg>
-);
+// Helper component for the icon
+interface CustomFeatureIconProps {
+  size?: number;
+  className?: string;
+}
+
+const CustomFeatureIcon: React.FC<CustomFeatureIconProps> = ({
+  size = 20,
+  className,
+}) => {
+  // Calculate the overlay size to be proportional to the base icon.
+  const overlaySize = size * 0.6;
+
+  return (
+    // 1. A container to position the icons relative to each other.
+    <span
+      style={{
+        position: "relative",
+        display: "inline-block",
+        width: size,
+        height: size,
+      }}
+      className={className}
+    >
+      {/* 2. The base square icon. */}
+      <BiSquareRounded
+        size={size}
+        className="text-gray-400"
+        style={{ position: "absolute" }}
+      />
+
+      {/* 3. The Gemini icon as the overlay. */}
+      <RiGeminiFill
+        size={overlaySize}
+        className="text-gray-400"
+        style={{
+          position: "absolute",
+          top: "-10%", // Adjust percentage for perfect corner placement
+          right: "-10%", // Adjust percentage for perfect corner placement
+        }}
+      />
+    </span>
+  );
+};
 
 // Added isAtTop prop
 const Header = ({
@@ -28,16 +57,6 @@ const Header = ({
 }) => {
   return (
     <>
-      {/* Load Google Sans font */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;450&display=swap"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap"
-        rel="stylesheet"
-      ></link>
-
       <header
         className={`fixed inset-x-0 top-0 z-[1000] bg-black backdrop-blur-sm transition-transform duration-300 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
@@ -47,14 +66,7 @@ const Header = ({
           <nav className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
               {/* Main heading - weight 400 */}
-              <a
-                href="#"
-                className="text-xl text-white px-10"
-                style={{
-                  fontFamily: '"Google Sans", sans-serif',
-                  fontWeight: 400,
-                }}
-              >
+              <a href="#" className="text-xl text-white px-10 font-normal">
                 Google DeepMind
               </a>
 
@@ -64,7 +76,7 @@ const Header = ({
                   <a
                     key={item}
                     href="#"
-                    className="text-gray-300 transition-colors hover:text-white font-extralight"
+                    className="text-gray-400 transition-colors hover:text-white font-extralight"
                     style={{
                       fontFamily: '"Poppins", sans-serif',
                     }}
@@ -79,28 +91,30 @@ const Header = ({
             <div className="flex items-center space-x-2">
               <a
                 href="#"
-                className="hidden items-center rounded-full text-white transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
+                className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
                   fontFamily: '"Poppins", sans-serif',
                 }}
               >
-                Build with Gemini <ArrowIcon />
+                <CustomFeatureIcon className="mr-2" />
+                Build with Gemini
               </a>
 
               <a
                 href="#"
-                className="hidden items-center rounded-full text-white transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
+                className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
                   fontFamily: '"Poppins", sans-serif',
                 }}
               >
-                Try Gemini <ArrowIcon />
+                <RiGeminiFill size={20} className="text-gray-400 mr-2" />
+                Try Gemini
               </a>
 
               <button
-                className="rounded-full p-2 text-white bg-[#191919] hover:bg-[#222323] transition-colors cursor-pointer font-extralight"
+                className="rounded-full p-2 text-gray-400 bg-[#191919] hover:bg-[#222323] transition-colors cursor-pointer font-extralight"
                 style={{
                   fontFamily: '"Poppins", sans-serif',
                 }}

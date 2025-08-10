@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
+import { LuSquareArrowOutUpRight } from "react-icons/lu";
 
 // A reusable interface for our feature card props
 interface FeatureCardProps {
@@ -210,14 +211,28 @@ const HandsOn: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Section 1: Adaptive and budgeted thinking */}
         <section className="text-center mb-24">
-          <h2 className="text-4xl md:text-5xl font-medium mb-4 pb-12">
+          <motion.h2
+            className="text-4xl md:text-5xl font-medium mb-4 pb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             Adaptive and budgeted thinking
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto text-[1.75rem] font-medium pb-12">
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-400 max-w-xl mx-auto text-[1.75rem] font-medium pb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             Adaptive controls and adjustable thinking budgets allow you to
             balance performance and cost.
-          </p>
-          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24 ">
+          </motion.p>
+
+          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24">
             {adaptiveFeatures.map((feature, index) => (
               <FeatureCard key={index} {...feature} />
             ))}
@@ -226,15 +241,35 @@ const HandsOn: React.FC = () => {
 
         {/* Section 2: Gemini 2.5 Deep Think */}
         <section className="text-center mb-24">
-          <h2 className="text-4xl md:text-5xl font-medium mb-4 pb-12">
+          <motion.h2
+            className="text-4xl md:text-5xl font-medium mb-4 pb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             Gemini 2.5 Deep Think
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-[1.75rem] mb-8 pb-24 font-medium">
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-400 max-w-2xl mx-auto text-[1.75rem] mb-8 pb-12 font-medium"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             An enhanced reasoning mode that uses cutting edge research
             techniques in parallel thinking and reinforcement learning to
             significantly improve Gemini's ability to solve complex problems.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16 ">
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            viewport={{ once: false, amount: 0.4 }}
+          >
             {/* First Button (Try with Google AI Ultra) */}
             <a
               href="#"
@@ -254,6 +289,7 @@ const HandsOn: React.FC = () => {
               }
             >
               Try with Google AI Ultra
+              <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
             </a>
 
             {/* Second Button (View model card) */}
@@ -279,23 +315,9 @@ const HandsOn: React.FC = () => {
               }
             >
               View model card
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
+              <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
             </a>
-          </div>
+          </motion.div>
 
           <section className="flex items-center justify-center py-20">
             <div className="max-w-4xl px-6 text-center">

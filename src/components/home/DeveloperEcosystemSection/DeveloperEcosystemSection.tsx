@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { LuSquareArrowOutUpRight } from "react-icons/lu";
 
 const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
   (props, ref) => {
@@ -34,7 +35,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
               className="relative min-h-[280px] rounded-2xl bg-[#141414] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.4 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               viewport={{ once: false, amount: 0.4 }}
             >
               <div className="flex flex-col sm:flex-row items-center gap-6 h-full">
@@ -86,20 +87,11 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
               </div>
               <div className="absolute bottom-4 right-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
+                <LuSquareArrowOutUpRight
+                  strokeWidth={3}
+                  className="ml-2"
+                  style={{ color: "#accbfa" }}
+                />
               </div>
             </motion.div>
 
@@ -108,7 +100,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
               className="relative min-h-[280px] rounded-2xl bg-[#141414] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.6 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               viewport={{ once: false, amount: 0.4 }}
             >
               <div className="flex flex-col sm:flex-row items-center gap-6 h-full">
@@ -153,20 +145,11 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
               </div>
               <div className="absolute bottom-4 right-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
+                <LuSquareArrowOutUpRight
+                  strokeWidth={3}
+                  className="ml-2"
+                  style={{ color: "#accbfa" }}
+                />
               </div>
             </motion.div>
           </div>

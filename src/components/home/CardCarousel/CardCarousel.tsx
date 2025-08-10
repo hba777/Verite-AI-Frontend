@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 // Card props - Removed unnecessary navigation functions
 interface CardProps {
@@ -27,46 +28,49 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Image Container - `relative` is needed for positioning the button */}
-      <div className="p-2 w-full transition-all duration-300 group relative">
-        <img
-          src={imageUrl}
-          alt={title}
-          className={`w-full h-[400px] md:h-[500px] object-cover rounded-lg border-2 transition-all duration-300 pointer-events-none border-transparent ${
-            isActive ? "group-hover:border-blue-500" : ""
-          }`}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.onerror = null;
-            target.src =
-              "https://placehold.co/600x400/333/FFF?text=Image+Not+Found";
-          }}
-        />
-
-        {/* START: Bottom Right Play Button */}
-        {isActive && (
-          <a
-            href="#"
-            onClick={(e) => {
-              // Prevent the click from triggering the carousel's drag handlers
-              e.stopPropagation();
+      {/* Image Container - relative required for positioning the button */}
+      <div className="p-2 w-[130%] sm:w-full transition-all duration-300 group relative">
+        {/* container uses responsive aspect ratios from the real site */}
+        <div className="relative w-full aspect-[311/345] md:aspect-[610/343] max-h-[500px] md:max-h-[600px]">
+          <img
+            src={imageUrl}
+            alt={title}
+            className={`absolute inset-0 w-full h-full object-cover rounded-[30px] border-2 transition-all duration-300 pointer-events-none border-transparent ${
+              isActive ? "group-hover:border-blue-500" : ""
+            }`}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src =
+                "https://placehold.co/600x400/333/FFF?text=Image+Not+Found";
             }}
-            // Tailwind classes to position the button at the bottom right and style it
-            className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/80 transition-all scale-100 hover:scale-110"
-            aria-label="Play"
-          >
-            {/* SVG for Play symbol */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 ml-0.5" /* Adjusted size and slight left margin for visual center */
-              viewBox="0 0 24 24"
-              fill="currentColor"
+          />
+
+          {/* START: Bottom Right Play Button */}
+          {isActive && (
+            <a
+              href="#"
+              onClick={(e) => {
+                // Prevent the click from triggering the carousel's drag handlers
+                e.stopPropagation();
+              }}
+              // same classes, still positioned absolutely inside the aspect box
+              className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/80 transition-all scale-100 hover:scale-110"
+              aria-label="Play"
             >
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </a>
-        )}
-        {/* END: Bottom Right Play Button */}
+              {/* SVG for Play symbol */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 ml-0.5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </a>
+          )}
+          {/* END: Bottom Right Play Button */}
+        </div>
       </div>
 
       {/* Text */}
@@ -119,8 +123,7 @@ const CardCarousel: React.FC = () => {
         'See how Gemini 2.5 Pro uses its reasoning capabilities to create an interactive animation of "cosmic fish" with a simple prompt.',
     },
     {
-      imageUrl:
-        "https://placehold.co/600x400/1a1a1a/FFFFFF?text=Creative+Design",
+      imageUrl: "/CarouselTest.png",
       title: "Explore Creative Designs",
       description:
         "Discover a new world of creative possibilities and bring your unique ideas to life with powerful design tools and inspiration.",
@@ -209,13 +212,26 @@ const CardCarousel: React.FC = () => {
         {/* Intro Section */}
         <div className="text-white relative">
           <section className="container mx-auto px-6 py-20 text-center">
-            <h2 className="text-5xl font-medium pb-7">
+            <motion.h2
+              className="text-5xl font-medium pb-7"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: false, amount: 0.4 }}
+            >
               Hands-on with Gemini 2.5
-            </h2>
-            <p className="mt-4 max-w-xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5">
+            </motion.h2>
+
+            <motion.p
+              className="mt-4 max-w-xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              viewport={{ once: false, amount: 0.4 }}
+            >
               See how Gemini 2.5 uses its reasoning capabilities to create
               interactive simulations and do advanced coding.
-            </p>
+            </motion.p>
           </section>
         </div>
         {/* Carousel Container */}
@@ -237,7 +253,7 @@ const CardCarousel: React.FC = () => {
             if (!isActive && isMobile) return null;
             if (absDistance > 1 && !isMobile) return null;
 
-            const translateX = isMobile ? 0 : distance * 90;
+            const translateX = isMobile ? 0 : distance * 105;
             const scale = isActive ? 1 : 0.92;
             const rotate = isActive
               ? ""
@@ -249,15 +265,16 @@ const CardCarousel: React.FC = () => {
             return (
               <div
                 key={index}
-                className={`absolute w-[90%] md:w-[65%] max-w-[1000px] ${rotate}`}
+                className={`absolute w-[83%] md:w-[min(56vw,850px)] max-w-[850px] ${rotate}`}
                 style={{
-                  transform: `translateX(calc(${translateX}% + ${dragOffset}px)) scale(${scale})`,
+                  transform: `translateX(calc(${translateX}% + ${dragOffset}px)) translateY(${
+                    isActive ? "0px" : "-70px"
+                  }) scaleY(${isActive ? 1 : 0.85})`,
                   opacity: isActive ? 1 : 0.7,
                   zIndex,
                   transition: isDragging ? "none" : "all 0.5s ease-out",
                 }}
               >
-                {/* Removed unnecessary props */}
                 <Card {...card} isActive={isActive} isMobile={isMobile} />
               </div>
             );
@@ -272,9 +289,15 @@ const CardCarousel: React.FC = () => {
               onClick={() => goToSlide(index)}
               className={`rounded-full cursor-pointer transition-all duration-500 ease-out h-3 ${
                 currentIndex === index
-                  ? "w-10 bg-gradient-to-r from-blue-500 to-cyan-500"
+                  ? "w-13"
                   : "w-3 bg-transparent border border-white"
               }`}
+              style={{
+                backgroundImage:
+                  currentIndex === index
+                    ? "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)"
+                    : undefined,
+              }}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}

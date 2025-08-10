@@ -8,7 +8,6 @@ import ReasoningSection from "@/components/home/ReasoningSection/ReasoningSectio
 import React, { useState, useEffect, useRef } from "react";
 import StickyNav from "@/components/layout/StickyNav/StickyNav";
 import GetUpdatesSection from "@/components/home/GetUpdatesSection/GetUpdatesSection";
-import Footer from "@/components/layout/Footer/Footer";
 import DeveloperEcosystemSection from "@/components/home/DeveloperEcosystemSection/DeveloperEcosystemSection";
 import DeveloperBuildSection from "@/components/home/DeveloperBuildSection/DeveloperBuildSection";
 import SafetySection from "@/components/home/SafetySection/SafetySection";
@@ -143,7 +142,6 @@ const Home: NextPage = () => {
       <DeveloperBuildSection ref={buildRef} />
       <DeveloperEcosystemSection ref={ecosystemRef} />
       <GetUpdatesSection ref={getUpdatesRef} />
-      <Footer ref={footerRef} />
 
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
         <button

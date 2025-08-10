@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 // Define the types for our data structure
 interface BenchmarkData {
@@ -125,15 +126,27 @@ const BenchmarkTable: React.FC = () => {
     <div className="text-white p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 text-white">
         {/* Benchmarks Title */}
-        <h2 className="text-4xl sm:text-5xl font-medium mb-6 text-center pb-3">
+        <motion.h2
+          className="text-4xl sm:text-5xl font-medium mb-6 text-center pb-3"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: false, amount: 0.4 }}
+        >
           Benchmarks
-        </h2>
+        </motion.h2>
 
         {/* Description Text */}
-        <p className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5 text-center">
+        <motion.p
+          className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          viewport={{ once: false, amount: 0.4 }}
+        >
           In addition to its strong performance on academic benchmarks, Gemini
           2.5 tops the popular coding leaderboard WebDev Arena.
-        </p>
+        </motion.p>
       </div>
       <div className="max-w-7xl mx-auto">
         <div className="overflow-x-auto">
