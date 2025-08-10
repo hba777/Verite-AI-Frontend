@@ -36,7 +36,7 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
 }) => {
   return (
     <section className="relative min-h-[80vh] text-white flex items-center justify-center overflow-hidden">
-      <div className="max-w-4xl px-6 text-center">
+      <div className="max-w-3xl px-6 text-center">
         <motion.h2
           className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-clip-text break-words"
           style={{
