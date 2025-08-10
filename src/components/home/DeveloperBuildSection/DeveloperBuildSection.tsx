@@ -1,10 +1,12 @@
 // src/components/home/DeveloperBuildSection.tsx
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 
 const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
+  const router = useRouter();
 
   return (
     <section
@@ -31,7 +33,6 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </motion.p>
 
           <motion.h1
-
             className="text-2xl sm:text-3xl md:text-[2.5rem] font-medium leading-tight mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -43,8 +44,10 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           <motion.a
             href="#"
             className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
+            onClick={() => {
+              router.push("/dashboard");
+            }}
             style={{
-
               backgroundImage:
                 "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
               backgroundOrigin: "border-box",
