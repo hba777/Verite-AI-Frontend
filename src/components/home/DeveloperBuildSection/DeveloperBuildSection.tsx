@@ -1,9 +1,11 @@
 // src/components/home/DeveloperBuildSection.tsx
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-
+import { useRouter } from "next/router";
 const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
+
+  const router = useRouter();
 
   return (
     <section
@@ -42,6 +44,9 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           <motion.a
             href="#"
             className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
+            onClick={() => {
+              router.push("/dashboard");
+            }}
             style={{
 
               backgroundImage:
