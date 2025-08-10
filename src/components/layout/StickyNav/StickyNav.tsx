@@ -76,7 +76,7 @@ const StickyNav: React.FC<StickyNavProps> = ({
     <div className={`w-full px-4 sm:px-0 ${className}`}>
       <nav
         ref={containerRef}
-        className="mx-auto max-w-fit sm:max-w-max flex items-center space-x-2 rounded-full bg-[#141414] p-1 backdrop-blur-sm border-white/10 overflow-x-auto sm:overflow-visible"
+        className=" px-3 mx-auto max-w-fit sm:max-w-max flex items-center space-x-2 rounded-full bg-[#141414] p-1 backdrop-blur-sm border-white/10 overflow-x-auto sm:overflow-visible"
       >
         <style jsx>{`
           nav::-webkit-scrollbar {
@@ -92,21 +92,15 @@ const StickyNav: React.FC<StickyNavProps> = ({
                 buttonRefs.current[item.name] = el;
               }}
               onClick={item.handler || (() => {})}
-              className={`rounded-full px-8 py-2.5 text-base font-medium flex-shrink-0 transition-colors duration-300 border border-transparent
-                ${
-                  isActive
-                    ? "text-white shadow-md"
-                    : "text-gray-300 hover:text-white hover:bg-[#222323] hover:border-white"
-                }`}
-              style={
-                isActive
-                  ? {
-                      background:
-                        "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-                    }
-                  : undefined
-              }
+              className={`relative group rounded-full px-6 flex-shrink-0 text-base transition-colors duration-300 border border-transparent cursor-pointer
+    ${
+      isActive
+        ? "text-white shadow-md font-semibold bg-gradient-to-r from-[#3b6bff] via-[#2e96ff] to-[#acb7ff]"
+        : "text-gray-400 hover:text-white"
+    } hover:border-white`}
+              style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
             >
+              {/* Remove inner span background since now gradient is on button directly */}
               {item.name}
             </button>
           );

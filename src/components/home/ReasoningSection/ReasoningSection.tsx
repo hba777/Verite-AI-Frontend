@@ -35,8 +35,8 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
   onBuildClick,
 }) => {
   return (
-    <section className="relative min-h-[80vh] text-white flex items-center justify-center overflow-hidden">
-      <div className="max-w-3xl px-6 text-center">
+    <section className="relative min-h-[80vh] text-white flex flex-col items-center justify-center overflow-hidden">
+      <div className="max-w-4xl px-6 text-center">
         <motion.h2
           className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-clip-text break-words"
           style={{
@@ -59,7 +59,7 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
         </motion.h2>
       </div>
 
-      <div ref={navRef} className="absolute bottom-10 left-0 right-0">
+      <div ref={navRef} className="mt-30">
         <StickyNav
           activeTab={activeTab}
           onModelsClick={onModelsClick}
