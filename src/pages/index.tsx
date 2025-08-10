@@ -56,11 +56,23 @@ const Home: NextPage = () => {
       }
       lastScrollY = window.scrollY;
 
-      // 2. Show floating StickyNav only if static one is out of view
+      // 2. Show floating StickyNav only if static one is out of view AND before ecosystem section ends
+      let shouldShow = false;
+
       if (staticNavRef.current) {
         const staticRect = staticNavRef.current.getBoundingClientRect();
-        setFixedNavVisible(staticRect.bottom < 0);
+        shouldShow = staticRect.bottom < 0;
       }
+
+      if (ecosystemRef.current) {
+        const ecosystemRect = ecosystemRef.current.getBoundingClientRect();
+        // Hide if we've scrolled past ecosystem section bottom
+        if (ecosystemRect.bottom <= 0) {
+          shouldShow = false;
+        }
+      }
+
+      setFixedNavVisible(shouldShow);
 
       // 3. Active tab tracking
       let currentTab: string | null = null;
@@ -74,11 +86,7 @@ const Home: NextPage = () => {
       setActiveTab(currentTab || "");
 
       // 4. Track if at top (inside hero section) for header border toggle
-      if (window.scrollY > 100) {
-        setIsAtTop(false);
-      } else {
-        setIsAtTop(true);
-      }
+      setIsAtTop(window.scrollY <= 100);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -142,7 +150,6 @@ const Home: NextPage = () => {
       <DeveloperBuildSection ref={buildRef} />
       <DeveloperEcosystemSection ref={ecosystemRef} />
       <GetUpdatesSection ref={getUpdatesRef} />
-
     </div>
   );
 };
