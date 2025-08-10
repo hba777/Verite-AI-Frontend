@@ -8,7 +8,7 @@ const Dashboard: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#181a20] text-white py-12">
+    <div className="min-h-screen flex flex-col items-center bg-[#181a20] text-white pt-20 pb-12">
       <div className="w-full flex flex-col gap-8">
         <VideoCard
           onVideoSelect={setVideoUrl}
