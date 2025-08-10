@@ -13,12 +13,13 @@ const openSans = Open_Sans({
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-
   return (
+    <main className={openSans.className}>
     <>
       {router.pathname !== "/" && <Header isVisible={true} isAtTop={false} />}
       <Component {...pageProps} />
       <Footer />
     </>
+    </main>
   );
 }
