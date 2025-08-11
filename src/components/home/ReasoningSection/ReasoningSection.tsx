@@ -59,7 +59,7 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
         </motion.h2>
       </div>
 
-      <div ref={navRef} className="mt-30">
+      <div ref={navRef} className="mt-30 w-full">
         <StickyNav
           activeTab={activeTab}
           onModelsClick={onModelsClick}
