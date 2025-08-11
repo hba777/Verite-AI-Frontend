@@ -74,39 +74,52 @@ const StickyNav: React.FC<StickyNavProps> = ({
 
   return (
     <div className={`w-full px-4 sm:px-0 ${className}`}>
-      <nav
-        ref={containerRef}
-        className=" px-3 mx-auto max-w-fit sm:max-w-max flex items-center space-x-2 rounded-full bg-[#141414] p-1 backdrop-blur-sm border-white/10 overflow-x-auto sm:overflow-visible"
-      >
-        <style jsx>{`
-          nav::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
-          }
-        `}</style>
-        {navItems.map((item) => {
-          const isActive = activeTab === item.name;
-          return (
-            <button
-              key={item.name}
-              ref={(el) => {
-                buttonRefs.current[item.name] = el;
-              }}
-              onClick={item.handler || (() => {})}
-              className={`relative group rounded-full px-6 flex-shrink-0 text-base transition-colors duration-300 border border-transparent cursor-pointer
-    ${
-      isActive
-        ? "text-white shadow-md font-semibold bg-gradient-to-r from-[#3b6bff] via-[#2e96ff] to-[#acb7ff]"
-        : "text-gray-400 hover:text-white"
-    } hover:border-white`}
-              style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
-            >
-              {/* Remove inner span background since now gradient is on button directly */}
-              {item.name}
-            </button>
-          );
-        })}
-      </nav>
-    </div>
+  <nav
+    ref={containerRef}
+    className="px-4 mx-auto max-w-fit sm:max-w-max flex items-center space-x-2 rounded-full bg-[#141414] p-1 backdrop-blur-sm border-white/10 overflow-x-auto sm:overflow-visible"
+  >
+    <style jsx>{`
+      nav::-webkit-scrollbar {
+        display: none;
+      }
+      nav {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      @media (max-width: 640px) {
+        nav {
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+        }
+        nav button {
+          scroll-snap-align: start;
+        }
+      }
+    `}</style>
+    {navItems.map((item) => {
+      const isActive = activeTab === item.name;
+      return (
+        <button
+          key={item.name}
+          ref={(el) => {
+            buttonRefs.current[item.name] = el;
+          }}
+          onClick={item.handler || (() => {})}
+          className={`relative group rounded-full px-6 flex-shrink-0 text-md transition-colors duration-300 border border-transparent cursor-pointer
+          ${
+            isActive
+              ? "text-white shadow-md font-semibold bg-gradient-to-r from-[#3b6bff] via-[#2e96ff] to-[#acb7ff]"
+              : "text-gray-400 hover:text-white"
+          } hover:border-white`}
+          style={{ paddingTop: "0.75rem", paddingBottom: "0.75rem" }}
+        >
+          {item.name}
+        </button>
+      );
+    })}
+  </nav>
+</div>
+
   );
 };
 
