@@ -79,13 +79,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
     }, 50);
   };
 
-  // Debug: Log currentTime changes
-  useEffect(() => {
-    if (currentTime !== undefined) {
-      console.log(`Timeline currentTime updated: ${currentTime}s`);
-    }
-  }, [currentTime]);
-
   useEffect(() => {
     if (
       hoverTime === null ||

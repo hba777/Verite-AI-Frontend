@@ -1,6 +1,9 @@
 import React from "react";
 import { RiGeminiFill } from "react-icons/ri";
 import { BiSquareRounded } from "react-icons/bi";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/router";
 
 // Helper component for the icon
 interface CustomFeatureIconProps {
@@ -55,6 +58,9 @@ const Header = ({
   isVisible: boolean;
   isAtTop: boolean;
 }) => {
+  const { user, logout } = useUser();
+  const router = useRouter();
+  const initial = ((user?.username || user?.email || "").charAt(0).toUpperCase()) || "U";
   return (
     <>
       <header
@@ -113,27 +119,34 @@ const Header = ({
                 Try Gemini
               </a>
 
-              <button
-                className="rounded-full p-2 text-gray-400 bg-[#191919] hover:bg-[#222323] transition-colors cursor-pointer font-extralight"
-                style={{
-                  fontFamily: '"Poppins", sans-serif',
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </button>
+              {user ? (
+                <div className="relative">
+                  <details className="group">
+                    <summary className="list-none cursor-pointer">
+                      <Avatar>
+                        {user?.profile_url ? (
+                          <AvatarImage src={user.profile_url} alt={user?.username || "User"} />
+                        ) : (
+                          <AvatarFallback className="bg-[#191919] text-gray-300">
+                            {initial}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                    </summary>
+                    <div className="absolute right-0 mt-2 w-44 rounded-lg border border-white/10 bg-black/90 text-white shadow-lg">
+                      <button
+                        onClick={async () => {
+                          await logout();
+                          router.back();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </details>
+                </div>
+              ) : null}
             </div>
           </nav>
         </div>

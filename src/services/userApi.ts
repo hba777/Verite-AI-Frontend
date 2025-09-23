@@ -17,6 +17,11 @@ export async function googleSignIn(id_token: string): Promise<TokenResponse> {
   return data;
 }
 
+export async function logoutUser(): Promise<{ message: string }> {
+  const { data } = await api.post("/auth/logout");
+  return data;
+}
+
 export type DecodedUser = {
   id: number;
   username: string | null;
