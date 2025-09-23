@@ -7,7 +7,6 @@ type LoginFormProps = {
   onAuthenticated?: (token: string) => void;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 function loadGoogleScript(): Promise<void> {
@@ -34,7 +33,38 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
 
   useEffect(() => {
     if (isOpen && GOOGLE_CLIENT_ID) {
-      loadGoogleScript().catch(() => {});
+      loadGoogleScript()
+        .then(() => {
+          const google = (window as any).google;
+          try {
+            google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: async (response: any) => {
+                if (!response?.credential) return;
+                try {
+                  await signInGoogleCtx(response.credential);
+                  handleAuthSuccess(localStorage.getItem("auth_token") || "");
+                } catch {}
+              },
+              ux_mode: "popup",
+              auto_select: false,
+            });
+            // Trigger One Tap automatically on open
+            google.accounts.id.prompt(() => {});
+            // Prepare a hidden Google button for explicit popup on our button click
+            const hidden = document.getElementById("google-btn-hidden");
+            if (hidden && hidden.childElementCount === 0) {
+              google.accounts.id.renderButton(hidden, {
+                type: "standard",
+                theme: "outline",
+                size: "large",
+                text: "continue_with",
+                shape: "pill",
+              });
+            }
+          } catch {}
+        })
+        .catch(() => {});
     }
   }, [isOpen]);
 
@@ -63,7 +93,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     } finally {
       setLoading(false);
     }
-  }, [API_BASE, email, password, handleAuthSuccess]);
+  }, []);
 
   const register = useCallback(async () => {
     setLoading(true);
@@ -75,7 +105,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
       setError(e.message || "Something went wrong");
       setLoading(false);
     }
-  }, [API_BASE, email, password, handleAuthSuccess]);
+  }, []);
 
   const signInWithGoogle = useCallback(async () => {
     setError(null);
@@ -86,33 +116,16 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     try {
       await loadGoogleScript();
       const google = (window as any).google;
-      await new Promise<void>((resolve, reject) => {
-        try {
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: async (response: any) => {
-              if (!response?.credential) {
-                setError("Google did not return a credential");
-                return reject(new Error("No credential"));
-              }
-              try {
-                await signInGoogleCtx(response.credential);
-                handleAuthSuccess(localStorage.getItem("auth_token") || "");
-                resolve();
-              } catch (err) {
-                reject(err);
-              }
-            },
-          });
-          google.accounts.id.prompt(() => {});
-        } catch (e) {
-          reject(e);
-        }
-      });
+      try { google.accounts.id.cancel(); } catch {}
+      try { google.accounts.id.disableAutoSelect(); } catch {}
+      // Trigger the official Google button (popup flow) programmatically
+      const hidden = document.getElementById("google-btn-hidden");
+      const btn = hidden?.querySelector('[role="button"]') as HTMLElement | null;
+      if (btn) btn.click();
     } catch (e: any) {
       setError(e.message || "Google sign-in failed");
     }
-  }, [API_BASE]);
+  }, []);
 
   const continueAsGuest = useCallback(async () => {
     guestCtx();
@@ -204,6 +217,8 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
               >
                 Continue as guest
               </button>
+              {/* Hidden Google button for invoking the standard popup */}
+              <div id="google-btn-hidden" style={{ position: "absolute", left: -9999, top: -9999 }} />
             </div>
           </div>
         </div>
