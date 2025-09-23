@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../../../context/UserContext";
-import Image from "next/image"
+import Image from "next/image";
+
 type LoginFormProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -24,12 +25,18 @@ function loadGoogleScript(): Promise<void> {
 }
 
 export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFormProps) {
-  const { login: loginCtx, register: registerCtx, signInWithGoogle: signInGoogleCtx, loginAsGuest: guestCtx } = useUser();
+  const { login: loginCtx, register: registerCtx, signInWithGoogle: signInGoogleCtx, loginAsGuest: guestCtx } =
+    useUser();
+
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Validation errors
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && GOOGLE_CLIENT_ID) {
@@ -49,9 +56,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
               ux_mode: "popup",
               auto_select: false,
             });
-            // Trigger One Tap automatically on open
             google.accounts.id.prompt(() => {});
-            // Prepare a hidden Google button for explicit popup on our button click
             const hidden = document.getElementById("google-btn-hidden");
             if (hidden && hidden.childElementCount === 0) {
               google.accounts.id.renderButton(hidden, {
@@ -73,18 +78,38 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     setError(null);
     setEmail("");
     setPassword("");
+    setEmailError(null);
+    setPasswordError(null);
     setMode("login");
     onClose();
   }, [loading, onClose]);
 
-  const handleAuthSuccess = useCallback((token: string) => {
-    onAuthenticated?.(token);
-    close();
-  }, [close, onAuthenticated]);
+  const handleAuthSuccess = useCallback(
+    (token: string) => {
+      onAuthenticated?.(token);
+      close();
+    },
+    [close, onAuthenticated]
+  );
+
+  // simple email validation
+  const validateEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
   const login = useCallback(async () => {
-    setLoading(true);
     setError(null);
+
+    // Client-side validation
+    if (!validateEmail(email)) {
+      setEmailError("Enter a valid email address");
+      return;
+    } else setEmailError(null);
+
+    if (password.length < 4) {
+      setPasswordError("Password must be at least 4 characters");
+      return;
+    } else setPasswordError(null);
+
+    setLoading(true);
     try {
       await loginCtx(email, password);
       handleAuthSuccess(localStorage.getItem("auth_token") || "");
@@ -93,19 +118,38 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [email, password, loginCtx, handleAuthSuccess]);
 
   const register = useCallback(async () => {
-    setLoading(true);
     setError(null);
+
+    // Client-side validation
+    if (!validateEmail(email)) {
+      setEmailError("Enter a valid email address");
+      return;
+    } else setEmailError(null);
+
+    if (password.length < 4) {
+      setPasswordError("Password must be at least 4 characters");
+      return;
+    } else setPasswordError(null);
+
+    setLoading(true);
     try {
+      console.log("Registering user:", { email, password });
       await registerCtx(email, email, password);
       handleAuthSuccess(localStorage.getItem("auth_token") || "");
     } catch (e: any) {
-      setError(e.message || "Something went wrong");
+      // Backend error handling
+      if (e?.response?.status === 400) {
+        setError("Email already exists. Please use another email.");
+      } else {
+        setError(e.message || "Something went wrong");
+      }
+    } finally {
       setLoading(false);
     }
-  }, []);
+  }, [email, password, registerCtx, handleAuthSuccess]);
 
   const signInWithGoogle = useCallback(async () => {
     setError(null);
@@ -116,9 +160,12 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     try {
       await loadGoogleScript();
       const google = (window as any).google;
-      try { google.accounts.id.cancel(); } catch {}
-      try { google.accounts.id.disableAutoSelect(); } catch {}
-      // Trigger the official Google button (popup flow) programmatically
+      try {
+        google.accounts.id.cancel();
+      } catch {}
+      try {
+        google.accounts.id.disableAutoSelect();
+      } catch {}
       const hidden = document.getElementById("google-btn-hidden");
       const btn = hidden?.querySelector('[role="button"]') as HTMLElement | null;
       if (btn) btn.click();
@@ -156,7 +203,9 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
                 Register
               </button>
             </div>
-            <button className="text-white/70 hover:text-white" onClick={close} aria-label="Close">✕</button>
+            <button className="text-white/70 hover:text-white" onClick={close} aria-label="Close">
+              ✕
+            </button>
           </div>
 
           <div className="px-6 py-5 space-y-4 text-left">
@@ -166,7 +215,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-1">
               <label className="block text-sm text-white/80">Email</label>
               <input
                 type="email"
@@ -176,8 +225,10 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
                 placeholder="you@example.com"
                 disabled={loading}
               />
+              {emailError && <p className="text-red-400 text-xs">{emailError}</p>}
             </div>
-            <div className="space-y-3">
+
+            <div className="space-y-1">
               <label className="block text-sm text-white/80">Password</label>
               <input
                 type="password"
@@ -187,6 +238,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
                 placeholder="••••••••"
                 disabled={loading}
               />
+              {passwordError && <p className="text-red-400 text-xs">{passwordError}</p>}
             </div>
 
             <button
@@ -208,7 +260,7 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
                 onClick={signInWithGoogle}
                 className="w-full rounded-full bg-white text-black flex items-center justify-center gap-2 py-2.5 hover:bg-white/90"
               >
-                <Image src={"/Google.png"} alt="g" width={20} height={20}/>
+                <Image src={"/Google.png"} alt="g" width={20} height={20} />
                 Sign in with Google
               </button>
               <button
@@ -217,7 +269,6 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
               >
                 Continue as guest
               </button>
-              {/* Hidden Google button for invoking the standard popup */}
               <div id="google-btn-hidden" style={{ position: "absolute", left: -9999, top: -9999 }} />
             </div>
           </div>
@@ -226,4 +277,3 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
     </div>
   );
 }
-
