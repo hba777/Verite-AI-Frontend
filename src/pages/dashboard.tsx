@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import VideoCard from "@/features/Dashboard/VideoCard/VideoCard";
 import VideoTimeline from "@/features/Dashboard/VideoTimeline/VideoTimeline";
 
@@ -9,14 +9,14 @@ const Dashboard: React.FC = () => {
   const [frames, setFrames] = useState<Array<{frameIndex: number, frameData: string, timestamp: number}>>([]);
   const [frameSelector, setFrameSelector] = useState<((frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) | null>(null);
 
-  const handleFramesReceived = (newFrames: Array<{frameIndex: number, frameData: string, timestamp: number}>, selector?: (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) => {
+  const handleFramesReceived = useCallback((newFrames: Array<{frameIndex: number, frameData: string, timestamp: number}>, selector?: (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) => {
     setFrames(newFrames);
     if (selector) {
       setFrameSelector(() => selector);
     }
-  };
+  }, []);
 
-  const handleFrameClick = (frame: {frameIndex: number, frameData: string, timestamp: number}) => {
+  const handleFrameClick = useCallback((frame: {frameIndex: number, frameData: string, timestamp: number}) => {
     // Jump to the timestamp in the video
     setCurrentTime(frame.timestamp);
     
@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
     if (frameSelector) {
       frameSelector(frame);
     }
-  };
+  }, [frameSelector]);
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#181a20] text-white pt-20 pb-12">

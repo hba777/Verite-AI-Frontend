@@ -167,7 +167,25 @@ export default function LoginForm({ isOpen, onClose, onAuthenticated }: LoginFor
         google.accounts.id.disableAutoSelect();
       } catch {}
       const hidden = document.getElementById("google-btn-hidden");
-      const btn = hidden?.querySelector('[role="button"]') as HTMLElement | null;
+      if (!hidden) {
+        setError("Google Sign-In unavailable. Please try again.");
+        return;
+      }
+
+      // Re-render the hidden Google button to reset internal state after popup close
+      try {
+        hidden.innerHTML = "";
+        google.accounts.id.renderButton(hidden, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "pill",
+        });
+      } catch {}
+
+      // Click the freshly rendered button to re-open the popup
+      const btn = hidden.querySelector('[role="button"]') as HTMLElement | null;
       if (btn) btn.click();
     } catch (e: any) {
       setError(e.message || "Google sign-in failed");
