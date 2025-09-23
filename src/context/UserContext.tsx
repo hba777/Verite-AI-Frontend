@@ -1,10 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { decodeJwt, googleSignIn, loginUser, registerUser, TokenResponse } from "../services/userApi";
+import { decodeJwt, googleSignIn, loginUser, registerUser, logoutUser } from "../services/userApi";
 
 type User = {
   id: number | null;
   username: string | null;
   role?: string | null;
+  profile_url?: string | null;
+  email?: string | null;
 };
 
 type UserContextType = {
@@ -30,7 +32,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         setTokenState(stored);
         const decoded = decodeJwt(stored);
-        setUser({ id: decoded?.id ?? null, username: decoded?.sub ?? null, role: decoded?.role ?? null });
+        setUser({ id: decoded?.id ?? null, username: decoded?.sub ?? null, role: decoded?.role ?? null, email: decoded?.email ?? null });
       }
     } catch {}
   }, []);
@@ -43,7 +45,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     if (t) {
       const decoded = decodeJwt(t);
-      setUser({ id: decoded?.id ?? null, username: decoded?.sub ?? null, role: decoded?.role ?? null });
+      setUser({ id: decoded?.id ?? null, username: decoded?.sub ?? null, role: decoded?.role ?? null, email: decoded?.email ?? null });
     } else {
       setUser(null);
     }
@@ -72,7 +74,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setToken(`${header}.${payload}.${signature}`);
   }, []);
 
-  const logout = useCallback(() => setToken(null), [setToken]);
+  const logout = useCallback(async () => {
+    try { await logoutUser(); } catch {}
+    try { localStorage.clear(); } catch {}
+    setToken(null);
+  }, [setToken]);
 
   const value = useMemo(() => ({ token, user, setToken, login, register, signInWithGoogle, loginAsGuest, logout }), [token, user, setToken, login, register, signInWithGoogle, loginAsGuest, logout]);
 
