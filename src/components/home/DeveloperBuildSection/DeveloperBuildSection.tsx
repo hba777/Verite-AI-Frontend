@@ -4,9 +4,21 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
+import dynamic from "next/dynamic";
+
+const LoginForm = dynamic(() => import("../LoginForm/LoginForm"), { ssr: false });
+
+function useDisclosure(initial = false) {
+  const [isOpen, setIsOpen] = React.useState(initial);
+  const open = React.useCallback(() => setIsOpen(true), []);
+  const close = React.useCallback(() => setIsOpen(false), []);
+  return { isOpen, open, close };
+}
 
 const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
   const router = useRouter();
+
+  const { isOpen, open, close } = useDisclosure(false);
 
   return (
     <section
@@ -20,7 +32,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           backgroundImage: `url('/gemini-bg.png')`,
         }}
       >
-        <div className="absolute inset-0 bg-black/50" />
+        <div className={`absolute inset-0 ${isOpen ? "bg-black/70" : "bg-black/50"}`} />
 
         <div className="relative z-10 px-6 py-10 text-center max-w-3xl">
           <motion.p
@@ -44,8 +56,9 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           <motion.a
             href="#"
             className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
-            onClick={() => {
-              router.push("/dashboard");
+            onClick={(e) => {
+              e.preventDefault();
+              open();
             }}
             style={{
               backgroundImage:
@@ -71,6 +84,20 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             Start building
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
+          {(
+            <LoginForm
+              isOpen={isOpen}
+              onClose={close}
+              onAuthenticated={(token) => {
+                try {
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("auth_token", token);
+                  }
+                } catch {}
+                router.push("/dashboard");
+              }}
+            />
+          )}
         </div>
       </div>
     </section>

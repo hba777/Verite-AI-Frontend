@@ -15,6 +15,7 @@ interface VideoCardProps {
   currentTime?: number;
   showImageCard?: boolean;
   onUploadProgress?: (progress: number) => void;
+  onFramesReceived?: (frames: Array<{frameIndex: number, frameData: string, timestamp: number}>, frameSelector?: (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) => void;
 }
 
 const VIDEO_WIDTH_WITH_IMAGE = 600;
@@ -29,6 +30,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   currentTime,
   showImageCard,
   onUploadProgress,
+  onFramesReceived,
 }) => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -38,15 +40,65 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const [taskId, setTaskId] = useState<string | null>(null);
   const [previewFrames, setPreviewFrames] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [framesData, setFramesData] = useState<Array<{frameIndex: number, frameData: string, timestamp: number}>>([]);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [processedFrames, setProcessedFrames] = useState<number>(0);
+  const [selectedFrame, setSelectedFrame] = useState<{frameIndex: number, frameData: string, timestamp: number} | null>(null);
 
   // Use controlled videoUrl if provided
   const url = controlledUrl !== undefined ? controlledUrl : videoUrl;
 
   useEffect(() => {
     if (currentTime !== undefined && videoRef.current && url) {
-      videoRef.current.currentTime = currentTime;
+      try {
+        // Check if video is ready to seek
+        if (videoRef.current.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+          videoRef.current.currentTime = currentTime;
+        } else {
+          // Wait for video to be ready
+          const handleCanPlay = () => {
+            if (videoRef.current) {
+              videoRef.current.currentTime = currentTime;
+              videoRef.current.removeEventListener('canplay', handleCanPlay);
+            }
+          };
+          videoRef.current.addEventListener('canplay', handleCanPlay);
+          
+          return () => {
+            if (videoRef.current) {
+              videoRef.current.removeEventListener('canplay', handleCanPlay);
+            }
+          };
+        }
+      } catch (error) {
+        console.error('Error seeking video:', error);
+      }
     }
   }, [currentTime, url]);
+
+  // Notify parent component when frames are received
+  useEffect(() => {
+    if (onFramesReceived && framesData.length > 0) {
+      onFramesReceived(framesData);
+    }
+  }, [framesData, onFramesReceived]);
+
+  // Handle frame selection from timeline
+  const handleFrameSelect = (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => {
+    setSelectedFrame(frame);
+  };
+
+  // Clear frame selection
+  const clearFrameSelection = () => {
+    setSelectedFrame(null);
+  };
+
+  // Expose frame selection handler to parent
+  useEffect(() => {
+    if (onFramesReceived) {
+      onFramesReceived(framesData, handleFrameSelect);
+    }
+  }, [framesData, onFramesReceived]);
 
   async function uploadVideoViaWebSocket(file: File) {
     try {
@@ -104,19 +156,43 @@ const VideoCard: React.FC<VideoCardProps> = ({
             setStatus("Processing video...");
             setUploadProgress(100); // Upload complete, now processing
             onUploadProgress?.(100);
-          } else if (event.data === "DONE") {
-            setStatus("Processing complete!");
-            // Next message will contain JSON result
+            setIsProcessing(true);
+            setProcessedFrames(0);
           } else {
-            // Try parsing JSON result (final message with preview frames)
-            const jsonData = JSON.parse(event.data);
-            console.log("Received JSON data:", jsonData);
-            if (jsonData.preview_frames) {
-              console.log("Preview frames received:", jsonData.preview_frames.length);
-              // Store preview frames in state
-              setPreviewFrames(jsonData.preview_frames);
-            } else {
-              console.log("No preview_frames in response");
+            // Try parsing JSON message
+            try {
+              const jsonData = JSON.parse(event.data);
+              console.log("Received JSON data:", jsonData);
+              
+              if (jsonData.type === "frame_ready") {
+                // Handle real-time frame update
+                const newFrame = {
+                  frameIndex: jsonData.frame_index,
+                  frameData: jsonData.frame_data,
+                  timestamp: jsonData.timestamp
+                };
+                setFramesData(prev => {
+                  const updated = [...prev];
+                  updated[jsonData.frame_index] = newFrame;
+                  return updated;
+                });
+                setProcessedFrames(prev => prev + 1);
+                console.log(`Frame ${jsonData.frame_index} received`);
+              } else if (jsonData.type === "processing_complete") {
+                setStatus("Processing complete!");
+                setIsProcessing(false);
+                console.log("Processing completed:", jsonData);
+              } else if (jsonData.type === "error") {
+                setStatus(`Error: ${jsonData.message}`);
+                setIsProcessing(false);
+                console.error("Processing error:", jsonData);
+              } else if (jsonData.preview_frames) {
+                // Legacy support for old format
+                console.log("Preview frames received:", jsonData.preview_frames.length);
+                setPreviewFrames(jsonData.preview_frames);
+              }
+            } catch (parseError) {
+              console.log("Non-JSON message:", event.data);
             }
           }
         } catch (err) {
@@ -214,7 +290,47 @@ const VideoCard: React.FC<VideoCardProps> = ({
         />
         {showImageCard && (
           <div className="ml-6 animate-slidein">
-            {previewFrames.length > 0 ? (
+            {selectedFrame ? (
+              // Show selected frame from timeline
+              <div 
+                className="rounded shadow-lg overflow-hidden"
+                style={{
+                  width: VIDEO_WIDTH_WITH_IMAGE,
+                  height: VIDEO_HEIGHT_WITH_IMAGE,
+                  background: "#000",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div className="text-white text-sm mb-2">Selected Frame</div>
+                <div className="relative">
+                  <img
+                    src={`data:image/jpeg;base64,${selectedFrame.frameData}`}
+                    alt={`Selected frame ${selectedFrame.frameIndex + 1}`}
+                    className="rounded border border-gray-600"
+                    style={{
+                      width: "400px",
+                      height: "300px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                    Frame {selectedFrame.frameIndex + 1}
+                  </div>
+                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    {selectedFrame.timestamp.toFixed(1)}s
+                  </div>
+                </div>
+                <button
+                  onClick={clearFrameSelection}
+                  className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md text-xs"
+                >
+                  Clear Selection
+                </button>
+              </div>
+            ) : previewFrames.length > 0 ? (
               <div 
                 className="rounded shadow-lg overflow-hidden"
                 style={{
@@ -244,20 +360,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
                   ))}
                 </div>
               </div>
-            ) : (
-              <img
-                src="/Peak.png"
-                alt="Card"
-                style={{
-                  width: VIDEO_WIDTH_WITH_IMAGE,
-                  height: VIDEO_HEIGHT_WITH_IMAGE,
-                  objectFit: "contain",
-                  display: "block",
-                }}
-              />
-            )}
+            ) : null}
           </div>
         )}
+        
         <style jsx>{`
           @keyframes slidein {
             from {
@@ -270,7 +376,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
             }
           }
         `}</style>
-        {status && <div className="mb-2 text-sm text-blue-400">{status}</div>}
       </div>
     );
   }
