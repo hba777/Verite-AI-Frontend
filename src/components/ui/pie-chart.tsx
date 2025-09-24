@@ -19,52 +19,35 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-export const description = "A donut chart with text"
-
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
+type ChartPieDonutTextProps = {
+  confidence: number // 0–100
+}
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
+  confidence: {
+    label: "Confidence",
     color: "var(--chart-1)",
   },
-  safari: {
-    label: "Safari",
+  remaining: {
+    label: "Remaining",
     color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
   },
 } satisfies ChartConfig
 
-export function ChartPieDonutText() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+export function ChartPieDonutText({ confidence }: ChartPieDonutTextProps) {
+  // Ensure confidence stays between 0–100
+  const safeConfidence = Math.max(0, Math.min(100, confidence))
+
+  const chartData = [
+    { name: "confidence", value: safeConfidence, fill: "var(--chart-1)" },
+    { name: "remaining", value: 100 - safeConfidence, fill: "var(--chart-2)" },
+  ]
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col bg-black/40 border border-white/10">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle className="text-white">Confidence</CardTitle>
+        <CardDescription>Model prediction certainty</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -78,10 +61,12 @@ export function ChartPieDonutText() {
             />
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              dataKey="value"
+              nameKey="name"
               innerRadius={60}
               strokeWidth={5}
+              startAngle={90}
+              endAngle={-270} // makes the donut start at top
             >
               <Label
                 content={({ viewBox }) => {
@@ -98,14 +83,14 @@ export function ChartPieDonutText() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {safeConfidence}%
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Confidence
                         </tspan>
                       </text>
                     )
@@ -117,11 +102,9 @@ export function ChartPieDonutText() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
+
         <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last 6 months
+          Showing model confidence as a percentage
         </div>
       </CardFooter>
     </Card>

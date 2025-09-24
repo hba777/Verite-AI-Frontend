@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { ProgressDemo } from "@/features/Dashboard/ProgressBar/ProgressBar";
+import DeepFakeSummary from "@/features/Dashboard/DeepFakeSummary/DeepFakeSummary";
 
 interface VideoTimelineProps {
   videoUrl: string | null;
@@ -53,6 +54,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
   // Use provided frames if available, else dummy
   const timelineFrames = useMemo(() => (frames && frames.length ? frames : dummyFrames), [frames, dummyFrames]);
   const retrievedFrames = useMemo(() => (frames && frames.length ? frames.slice(0, Math.min(8, frames.length)) : dummyFrames.slice(0, 8)), [frames, dummyFrames]);
+
 
   useEffect(() => {
     if (previewVideoRef.current && videoUrl) {
@@ -175,7 +177,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
           <div className="w-full max-w-3xl hide-scrollbar">
             <div
               ref={timelineScrollRef}
-              className="relative h-18 rounded border border-white/60 overflow-x-auto overflow-y-hidden cursor-pointer hide-scrollbar "
+              className="relative h-18 rounded border border-white/60 overflow-x-auto overflow-y-hidden cursor-pointer hide-scrollbar"
               onClick={handleTimelineClick}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
@@ -285,22 +287,15 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
             </div>
           )}
 
-          {/* Loading state for frames */}
-          {!frames || frames.length === 0 ? (
-            <div className="w-full max-w-4xl mb-6 text-center">
-              <div className="text-white text-sm opacity-60 mb-4">
-                🎥 Frames will appear here as they're processed...
-              </div>
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div>
-            </div>
-          ) : null}
-
           {/* Progress Bar */}
           <div className="w-full max-w-2xl flex justify-center items-center mt-2">
               <ProgressDemo uploadProgress={uploadProgress} />
           </div>
+
+          {/* Summary Section */}
+          {timelineFrames && timelineFrames.length > 0 && (
+            <DeepFakeSummary frames={timelineFrames as any} selectedFrameIndex={selectedFrameIndex} />
+          )}
         </>
       ) : (
         <div className="text-white text-center opacity-60">No video loaded</div>

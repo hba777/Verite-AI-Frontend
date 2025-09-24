@@ -18,7 +18,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-export const description = "An area chart with gradient fill"
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
@@ -42,9 +41,9 @@ const chartConfig = {
 
 export function ChartAreaGradient() {
   return (
-    <Card>
+    <Card className="flex flex-col bg-black/40 border border-white/10">
       <CardHeader>
-        <CardTitle>Area Chart - Gradient</CardTitle>
+        <CardTitle className="text-white">Area Chart - Gradient</CardTitle>
         <CardDescription>
           Showing total visitors for the last 6 months
         </CardDescription>
