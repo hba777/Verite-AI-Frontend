@@ -309,7 +309,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
                     return (
                       <div key={`rf-${frame.frameIndex}`} className="absolute" style={{ left: leftPx, top: 0 }}>
                         {/* Connector line */}
-                        <div className="w-px bg-white/50" style={{ height: Math.min(thumbHeight + 8, 64), marginLeft: thumbWidth / 2 }} />
+                        <div className="w-px bg-white/60" style={{ height: Math.min(thumbHeight + 8, 64), marginLeft: thumbWidth / 2 }} />
                         {/* Card */}
                         <div
                           className={`relative mt-2 overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer ${
