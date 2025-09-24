@@ -99,7 +99,7 @@ const Home: NextPage = () => {
     };
 
   return (
-    <div className="font-sans bg-[#060606]">
+    <div className="bg-[#060606]">
       <Head>
         <title>Gemini</title>
         <meta name="description" content="Our most intelligent AI models" />

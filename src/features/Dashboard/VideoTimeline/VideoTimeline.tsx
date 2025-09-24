@@ -22,10 +22,38 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
   const [previewPosition, setPreviewPosition] = useState<number | null>(null);
   const [selectedFrameIndex, setSelectedFrameIndex] = useState<number | null>(null);
 
-  // Dimensions for the scrollable filmstrip content
-  const THUMB_WIDTH = 80;
-  const THUMB_HEIGHT = 48;
-  const THUMB_GAP = 8;
+  // Responsive dimensions for the scrollable filmstrip content
+  const [thumbWidth, setThumbWidth] = useState(80);
+  const [thumbHeight, setThumbHeight] = useState(48);
+  const [thumbGap, setThumbGap] = useState(8);
+  const [framesOverflow, setFramesOverflow] = useState(false);
+
+  // Update thumbnail sizes based on viewport width
+  useEffect(() => {
+    const updateSizes = () => {
+      const w = window.innerWidth;
+      if (w < 480) {
+        setThumbWidth(56);
+        setThumbHeight(36);
+        setThumbGap(6);
+      } else if (w < 768) {
+        setThumbWidth(64);
+        setThumbHeight(40);
+        setThumbGap(6);
+      } else if (w < 1280) {
+        setThumbWidth(80);
+        setThumbHeight(48);
+        setThumbGap(8);
+      } else {
+        setThumbWidth(96);
+        setThumbHeight(56);
+        setThumbGap(10);
+      }
+    };
+    updateSizes();
+    window.addEventListener("resize", updateSizes);
+    return () => window.removeEventListener("resize", updateSizes);
+  }, []);
 
   // Provide dummy frames when none are passed so the UI can be tested
   const dummyFrames = useMemo(() => {
@@ -37,7 +65,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
       "/performance-bg.png",
       "/Safety-bg.png",
     ];
-    const count = 24;
+    const count = 24; // increased for overflow testing
     return Array.from({ length: count }).map((_, i) => {
       const timestamp = duration ? (i / count) * Math.max(duration, 1) : i * 1.0;
       return {
@@ -53,7 +81,21 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
 
   // Use provided frames if available, else dummy
   const timelineFrames = useMemo(() => (frames && frames.length ? frames : dummyFrames), [frames, dummyFrames]);
-  const retrievedFrames = useMemo(() => (frames && frames.length ? frames.slice(0, Math.min(8, frames.length)) : dummyFrames.slice(0, 8)), [frames, dummyFrames]);
+  const retrievedFrames = useMemo(() => (frames && frames.length ? frames.slice(0, Math.min(24, frames.length)) : dummyFrames.slice(0, 24)), [frames, dummyFrames]);
+
+  // Now that timelineFrames/dummyFrames exist, compute overflow
+  useEffect(() => {
+    const computeOverflow = () => {
+      const container = framesScrollRef.current;
+      if (!container) return;
+      const containerWidth = container.clientWidth;
+      const contentWidth = timelineFrames.length * (thumbWidth + thumbGap) + 24;
+      setFramesOverflow(contentWidth > containerWidth);
+    };
+    computeOverflow();
+    window.addEventListener("resize", computeOverflow);
+    return () => window.removeEventListener("resize", computeOverflow);
+  }, [timelineFrames.length, thumbWidth, thumbGap]);
 
 
   useEffect(() => {
@@ -114,6 +156,12 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
     setTimeout(() => {
       // This ensures the timeline progress bar updates smoothly
     }, 50);
+
+    // Smooth scroll to summary section
+    const el = document.getElementById("deepfake-summary");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   useEffect(() => {
@@ -174,17 +222,18 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
       {videoUrl ? (
         <>
           {/* Scrollable timeline filmstrip (fixed outer width) */}
-          <div className="w-full max-w-3xl hide-scrollbar">
+          <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
             <div
               ref={timelineScrollRef}
-              className="relative h-18 rounded border border-white/60 overflow-x-auto overflow-y-hidden cursor-pointer hide-scrollbar"
+              className="relative rounded border border-white/40 overflow-x-auto overflow-y-hidden cursor-pointer hide-scrollbar"
               onClick={handleTimelineClick}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              style={{ height: Math.max(thumbHeight + 24, 64) }}
             >
               <div
                 className="relative flex items-center"
-                style={{ width: timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24 }}
+                style={{ width: timelineFrames.length * (thumbWidth + thumbGap) + 24 }}
               >
                 <div className="flex items-center gap-2 px-3 py-2">
                   {timelineFrames.map((f) => (
@@ -192,7 +241,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
                       key={`strip-${f.frameIndex}`}
                       src={(f as any)._url ? (f as any)._url : `data:image/jpeg;base64,${f.frameData}`}
                       alt={`t-${f.frameIndex}`}
-                      style={{ width: THUMB_WIDTH, height: THUMB_HEIGHT, objectFit: "cover", borderRadius: 6 }}
+                      style={{ width: thumbWidth, height: thumbHeight, objectFit: "cover", borderRadius: 6, marginRight: thumbGap - 2 }}
                     />
                   ))}
                 </div>
@@ -227,32 +276,32 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
 
           {/* Retrieved frames directly below with connector lines (scroll-synced) */}
           {timelineFrames && timelineFrames.length > 0 && (
-            <div className="w-full max-w-3xl mb-6">
+            <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mb-6">
              
               <div
                 ref={framesScrollRef}
-                className="relative overflow-y-visible borde rounded"
-                style={{ height: 140 }}
+                className={`relative overflow-y-visible rounded ${framesOverflow ? 'overflow-x-auto hide-scrollbar' : 'overflow-x-hidden'}`}
+                style={{ height: Math.max(thumbHeight + 92, 120) }}
               >
                 <div
                   className="relative"
-                  style={{ width: timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24, height: "100%" }}
+                  style={{ width: timelineFrames.length * (thumbWidth + thumbGap) + 24, height: "100%" }}
                 >
                   {retrievedFrames.map((frame, index) => {
                     const leftPercent = duration ? (frame.timestamp / Math.max(duration, 1)) : (frame.frameIndex / Math.max(timelineFrames.length, 1));
-                    const contentWidth = timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24;
+                    const contentWidth = timelineFrames.length * (thumbWidth + thumbGap) + 24;
                     const leftPx = Math.max(12, leftPercent * contentWidth);
                     return (
                       <div key={`rf-${frame.frameIndex}`} className="absolute" style={{ left: leftPx, top: 0 }}>
                         {/* Connector line */}
-                        <div className="w-px bg-white/50" style={{ height: 56, marginLeft: THUMB_WIDTH / 2 }} />
+                        <div className="w-px bg-white/50" style={{ height: Math.min(thumbHeight + 8, 64), marginLeft: thumbWidth / 2 }} />
                         {/* Card */}
                         <div
-                          className={`relative mt-2 overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ${
+                          className={`relative mt-2 overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer ${
                             selectedFrameIndex === frame.frameIndex ? 'ring-2 ring-blue-400 shadow-blue-400/50' : ''
                           }`}
                           onClick={() => handleFrameClick(frame as any)}
-                          style={{ width: THUMB_WIDTH, height: THUMB_HEIGHT }}
+                          style={{ width: thumbWidth, height: thumbHeight }}
                         >
                           <img
                             src={(frame as any)._url ? (frame as any)._url : `data:image/jpeg;base64,${frame.frameData}`}

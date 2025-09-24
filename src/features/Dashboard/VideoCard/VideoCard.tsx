@@ -278,7 +278,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
           ref={videoRef}
           src={url}
           controls
-          className="rounded shadow-lg transition-all duration-500"
+          className="rounded shadow-lg transition-all duration-500 border border-white/40"
           style={{
             background: "#000",
             width: videoWidth,
@@ -288,94 +288,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
           }}
           onTimeUpdate={handleTimeUpdate}
         />
-        {showImageCard && (
-          <div className="ml-6 animate-slidein">
-            {selectedFrame ? (
-              // Show selected frame from timeline
-              <div 
-                className="rounded shadow-lg overflow-hidden"
-                style={{
-                  width: VIDEO_WIDTH_WITH_IMAGE,
-                  height: VIDEO_HEIGHT_WITH_IMAGE,
-                  background: "#000",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div className="text-white text-sm mb-2">Selected Frame</div>
-                <div className="relative">
-                  <img
-                    src={`data:image/jpeg;base64,${selectedFrame.frameData}`}
-                    alt={`Selected frame ${selectedFrame.frameIndex + 1}`}
-                    className="rounded border border-gray-600"
-                    style={{
-                      width: "400px",
-                      height: "300px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    Frame {selectedFrame.frameIndex + 1}
-                  </div>
-                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    {selectedFrame.timestamp.toFixed(1)}s
-                  </div>
-                </div>
-                <button
-                  onClick={clearFrameSelection}
-                  className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md text-xs"
-                >
-                  Clear Selection
-                </button>
-              </div>
-            ) : previewFrames.length > 0 ? (
-              <div 
-                className="rounded shadow-lg overflow-hidden"
-                style={{
-                  width: VIDEO_WIDTH_WITH_IMAGE,
-                  height: VIDEO_HEIGHT_WITH_IMAGE,
-                  background: "#000",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div className="text-white text-sm mb-2">Detection Results</div>
-                <div className="flex flex-wrap gap-2 justify-center max-h-[300px] overflow-y-auto p-2">
-                  {previewFrames.map((frame, index) => (
-                    <img
-                      key={index}
-                      src={`data:image/jpeg;base64,${frame}`}
-                      alt={`Detection frame ${index + 1}`}
-                      className="rounded border border-gray-600"
-                      style={{
-                        width: "120px",
-                        height: "90px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        )}
-        
-        <style jsx>{`
-          @keyframes slidein {
-            from {
-              opacity: 0;
-              transform: translateX(40px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-        `}</style>
+      
       </div>
     );
   }

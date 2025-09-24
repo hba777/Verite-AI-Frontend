@@ -23,7 +23,7 @@
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  --chart-1: #3B82F6;  /* bright blue */
+  --chart-1: #3169e6;  /* bright blue */
   --chart-2: #222323;  /* medium blue */
   --chart-3: oklch(0.55 0.15 240);  /* darker blue */
   --chart-4: oklch(0.48 0.12 235);  /* deep navy blue */
@@ -111,7 +111,7 @@ body {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
-  --chart-1: #3B82F6;  /* bright blue */
+  --chart-1: #3169e6;  /* bright blue */
   --chart-2: oklch(0.62 0.18 250);  /* medium blue */
   --chart-3: oklch(0.55 0.15 240);  /* darker blue */
   --chart-4: oklch(0.48 0.12 235);  /* deep navy blue */
