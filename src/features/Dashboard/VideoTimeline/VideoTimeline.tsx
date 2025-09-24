@@ -16,6 +16,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const timelineScrollRef = useRef<HTMLDivElement>(null);
   const framesScrollRef = useRef<HTMLDivElement>(null);
+  const framesContentRef = useRef<HTMLDivElement>(null);
 
   const [duration, setDuration] = useState(0);
   const [hoverTime, setHoverTime] = useState<number | null>(null);
@@ -83,19 +84,32 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
   const timelineFrames = useMemo(() => (frames && frames.length ? frames : dummyFrames), [frames, dummyFrames]);
   const retrievedFrames = useMemo(() => (frames && frames.length ? frames.slice(0, Math.min(24, frames.length)) : dummyFrames.slice(0, 24)), [frames, dummyFrames]);
 
-  // Now that timelineFrames/dummyFrames exist, compute overflow
+  // Now that timelineFrames/dummyFrames exist, compute overflow robustly
   useEffect(() => {
     const computeOverflow = () => {
       const container = framesScrollRef.current;
       if (!container) return;
-      const containerWidth = container.clientWidth;
-      const contentWidth = timelineFrames.length * (thumbWidth + thumbGap) + 24;
-      setFramesOverflow(contentWidth > containerWidth);
+      // Compare actual scroll width vs client width to decide overflow
+      const isOverflowing = container.scrollWidth > container.clientWidth;
+      setFramesOverflow(isOverflowing);
     };
-    computeOverflow();
+
+    // Run after layout paint to ensure measurements are correct
+    const raf = requestAnimationFrame(computeOverflow);
+
+    // Observe size changes on container and content
+    const ro = new ResizeObserver(() => computeOverflow());
+    if (framesScrollRef.current) ro.observe(framesScrollRef.current);
+    if (framesContentRef.current) ro.observe(framesContentRef.current);
+
     window.addEventListener("resize", computeOverflow);
-    return () => window.removeEventListener("resize", computeOverflow);
-  }, [timelineFrames.length, thumbWidth, thumbGap]);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", computeOverflow);
+    };
+  }, [timelineFrames.length, thumbWidth, thumbGap, videoUrl]);
 
 
   useEffect(() => {
@@ -284,6 +298,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
                 style={{ height: Math.max(thumbHeight + 92, 120) }}
               >
                 <div
+                  ref={framesContentRef}
                   className="relative"
                   style={{ width: timelineFrames.length * (thumbWidth + thumbGap) + 24, height: "100%" }}
                 >
