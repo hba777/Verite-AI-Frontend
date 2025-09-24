@@ -101,118 +101,118 @@ const VideoCard: React.FC<VideoCardProps> = ({
   }, [framesData, onFramesReceived]);
 
   async function uploadVideoViaWebSocket(file: File) {
-    try {
-      setUploadProgress(0);
-      // 1. Start task via HTTP POST
-      const res = await fetch("http://localhost:8000/video/start-task", {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Failed to start task");
-      const data = await res.json();
-      const tid = data.task_id;
-      console.log("Task ID:", tid);
-      setTaskId(tid);
+    // try {
+    //   setUploadProgress(0);
+    //   // 1. Start task via HTTP POST
+    //   const res = await fetch("http://localhost:8000/video/start-task", {
+    //     method: "POST",
+    //   });
+    //   if (!res.ok) throw new Error("Failed to start task");
+    //   const data = await res.json();
+    //   const tid = data.task_id;
+    //   console.log("Task ID:", tid);
+    //   setTaskId(tid);
 
-      // 2. Open WebSocket
-      const ws = new WebSocket("ws://localhost:8000/ws/task");
-      ws.binaryType = "arraybuffer";
+    //   // 2. Open WebSocket
+    //   const ws = new WebSocket("ws://localhost:8000/ws/task");
+    //   ws.binaryType = "arraybuffer";
 
-      ws.onopen = () => {
-        // Send task_id first to subscribe
-        ws.send(tid);
-      };
+    //   ws.onopen = () => {
+    //     // Send task_id first to subscribe
+    //     ws.send(tid);
+    //   };
 
-      ws.onmessage = (event) => {
-        try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
-          if (event.data === "SEND_VIDEO") {
-            // Start sending file chunks
-            const chunkSize = 64 * 1024; // 64 KB
-            let offset = 0;
-            function sendNext() {
-              const slice = file.slice(offset, offset + chunkSize);
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                if (e.target?.result) {
-                  ws.send(e.target.result as ArrayBuffer);
-                  offset += chunkSize;
-                  // Update progress
-                  const progress = Math.min((offset / file.size) * 100, 100);
-                  setUploadProgress(progress);
-                  onUploadProgress?.(progress);
-                  if (offset < file.size) {
-                    sendNext();
-                  } else {
-                    ws.send("END");
-                    setUploadProgress(100);
-                    onUploadProgress?.(100);
-                  }
-                }
-              };
-              reader.readAsArrayBuffer(slice);
-            }
-            sendNext();
-          } else if (event.data === "Processing...") {
-            setStatus("Processing video...");
-            setUploadProgress(100); // Upload complete, now processing
-            onUploadProgress?.(100);
-            setIsProcessing(true);
-            setProcessedFrames(0);
-          } else {
-            // Try parsing JSON message
-            try {
-              const jsonData = JSON.parse(event.data);
-              console.log("Received JSON data:", jsonData);
+    //   ws.onmessage = (event) => {
+    //     try {
+    //       // Handle control messages (SEND_VIDEO, Processing, DONE)
+    //       if (event.data === "SEND_VIDEO") {
+    //         // Start sending file chunks
+    //         const chunkSize = 64 * 1024; // 64 KB
+    //         let offset = 0;
+    //         function sendNext() {
+    //           const slice = file.slice(offset, offset + chunkSize);
+    //           const reader = new FileReader();
+    //           reader.onload = (e) => {
+    //             if (e.target?.result) {
+    //               ws.send(e.target.result as ArrayBuffer);
+    //               offset += chunkSize;
+    //               // Update progress
+    //               const progress = Math.min((offset / file.size) * 100, 100);
+    //               setUploadProgress(progress);
+    //               onUploadProgress?.(progress);
+    //               if (offset < file.size) {
+    //                 sendNext();
+    //               } else {
+    //                 ws.send("END");
+    //                 setUploadProgress(100);
+    //                 onUploadProgress?.(100);
+    //               }
+    //             }
+    //           };
+    //           reader.readAsArrayBuffer(slice);
+    //         }
+    //         sendNext();
+    //       } else if (event.data === "Processing...") {
+    //         setStatus("Processing video...");
+    //         setUploadProgress(100); // Upload complete, now processing
+    //         onUploadProgress?.(100);
+    //         setIsProcessing(true);
+    //         setProcessedFrames(0);
+    //       } else {
+    //         // Try parsing JSON message
+    //         try {
+    //           const jsonData = JSON.parse(event.data);
+    //           console.log("Received JSON data:", jsonData);
               
-              if (jsonData.type === "frame_ready") {
-                // Handle real-time frame update
-                const newFrame = {
-                  frameIndex: jsonData.frame_index,
-                  frameData: jsonData.frame_data,
-                  timestamp: jsonData.timestamp
-                };
-                setFramesData(prev => {
-                  const updated = [...prev];
-                  updated[jsonData.frame_index] = newFrame;
-                  return updated;
-                });
-                setProcessedFrames(prev => prev + 1);
-                console.log(`Frame ${jsonData.frame_index} received`);
-              } else if (jsonData.type === "processing_complete") {
-                setStatus("Processing complete!");
-                setIsProcessing(false);
-                console.log("Processing completed:", jsonData);
-              } else if (jsonData.type === "error") {
-                setStatus(`Error: ${jsonData.message}`);
-                setIsProcessing(false);
-                console.error("Processing error:", jsonData);
-              } else if (jsonData.preview_frames) {
-                // Legacy support for old format
-                console.log("Preview frames received:", jsonData.preview_frames.length);
-                setPreviewFrames(jsonData.preview_frames);
-              }
-            } catch (parseError) {
-              console.log("Non-JSON message:", event.data);
-            }
-          }
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
-        }
-      };
+    //           if (jsonData.type === "frame_ready") {
+    //             // Handle real-time frame update
+    //             const newFrame = {
+    //               frameIndex: jsonData.frame_index,
+    //               frameData: jsonData.frame_data,
+    //               timestamp: jsonData.timestamp
+    //             };
+    //             setFramesData(prev => {
+    //               const updated = [...prev];
+    //               updated[jsonData.frame_index] = newFrame;
+    //               return updated;
+    //             });
+    //             setProcessedFrames(prev => prev + 1);
+    //             console.log(`Frame ${jsonData.frame_index} received`);
+    //           } else if (jsonData.type === "processing_complete") {
+    //             setStatus("Processing complete!");
+    //             setIsProcessing(false);
+    //             console.log("Processing completed:", jsonData);
+    //           } else if (jsonData.type === "error") {
+    //             setStatus(`Error: ${jsonData.message}`);
+    //             setIsProcessing(false);
+    //             console.error("Processing error:", jsonData);
+    //           } else if (jsonData.preview_frames) {
+    //             // Legacy support for old format
+    //             console.log("Preview frames received:", jsonData.preview_frames.length);
+    //             setPreviewFrames(jsonData.preview_frames);
+    //           }
+    //         } catch (parseError) {
+    //           console.log("Non-JSON message:", event.data);
+    //         }
+    //       }
+    //     } catch (err) {
+    //       console.error("Error parsing WebSocket message:", err);
+    //     }
+    //   };
 
-      ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        setStatus("WebSocket error");
-      };
+    //   ws.onerror = (err) => {
+    //     console.error("WebSocket error:", err);
+    //     setStatus("WebSocket error");
+    //   };
 
-      ws.onclose = () => {
-        console.log("WebSocket closed");
-        setStatus("Upload finished");
-      };
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setStatus("Failed to start upload");
-    }
+    //   ws.onclose = () => {
+    //     console.log("WebSocket closed");
+    //     setStatus("Upload finished");
+    //   };
+    // } catch (error) {
+    //   console.error("Upload failed:", error);
+    //   setStatus("Failed to start upload");
+    // }
   }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -278,7 +278,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
           ref={videoRef}
           src={url}
           controls
-          className="rounded shadow-lg transition-all duration-500"
+          className="rounded shadow-lg transition-all duration-500 border border-white/40"
           style={{
             background: "#000",
             width: videoWidth,
@@ -288,94 +288,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
           }}
           onTimeUpdate={handleTimeUpdate}
         />
-        {showImageCard && (
-          <div className="ml-6 animate-slidein">
-            {selectedFrame ? (
-              // Show selected frame from timeline
-              <div 
-                className="rounded shadow-lg overflow-hidden"
-                style={{
-                  width: VIDEO_WIDTH_WITH_IMAGE,
-                  height: VIDEO_HEIGHT_WITH_IMAGE,
-                  background: "#000",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div className="text-white text-sm mb-2">Selected Frame</div>
-                <div className="relative">
-                  <img
-                    src={`data:image/jpeg;base64,${selectedFrame.frameData}`}
-                    alt={`Selected frame ${selectedFrame.frameIndex + 1}`}
-                    className="rounded border border-gray-600"
-                    style={{
-                      width: "400px",
-                      height: "300px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    Frame {selectedFrame.frameIndex + 1}
-                  </div>
-                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    {selectedFrame.timestamp.toFixed(1)}s
-                  </div>
-                </div>
-                <button
-                  onClick={clearFrameSelection}
-                  className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md text-xs"
-                >
-                  Clear Selection
-                </button>
-              </div>
-            ) : previewFrames.length > 0 ? (
-              <div 
-                className="rounded shadow-lg overflow-hidden"
-                style={{
-                  width: VIDEO_WIDTH_WITH_IMAGE,
-                  height: VIDEO_HEIGHT_WITH_IMAGE,
-                  background: "#000",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div className="text-white text-sm mb-2">Detection Results</div>
-                <div className="flex flex-wrap gap-2 justify-center max-h-[300px] overflow-y-auto p-2">
-                  {previewFrames.map((frame, index) => (
-                    <img
-                      key={index}
-                      src={`data:image/jpeg;base64,${frame}`}
-                      alt={`Detection frame ${index + 1}`}
-                      className="rounded border border-gray-600"
-                      style={{
-                        width: "120px",
-                        height: "90px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        )}
-        
-        <style jsx>{`
-          @keyframes slidein {
-            from {
-              opacity: 0;
-              transform: translateX(40px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-        `}</style>
+      
       </div>
     );
   }
