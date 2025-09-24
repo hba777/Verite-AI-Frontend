@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { ProgressDemo } from "@/features/Dashboard/ProgressBar/ProgressBar";
 
 interface VideoTimelineProps {
@@ -13,11 +13,46 @@ interface VideoTimelineProps {
 const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, currentTime, uploadProgress, frames, onFrameClick }) => {
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const timelineScrollRef = useRef<HTMLDivElement>(null);
+  const framesScrollRef = useRef<HTMLDivElement>(null);
 
   const [duration, setDuration] = useState(0);
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [previewPosition, setPreviewPosition] = useState<number | null>(null);
   const [selectedFrameIndex, setSelectedFrameIndex] = useState<number | null>(null);
+
+  // Dimensions for the scrollable filmstrip content
+  const THUMB_WIDTH = 80;
+  const THUMB_HEIGHT = 48;
+  const THUMB_GAP = 8;
+
+  // Provide dummy frames when none are passed so the UI can be tested
+  const dummyFrames = useMemo(() => {
+    const placeholders = [
+      "/CarouselTest.png",
+      "/Peak.png",
+      "/Google.png",
+      "/gemini-bg.png",
+      "/performance-bg.png",
+      "/Safety-bg.png",
+    ];
+    const count = 24;
+    return Array.from({ length: count }).map((_, i) => {
+      const timestamp = duration ? (i / count) * Math.max(duration, 1) : i * 1.0;
+      return {
+        frameIndex: i,
+        frameData: "", // not used for dummy URLs below
+        timestamp,
+        // Attach a helper url for rendering when frameData is empty
+        // @ts-ignore - augmenting for internal rendering only
+        _url: placeholders[i % placeholders.length],
+      };
+    });
+  }, [duration]);
+
+  // Use provided frames if available, else dummy
+  const timelineFrames = useMemo(() => (frames && frames.length ? frames : dummyFrames), [frames, dummyFrames]);
+  const retrievedFrames = useMemo(() => (frames && frames.length ? frames.slice(0, Math.min(8, frames.length)) : dummyFrames.slice(0, 8)), [frames, dummyFrames]);
 
   useEffect(() => {
     if (previewVideoRef.current && videoUrl) {
@@ -105,135 +140,133 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({ videoUrl, onSeek, current
     };
   }, [hoverTime]);
 
+  // Keep the two strips horizontally scroll-synced
+  useEffect(() => {
+    const a = timelineScrollRef.current;
+    const b = framesScrollRef.current;
+    if (!a || !b) return;
+
+    let syncing = false;
+    const onScrollA = () => {
+      if (syncing) return;
+      syncing = true;
+      b.scrollLeft = a.scrollLeft;
+      syncing = false;
+    };
+    const onScrollB = () => {
+      if (syncing) return;
+      syncing = true;
+      a.scrollLeft = b.scrollLeft;
+      syncing = false;
+    };
+    a.addEventListener("scroll", onScrollA);
+    b.addEventListener("scroll", onScrollB);
+    return () => {
+      a.removeEventListener("scroll", onScrollA);
+      b.removeEventListener("scroll", onScrollB);
+    };
+  }, []);
+
   return (
     <div className="w-full flex flex-col items-center mt-8">
       {videoUrl ? (
         <>
-          <div
-            className="relative w-full max-w-2xl h-20 rounded cursor-pointer border border-white/60  "
-            onClick={handleTimelineClick}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{ marginBottom: 24 }}
-          >
-            {/* Timeline container with preview background */}
+          {/* Scrollable timeline filmstrip (fixed outer width) */}
+          <div className="w-full max-w-3xl hide-scrollbar">
             <div
-              className="absolute top-1/2 left-3 right-3 h-15 bg-opacity-10 rounded overflow-hidden"
-              style={{ transform: "translateY(-50%)" }}
+              ref={timelineScrollRef}
+              className="relative h-18 rounded border border-white/60 overflow-x-auto overflow-y-hidden cursor-pointer hide-scrollbar "
+              onClick={handleTimelineClick}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
             >
-              {/* Preview canvas as background */}
-              <canvas
-                ref={previewCanvasRef}
-                width={320}
-                height={24}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  zIndex: 1,
-                }}
-              />
-
-              {/* Progress bar */}
               <div
-                className="h-full bg-white rounded transition-all duration-200 ease-out"
-                style={{
-                  width: `${(currentTime || 0) / (duration || 1) * 100}%`,
-                  opacity: 0.8,
-                  zIndex: 2,
-                  position: "relative",
-                }}
-              />
+                className="relative flex items-center"
+                style={{ width: timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24 }}
+              >
+                <div className="flex items-center gap-2 px-3 py-2">
+                  {timelineFrames.map((f) => (
+                    <img
+                      key={`strip-${f.frameIndex}`}
+                      src={(f as any)._url ? (f as any)._url : `data:image/jpeg;base64,${f.frameData}`}
+                      alt={`t-${f.frameIndex}`}
+                      style={{ width: THUMB_WIDTH, height: THUMB_HEIGHT, objectFit: "cover", borderRadius: 6 }}
+                    />
+                  ))}
+                </div>
 
-              {/* Progress thumb */}
-              <div
-                className="absolute top-1/2 transition-all duration-200 ease-out"
-                style={{
-                  left: `calc(${((currentTime || 0) / (duration || 1)) * 100}% - 8px)`,
-                  width: 16,
-                  height: 16,
-                  background: "#fff",
-                  borderRadius: "50%",
-                  border: "2px solid #23272f",
-                  boxShadow: "0 0 4px #fff",
-                  transform: "translateY(-50%)",
-                  zIndex: 3,
-                }}
-              />
+                {/* Progress overlay */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 bg-white/20"
+                  style={{ width: `${((currentTime || 0) / (duration || 1)) * 100}%`, pointerEvents: "none", zIndex: 2 }}
+                />
+                <div
+                  className="absolute top-1/2"
+                  style={{
+                    left: `calc(${((currentTime || 0) / (duration || 1)) * 100}% - 8px)`,
+                    width: 16,
+                    height: 16,
+                    background: "#fff",
+                    borderRadius: "50%",
+                    border: "2px solid #23272f",
+                    boxShadow: "0 0 4px #fff",
+                    transform: "translateY(-50%)",
+                    zIndex: 3,
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
+
+              {/* Hidden video and canvas kept for hover preview generation if needed */}
+              <canvas ref={previewCanvasRef} width={320} height={24} style={{ display: "none" }} />
+              <video ref={previewVideoRef} src={videoUrl || undefined} muted style={{ display: "none" }} onLoadedMetadata={handleLoadedMetadata} />
             </div>
-
-            {/* Hidden video for extracting preview frame */}
-            <video
-              ref={previewVideoRef}
-              src={videoUrl || undefined}
-              muted
-              style={{ display: "none" }}
-              onLoadedMetadata={handleLoadedMetadata}
-            />
           </div>
 
-          {/* Frame Indicators */}
-          {frames && frames.length > 0 && (
-            <div className="w-full max-w-4xl mb-6">
-              <div className="text-white text-sm mb-4 text-center opacity-80 font-medium">
-                🎬 Click on any frame to jump to that timestamp
-                {currentTime && duration && (
-                  <span className="block text-xs opacity-60 mt-1">
-                    Current time: {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
-                    {selectedFrameIndex !== null && (
-                      <span className="ml-2 text-blue-400">
-                        • Frame {selectedFrameIndex + 1} selected
-                      </span>
-                    )}
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-4 justify-center">
-                {frames.map((frame, index) => (
-                  <div
-                    key={frame.frameIndex}
-                    className={`group cursor-pointer transition-all duration-300 hover:scale-110 transform ${
-                      selectedFrameIndex === frame.frameIndex 
-                        ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#181a20]' 
-                        : ''
-                    }`}
-                    onClick={() => handleFrameClick(frame)}
-                    style={{
-                      animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
-                    }}
-                  >
-                    <div className={`relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ${
-                      selectedFrameIndex === frame.frameIndex 
-                        ? 'shadow-blue-400/50' 
-                        : ''
-                    }`}>
-                      <img
-                        src={`data:image/jpeg;base64,${frame.frameData}`}
-                        alt={`Frame ${frame.frameIndex}`}
-                        className="w-20 h-16 object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent py-2 px-3">
-                        <div className="text-white text-xs font-medium text-center">
-                          {frame.timestamp.toFixed(1)}s
+          {/* Retrieved frames directly below with connector lines (scroll-synced) */}
+          {timelineFrames && timelineFrames.length > 0 && (
+            <div className="w-full max-w-3xl mb-6">
+             
+              <div
+                ref={framesScrollRef}
+                className="relative overflow-y-visible borde rounded"
+                style={{ height: 140 }}
+              >
+                <div
+                  className="relative"
+                  style={{ width: timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24, height: "100%" }}
+                >
+                  {retrievedFrames.map((frame, index) => {
+                    const leftPercent = duration ? (frame.timestamp / Math.max(duration, 1)) : (frame.frameIndex / Math.max(timelineFrames.length, 1));
+                    const contentWidth = timelineFrames.length * (THUMB_WIDTH + THUMB_GAP) + 24;
+                    const leftPx = Math.max(12, leftPercent * contentWidth);
+                    return (
+                      <div key={`rf-${frame.frameIndex}`} className="absolute" style={{ left: leftPx, top: 0 }}>
+                        {/* Connector line */}
+                        <div className="w-px bg-white/50" style={{ height: 56, marginLeft: THUMB_WIDTH / 2 }} />
+                        {/* Card */}
+                        <div
+                          className={`relative mt-2 overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ${
+                            selectedFrameIndex === frame.frameIndex ? 'ring-2 ring-blue-400 shadow-blue-400/50' : ''
+                          }`}
+                          onClick={() => handleFrameClick(frame as any)}
+                          style={{ width: THUMB_WIDTH, height: THUMB_HEIGHT }}
+                        >
+                          <img
+                            src={(frame as any)._url ? (frame as any)._url : `data:image/jpeg;base64,${frame.frameData}`}
+                            alt={`Frame ${frame.frameIndex}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent py-1 px-2">
+                            <div className="text-white text-[10px] font-medium text-center">
+                              {frame.timestamp.toFixed(1)}s
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {frame.frameIndex + 1}
-                      </div>
-                      
-                      {/* Processing indicator */}
-                      {selectedFrameIndex === frame.frameIndex ? (
-                        <div className="absolute top-2 left-2 w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                      ) : (
-                        <div className="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
               
               {/* Animation styles */}

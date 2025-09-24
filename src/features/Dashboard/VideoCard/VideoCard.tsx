@@ -101,118 +101,118 @@ const VideoCard: React.FC<VideoCardProps> = ({
   }, [framesData, onFramesReceived]);
 
   async function uploadVideoViaWebSocket(file: File) {
-    try {
-      setUploadProgress(0);
-      // 1. Start task via HTTP POST
-      const res = await fetch("http://localhost:8000/video/start-task", {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Failed to start task");
-      const data = await res.json();
-      const tid = data.task_id;
-      console.log("Task ID:", tid);
-      setTaskId(tid);
+    // try {
+    //   setUploadProgress(0);
+    //   // 1. Start task via HTTP POST
+    //   const res = await fetch("http://localhost:8000/video/start-task", {
+    //     method: "POST",
+    //   });
+    //   if (!res.ok) throw new Error("Failed to start task");
+    //   const data = await res.json();
+    //   const tid = data.task_id;
+    //   console.log("Task ID:", tid);
+    //   setTaskId(tid);
 
-      // 2. Open WebSocket
-      const ws = new WebSocket("ws://localhost:8000/ws/task");
-      ws.binaryType = "arraybuffer";
+    //   // 2. Open WebSocket
+    //   const ws = new WebSocket("ws://localhost:8000/ws/task");
+    //   ws.binaryType = "arraybuffer";
 
-      ws.onopen = () => {
-        // Send task_id first to subscribe
-        ws.send(tid);
-      };
+    //   ws.onopen = () => {
+    //     // Send task_id first to subscribe
+    //     ws.send(tid);
+    //   };
 
-      ws.onmessage = (event) => {
-        try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
-          if (event.data === "SEND_VIDEO") {
-            // Start sending file chunks
-            const chunkSize = 64 * 1024; // 64 KB
-            let offset = 0;
-            function sendNext() {
-              const slice = file.slice(offset, offset + chunkSize);
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                if (e.target?.result) {
-                  ws.send(e.target.result as ArrayBuffer);
-                  offset += chunkSize;
-                  // Update progress
-                  const progress = Math.min((offset / file.size) * 100, 100);
-                  setUploadProgress(progress);
-                  onUploadProgress?.(progress);
-                  if (offset < file.size) {
-                    sendNext();
-                  } else {
-                    ws.send("END");
-                    setUploadProgress(100);
-                    onUploadProgress?.(100);
-                  }
-                }
-              };
-              reader.readAsArrayBuffer(slice);
-            }
-            sendNext();
-          } else if (event.data === "Processing...") {
-            setStatus("Processing video...");
-            setUploadProgress(100); // Upload complete, now processing
-            onUploadProgress?.(100);
-            setIsProcessing(true);
-            setProcessedFrames(0);
-          } else {
-            // Try parsing JSON message
-            try {
-              const jsonData = JSON.parse(event.data);
-              console.log("Received JSON data:", jsonData);
+    //   ws.onmessage = (event) => {
+    //     try {
+    //       // Handle control messages (SEND_VIDEO, Processing, DONE)
+    //       if (event.data === "SEND_VIDEO") {
+    //         // Start sending file chunks
+    //         const chunkSize = 64 * 1024; // 64 KB
+    //         let offset = 0;
+    //         function sendNext() {
+    //           const slice = file.slice(offset, offset + chunkSize);
+    //           const reader = new FileReader();
+    //           reader.onload = (e) => {
+    //             if (e.target?.result) {
+    //               ws.send(e.target.result as ArrayBuffer);
+    //               offset += chunkSize;
+    //               // Update progress
+    //               const progress = Math.min((offset / file.size) * 100, 100);
+    //               setUploadProgress(progress);
+    //               onUploadProgress?.(progress);
+    //               if (offset < file.size) {
+    //                 sendNext();
+    //               } else {
+    //                 ws.send("END");
+    //                 setUploadProgress(100);
+    //                 onUploadProgress?.(100);
+    //               }
+    //             }
+    //           };
+    //           reader.readAsArrayBuffer(slice);
+    //         }
+    //         sendNext();
+    //       } else if (event.data === "Processing...") {
+    //         setStatus("Processing video...");
+    //         setUploadProgress(100); // Upload complete, now processing
+    //         onUploadProgress?.(100);
+    //         setIsProcessing(true);
+    //         setProcessedFrames(0);
+    //       } else {
+    //         // Try parsing JSON message
+    //         try {
+    //           const jsonData = JSON.parse(event.data);
+    //           console.log("Received JSON data:", jsonData);
               
-              if (jsonData.type === "frame_ready") {
-                // Handle real-time frame update
-                const newFrame = {
-                  frameIndex: jsonData.frame_index,
-                  frameData: jsonData.frame_data,
-                  timestamp: jsonData.timestamp
-                };
-                setFramesData(prev => {
-                  const updated = [...prev];
-                  updated[jsonData.frame_index] = newFrame;
-                  return updated;
-                });
-                setProcessedFrames(prev => prev + 1);
-                console.log(`Frame ${jsonData.frame_index} received`);
-              } else if (jsonData.type === "processing_complete") {
-                setStatus("Processing complete!");
-                setIsProcessing(false);
-                console.log("Processing completed:", jsonData);
-              } else if (jsonData.type === "error") {
-                setStatus(`Error: ${jsonData.message}`);
-                setIsProcessing(false);
-                console.error("Processing error:", jsonData);
-              } else if (jsonData.preview_frames) {
-                // Legacy support for old format
-                console.log("Preview frames received:", jsonData.preview_frames.length);
-                setPreviewFrames(jsonData.preview_frames);
-              }
-            } catch (parseError) {
-              console.log("Non-JSON message:", event.data);
-            }
-          }
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
-        }
-      };
+    //           if (jsonData.type === "frame_ready") {
+    //             // Handle real-time frame update
+    //             const newFrame = {
+    //               frameIndex: jsonData.frame_index,
+    //               frameData: jsonData.frame_data,
+    //               timestamp: jsonData.timestamp
+    //             };
+    //             setFramesData(prev => {
+    //               const updated = [...prev];
+    //               updated[jsonData.frame_index] = newFrame;
+    //               return updated;
+    //             });
+    //             setProcessedFrames(prev => prev + 1);
+    //             console.log(`Frame ${jsonData.frame_index} received`);
+    //           } else if (jsonData.type === "processing_complete") {
+    //             setStatus("Processing complete!");
+    //             setIsProcessing(false);
+    //             console.log("Processing completed:", jsonData);
+    //           } else if (jsonData.type === "error") {
+    //             setStatus(`Error: ${jsonData.message}`);
+    //             setIsProcessing(false);
+    //             console.error("Processing error:", jsonData);
+    //           } else if (jsonData.preview_frames) {
+    //             // Legacy support for old format
+    //             console.log("Preview frames received:", jsonData.preview_frames.length);
+    //             setPreviewFrames(jsonData.preview_frames);
+    //           }
+    //         } catch (parseError) {
+    //           console.log("Non-JSON message:", event.data);
+    //         }
+    //       }
+    //     } catch (err) {
+    //       console.error("Error parsing WebSocket message:", err);
+    //     }
+    //   };
 
-      ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        setStatus("WebSocket error");
-      };
+    //   ws.onerror = (err) => {
+    //     console.error("WebSocket error:", err);
+    //     setStatus("WebSocket error");
+    //   };
 
-      ws.onclose = () => {
-        console.log("WebSocket closed");
-        setStatus("Upload finished");
-      };
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setStatus("Failed to start upload");
-    }
+    //   ws.onclose = () => {
+    //     console.log("WebSocket closed");
+    //     setStatus("Upload finished");
+    //   };
+    // } catch (error) {
+    //   console.error("Upload failed:", error);
+    //   setStatus("Failed to start upload");
+    // }
   }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
