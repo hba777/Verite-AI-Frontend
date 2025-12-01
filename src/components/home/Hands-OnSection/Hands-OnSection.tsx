@@ -167,42 +167,42 @@ const HandsOn: React.FC = () => {
   const adaptiveFeatures: FeatureCardProps[] = [
     {
       icon: <CalibratedIcon />,
-      title: "Calibrated",
+      title: "High Confidence Scoring",
       description:
-        "The model explores diverse thinking strategies, leading to more accurate and relevant outputs.",
+        "Advanced algorithms provide precise confidence scores for each detection, helping you make informed decisions about media authenticity.",
     },
     {
       icon: <ControllableIcon />,
-      title: "Controllable",
+      title: "Adjustable Thresholds",
       description:
-        "Developers have fine-grained control over the model's thinking process, allowing them to manage resource usage.",
+        "Fine-tune detection sensitivity with customizable confidence thresholds to match your specific use case requirements.",
     },
     {
       icon: <AdaptiveIcon />,
-      title: "Adaptive",
+      title: "Real-time Analysis",
       description:
-        "When no thinking budget is set, the model assesses the complexity of a task and calibrates the amount of thinking accordingly.",
+        "Automatic detection adapts to different media types and content complexity, providing fast results for both simple and complex cases.",
     },
   ];
 
   const deepThinkFeatures: FeatureCardProps[] = [
     {
       icon: <IterativeIcon />,
-      title: "Iterative development and design",
+      title: "Batch processing and workflows",
       description:
-        "We've seen impressive results on tasks that require building something by making small changes over time.",
+        "Process large volumes of media files with automated detection pipelines, making incremental improvements to analysis accuracy over time.",
     },
     {
       icon: <ScienceIcon />,
-      title: "Aiding scientific and mathematical discovery",
+      title: "Forensic media analysis",
       description:
-        "By reasoning through complex problems, Deep Think can act as a powerful tool for researchers.",
+        "Advanced detection algorithms help researchers and investigators analyze complex media manipulations with scientific precision.",
     },
     {
       icon: <CodeIcon />,
-      title: "Algorithmic development and code",
+      title: "API integration and automation",
       description:
-        "Deep Think excels at tough coding problems where problem formulation and careful consideration of tradeoffs and time complexity is paramount.",
+        "Seamlessly integrate detection capabilities into applications with robust APIs designed for complex automation scenarios.",
     },
   ];
 
@@ -218,7 +218,7 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Adaptive and budgeted thinking
+            Confidence Scoring and Explainability
           </motion.h2>
 
           <motion.p
@@ -228,8 +228,8 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Adaptive controls and adjustable thinking budgets allow you to
-            balance performance and cost.
+            Advanced confidence scoring and visual explainability features help
+            you understand detection results and build trust in the analysis.
           </motion.p>
 
           <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24">
@@ -248,7 +248,7 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Gemini 2.5 Deep Think
+            Advanced Detection Modes
           </motion.h2>
 
           <motion.p
@@ -258,9 +258,9 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            An enhanced reasoning mode that uses cutting edge research
-            techniques in parallel thinking and reinforcement learning to
-            significantly improve Gemini's ability to solve complex problems.
+            Enhanced detection capabilities using state-of-the-art AI techniques
+            for comprehensive media analysis, including forensic-level examination
+            and detailed manipulation detection.
           </motion.p>
 
           <motion.div
@@ -288,7 +288,7 @@ const HandsOn: React.FC = () => {
                   "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
               }
             >
-              Try with Google AI Ultra
+              Try Detection Demo
               <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
             </a>
 
@@ -314,7 +314,7 @@ const HandsOn: React.FC = () => {
                   "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
               }
             >
-              View model card
+              View API Documentation
               <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
             </a>
           </motion.div>
@@ -337,9 +337,9 @@ const HandsOn: React.FC = () => {
                 whileInView="visible"
                 viewport={{ once: false, amount: 0.4 }}
               >
-                Deep Think can better help tackle problems that require
-                creativity, strategic planning, and making improvements
-                step-by-step.
+                Advanced detection can better help tackle complex media analysis
+                that requires forensic examination, pattern recognition, and
+                detailed verification step-by-step.
               </motion.h2>
             </div>
           </section>

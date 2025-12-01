@@ -40,14 +40,14 @@ const HeroSection = () => {
         <h1
           className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3"
         >
-          Gemini
+          XDetect-RT
         </h1>
 
         {/* Subheading */}
         <p
           className="mb-8 text-lg md:text-xl text-gray-300 font-extralight"
         >
-          Our most intelligent AI models
+          Detect deepfakes and manipulated media with confidence
         </p>
 
         <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
@@ -69,7 +69,7 @@ const HeroSection = () => {
                 "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
             }
           >
-            Chat with Gemini <ArrowIcon />
+            Analyze Media <ArrowIcon />
           </a>
 
           {/* Second Button with gradient border */}
@@ -94,7 +94,7 @@ const HeroSection = () => {
                 "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
             }
           >
-            Build with Gemini <ArrowIcon />
+            Learn More <ArrowIcon />
           </a>
         </div>
       </div>

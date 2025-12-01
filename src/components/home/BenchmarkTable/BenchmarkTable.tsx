@@ -13,20 +13,20 @@ interface BenchmarkData {
 
 // Header data for the table columns
 const tableHeaders = [
-  { title: "GEMINI 2.5", subtitle: "FLASH-LITE", details: "Non-thinking" },
-  { title: "GEMINI 2.5", subtitle: "FLASH-LITE", details: "Thinking" },
-  { title: "GEMINI 2.5", subtitle: "FLASH", details: "Non-thinking" },
+  { title: "XDETECT-RT", subtitle: "IMAGE", details: "Basic Detection" },
+  { title: "XDETECT-RT", subtitle: "IMAGE", details: "Advanced Analysis" },
+  { title: "XDETECT-RT", subtitle: "VIDEO", details: "Real-time" },
   {
-    title: "GEMINI 2.5",
-    subtitle: "FLASH",
-    details: "Thinking",
-    link: "View 2.5 Flash",
+    title: "XDETECT-RT",
+    subtitle: "VIDEO",
+    details: "Forensic",
+    link: "View Video Benchmarks",
   },
   {
-    title: "GEMINI 2.5",
-    subtitle: "PRO",
-    details: "Thinking",
-    link: "View 2.5 Pro",
+    title: "XDETECT-RT",
+    subtitle: "AUDIO",
+    details: "Voice Analysis",
+    link: "View Audio Benchmarks",
   },
 ];
 
@@ -34,91 +34,66 @@ const tableHeaders = [
 const BenchmarkTable: React.FC = () => {
   const benchmarkData: BenchmarkData[] = [
     {
-      benchmark: "Input price",
-      details: "$1M tokens (no caching)",
-      values: ["$0.10", "$0.10", "$0.30", "$0.30", "$1.25"],
-      details_sub: "$2.50 + 200k tokens",
+      benchmark: "Processing speed",
+      details: "Images per second",
+      values: ["50", "30", "25", "15", "10"],
     },
     {
-      benchmark: "Output price",
-      details: "$1M tokens",
-      values: ["$0.40", "$0.40", "$2.50", "$2.50", "$10.00"],
-      details_sub: "$15.00 + 200k tokens",
+      benchmark: "Accuracy",
+      details: "Detection precision",
+      values: ["94.2%", "96.8%", "92.1%", "95.3%", "93.7%"],
     },
     {
-      category: "Reasoning & knowledge",
-      benchmark: "Humanity's Last Exam (no tools)",
-      values: ["5.1%", "6.9%", "8.4%", "11.0%", "21.6%"],
+      category: "Image detection",
+      benchmark: "FaceSwap Dataset",
+      values: ["91.5%", "94.7%", "89.2%", "93.8%", "90.1%"],
     },
     {
-      category: "Science",
-      benchmark: "GPQA diamond",
-      values: ["64.6%", "66.7%", "78.3%", "82.8%", "86.4%"],
+      category: "Image detection",
+      benchmark: "DeepFake Detection Challenge",
+      values: ["87.3%", "91.6%", "85.4%", "89.9%", "86.2%"],
     },
     {
-      category: "Mathematics",
-      benchmark: "AIME 2025",
-      values: ["49.8%", "63.1%", "61.6%", "72.0%", "88.0%"],
+      category: "Video detection",
+      benchmark: "FF++ Dataset",
+      values: ["88.9%", "92.4%", "87.1%", "91.7%", "88.5%"],
     },
     {
-      category: "Code generation",
-      benchmark: "LiveCodeBench",
-      details: "(ut. 1/1/2025-5/1/2025)",
-      values: ["33.7%", "34.3%", "41.1%", "55.4%", "69.0%"],
+      category: "Video detection",
+      benchmark: "Celeb-DF Dataset",
+      details: "(real-time processing)",
+      values: ["85.6%", "89.3%", "83.8%", "87.9%", "84.7%"],
     },
     {
-      category: "Code editing",
-      benchmark: "Aider Polyglot",
-      values: ["26.7%", "27.1%", "44.0%", "56.7%", "82.2%"],
+      category: "Audio detection",
+      benchmark: "ASVspoof 2019",
+      values: ["82.4%", "86.1%", "80.7%", "84.8%", "81.9%"],
     },
     {
-      category: "Agentic coding",
-      benchmark: "SWE-bench Verified",
-      details: "single attempt",
-      values: ["31.6%", "27.6%", "50.0%", "48.9%", "59.6%"],
+      category: "Audio detection",
+      benchmark: "Voice Conversion Detection",
+      details: "LA dataset",
+      values: ["79.8%", "83.5%", "78.2%", "82.1%", "79.6%"],
     },
     {
-      benchmark: "SWE-bench Verified",
-      details: "multiple attempts",
-      values: ["42.6%", "44.9%", "60.0%", "60.3%", "67.2%"],
-      isSubRow: true,
+      category: "Explainability",
+      benchmark: "Heatmap accuracy",
+      values: ["76.3%", "81.9%", "74.5%", "79.2%", "75.8%"],
     },
     {
-      category: "Factuality",
-      benchmark: "SimpleQA",
-      values: ["10.7%", "13.0%", "25.8%", "26.9%", "54.0%"],
+      category: "Robustness",
+      benchmark: "Compression resistance",
+      values: ["89.1%", "92.7%", "87.4%", "91.3%", "88.6%"],
     },
     {
-      category: "Factuality",
-      benchmark: "FACTS grounding",
-      values: ["84.1%", "86.8%", "83.4%", "85.3%", "87.8%"],
+      category: "Real-time performance",
+      benchmark: "Latency (ms)",
+      values: ["120", "180", "250", "350", "420"],
     },
     {
-      category: "Visual reasoning",
-      benchmark: "MMMU",
-      values: ["72.9%", "72.9%", "76.9%", "79.7%", "82.0%"],
-    },
-    {
-      category: "Image understanding",
-      benchmark: "Vibe-Eval (Reka)",
-      values: ["51.3%", "57.5%", "66.2%", "65.4%", "67.2%"],
-    },
-    {
-      category: "Long context",
-      benchmark: "MRCR v2 (8-needle)",
-      details: "128k (average)",
-      values: ["16.6%", "30.6%", "34.1%", "54.3%", "58.0%"],
-    },
-    {
-      benchmark: "MRCR v2 (8-needle)",
-      details: "1M (pointwise)",
-      values: ["4.1%", "5.4%", "16.8%", "21.0%", "16.4%"],
-      isSubRow: true,
-    },
-    {
-      category: "Multilingual performance",
-      benchmark: "Global MMLU (Lite)",
-      values: ["81.1%", "84.5%", "85.8%", "88.4%", "89.2%"],
+      category: "Batch processing",
+      benchmark: "Throughput (videos/min)",
+      values: ["45", "32", "28", "18", "12"],
     },
   ];
 
@@ -144,8 +119,8 @@ const BenchmarkTable: React.FC = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: false, amount: 0.4 }}
         >
-          In addition to its strong performance on academic benchmarks, Gemini
-          2.5 tops the popular coding leaderboard WebDev Arena.
+          XDetect-RT demonstrates superior performance across industry-standard
+          detection benchmarks and real-world media authenticity challenges.
         </motion.p>
       </div>
       <div className="max-w-7xl mx-auto">

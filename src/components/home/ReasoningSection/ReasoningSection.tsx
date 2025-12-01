@@ -53,9 +53,9 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
           whileInView="visible"
           viewport={{ once: false, amount: 0.4 }}
         >
-          Gemini 2.5 models are capable of reasoning through their thoughts
-          before responding, resulting in enhanced performance and improved
-          accuracy.
+          XDetect-RT analyzes media through advanced detection algorithms,
+          providing clear verdicts with confidence scores and visual
+          explainability for enhanced accuracy.
         </motion.h2>
       </div>
 

@@ -35,8 +35,8 @@ const PerformanceSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            Gemini 2.5 is state-of-the-art across a
-            <br className="hidden md:block" /> wide range of benchmarks.
+            XDetect-RT delivers state-of-the-art accuracy across
+            <br className="hidden md:block" /> comprehensive detection benchmarks.
           </motion.h1>
 
           <motion.a
@@ -63,7 +63,7 @@ const PerformanceSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            View 2.5 tech report
+            View Detection Benchmarks
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
         </div>

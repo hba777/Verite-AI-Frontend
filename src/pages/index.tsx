@@ -36,11 +36,11 @@ const Home: NextPage = () => {
   const handsOnRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = [
-    { name: "Models", ref: modelFamilyRef },
-    { name: "Hands-on", ref: handsOnRef },
+    { name: "Detection", ref: modelFamilyRef },
+    { name: "Features", ref: handsOnRef },
     { name: "Safety", ref: safetyRef },
-    { name: "Build", ref: buildRef },
-    { name: "Build", ref: ecosystemRef },
+    { name: "Integration", ref: buildRef },
+    { name: "Integration", ref: ecosystemRef },
     { name: "Performance", ref: performanceRef },
   ];
 
@@ -101,8 +101,8 @@ const Home: NextPage = () => {
   return (
     <div className="bg-[#060606]">
       <Head>
-        <title>Gemini</title>
-        <meta name="description" content="Our most intelligent AI models" />
+        <title>XDetect-RT</title>
+        <meta name="description" content="Advanced Media Authenticity Detection Service" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

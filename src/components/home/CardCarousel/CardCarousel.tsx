@@ -117,41 +117,41 @@ const CardCarousel: React.FC = () => {
   // Card data
   const cardData = [
     {
-      imageUrl: "https://placehold.co/600x400/000000/FFFFFF?text=Cosmic+Fish",
-      title: "Make an interactive animation",
+      imageUrl: "https://placehold.co/600x400/000000/FFFFFF?text=Deepfake+Detection",
+      title: "Deepfake Image Detection",
       description:
-        'See how Gemini 2.5 Pro uses its reasoning capabilities to create an interactive animation of "cosmic fish" with a simple prompt.',
+        'See XDetect-RT analyze a manipulated image and provide a "Fake" verdict with 95% confidence and visual heatmaps highlighting manipulated regions.',
     },
     {
       imageUrl: "/CarouselTest.png",
-      title: "Explore Creative Designs",
+      title: "Video Authenticity Check",
       description:
-        "Discover a new world of creative possibilities and bring your unique ideas to life with powerful design tools and inspiration.",
+        "Watch real-time detection of face swaps and audio deepfakes in video content with frame-by-frame analysis and confidence scoring.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/0d0d0d/FFFFFF?text=Code+Smart",
-      title: "Code Smarter, Not Harder",
+      imageUrl: "https://placehold.co/600x400/0d0d0d/FFFFFF?text=Audio+Forgery",
+      title: "Audio Forgery Detection",
       description:
-        "Leverage AI-powered tools to streamline your development workflow, write cleaner code, and solve complex problems faster.",
+        "Detect voice cloning and synthetic speech with advanced spectral analysis and provide detailed reports on manipulation techniques used.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/2a2a2a/FFFFFF?text=Data+Insights",
-      title: "Unlock Data Insights",
+      imageUrl: "https://placehold.co/600x400/2a2a2a/FFFFFF?text=Batch+Processing",
+      title: "Batch Media Analysis",
       description:
-        "Turn complex datasets into actionable insights with advanced analytics and visualization tools.",
+        "Process multiple files simultaneously with automated detection workflows, generating comprehensive authenticity reports.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/1f1f1f/FFFFFF?text=New+Horizons",
-      title: "Discover New Horizons",
+      imageUrl: "https://placehold.co/600x400/1f1f1f/FFFFFF?text=Explainability",
+      title: "Visual Explainability",
       description:
-        "Embark on a journey of discovery and innovation with tools that expand your creative universe.",
+        "Understand detection decisions through Grad-CAM visualizations and textual explanations of why content was flagged as manipulated.",
     },
     {
       imageUrl:
-        "https://placehold.co/600x400/3c3c3c/FFFFFF?text=Final+Frontier",
-      title: "The Final Frontier",
+        "https://placehold.co/600x400/3c3c3c/FFFFFF?text=API+Integration",
+      title: "API Integration Demo",
       description:
-        "Push the boundaries of what is possible and explore the final frontier of digital creation.",
+        "See how developers can integrate XDetect-RT into their applications with simple API calls for real-time media verification.",
     },
   ];
 
@@ -219,7 +219,7 @@ const CardCarousel: React.FC = () => {
               transition={{ duration: 0.7 }}
               viewport={{ once: false, amount: 0.4 }}
             >
-              Hands-on with Gemini 2.5
+              Detection Examples
             </motion.h2>
 
             <motion.p
@@ -229,8 +229,8 @@ const CardCarousel: React.FC = () => {
               transition={{ duration: 0.7, delay: 0.2 }}
               viewport={{ once: false, amount: 0.4 }}
             >
-              See how Gemini 2.5 uses its reasoning capabilities to create
-              interactive simulations and do advanced coding.
+              Explore real-world examples of XDetect-RT detecting deepfakes
+              and manipulated media with visual explainability.
             </motion.p>
           </section>
         </div>
