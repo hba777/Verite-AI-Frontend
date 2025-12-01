@@ -31,7 +31,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            As we develop these new technologies, we recognize the
+            As we develop media detection technologies, we recognize the
             responsibility it entails, and aim to prioritize safety and security
             in all our efforts.
           </motion.h1>

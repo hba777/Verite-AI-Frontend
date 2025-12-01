@@ -73,12 +73,12 @@ const Header = ({
             <div className="flex items-center space-x-8">
               {/* Main heading - weight 400 */}
               <a href="#" className="text-xl text-white px-10 font-normal">
-                Google DeepMind
+                XDetect-RT
               </a>
 
               {/* Nav links (hidden at md and below) */}
               <div className="hidden lg:flex items-center space-x-8">
-                {["Models", "Research", "Science", "About"].map((item) => (
+                {["Detection", "Dashboard", "About"].map((item) => (
                   <a
                     key={item}
                     href="#"
@@ -95,28 +95,28 @@ const Header = ({
 
             {/* Buttons - weight 450 */}
             <div className="flex items-center space-x-2">
-              <a
+              {/* <a
                 href="#"
                 className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
-             px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
+              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
                   fontFamily: '"Poppins", sans-serif',
                 }}
               >
                 <CustomFeatureIcon className="mr-2" />
-                Build with Gemini
-              </a>
+                Start Detecting
+              </a> */}
 
               <a
                 href="#"
                 className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
-             px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
+              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
                   fontFamily: '"Poppins", sans-serif',
                 }}
               >
                 <RiGeminiFill size={20} className="text-gray-400 mr-2" />
-                Try Gemini
+                Try Detection
               </a>
 
               {user ? (

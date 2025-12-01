@@ -17,7 +17,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Accessing our latest AI models
+            Accessing our detection service
           </motion.h2>
 
           <motion.p
@@ -27,8 +27,8 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            We want developers to gain access to our models as quickly as
-            possible. We're making these available through Google AI Studio.
+            We want users to access our media authenticity detection as quickly as
+            possible. We're making this available through the XDetect Dashboard.
           </motion.p>
 
           <motion.a
@@ -49,7 +49,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7, delay: 0.4 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Sign in to Google AI Studio
+            Access XDetect Dashboard
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
         </div>
@@ -68,7 +68,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             Get the latest updates
           </h3>
           <p className="mt-2 text-gray-900">
-            Sign up for news on the latest innovations from Google DeepMind.
+            Sign up for news on the latest advancements in media authenticity detection.
           </p>
 
           <form className="mt-8 flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto">
@@ -112,10 +112,10 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </form>
 
           <p className="mt-4 text-xs text-gray-900">
-            I accept Google's Terms and Conditions and acknowledge that my
+            I accept XDetect-RT's Terms and Conditions and acknowledge that my
             information will be used in accordance with{" "}
             <a href="#" className="underline text-black hover:text-gray-900">
-              Google's Privacy Policy.
+              our Privacy Policy.
             </a>
           </p>
         </div>

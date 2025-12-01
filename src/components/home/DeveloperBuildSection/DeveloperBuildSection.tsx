@@ -50,8 +50,8 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            Gemini’s advanced thinking, native multimodality and massive context
-            window empowers developers to build next-generation experiences.
+            XDetect-RT’s advanced detection capabilities, comprehensive media analysis
+            and real-time processing empower developers to build secure media verification solutions.
           </motion.h1>
           <motion.a
             href="#"
@@ -81,7 +81,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Start building
+            Start integrating
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
           {(

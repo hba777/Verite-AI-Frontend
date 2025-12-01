@@ -5,14 +5,14 @@ import ModelCard from "../ModelCard/ModelCard";
 import { motion } from "framer-motion";
 
 const models = [
-  { title: "2.5 Pro", description: "Best for coding and highly complex tasks" },
+  { title: "Image Detector", description: "Advanced deepfake detection for images with high accuracy" },
   {
-    title: "2.5 Flash",
-    description: "Best for fast performance on everyday tasks",
+    title: "Video Detector",
+    description: "Real-time analysis for video content and manipulations",
   },
   {
-    title: "2.5 Flash-Lite",
-    description: "Best for high volume, cost-efficient tasks",
+    title: "Audio Detector",
+    description: "Voice cloning and audio forgery detection",
   },
 ];
 
@@ -29,7 +29,7 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
           transition={{ duration: 0.7 }}
           viewport={{ once: false, amount: 0.4 }}
         >
-          Model family
+          Detection Models
         </motion.h2>
 
         <motion.p
@@ -39,8 +39,8 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: false, amount: 0.4 }}
         >
-          Gemini 2.5 builds on the best of Gemini — with native multimodality
-          and a long context window.
+          XDetect-RT offers specialized models for detecting manipulated media
+          across images, videos, and audio with state-of-the-art accuracy.
         </motion.p>
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

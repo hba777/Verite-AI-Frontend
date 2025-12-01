@@ -24,11 +24,11 @@ const StickyNav: React.FC<StickyNavProps> = ({
   const [isVisible, setIsVisible] = useState(true);
 
   const navItems = [
-    { name: "Models", handler: onModelsClick },
-    { name: "Hands-on", handler: onHandsOnClick },
+    { name: "Detection", handler: onModelsClick },
+    { name: "Features", handler: onHandsOnClick },
     { name: "Performance", handler: onPerformanceClick },
     { name: "Safety", handler: onSafetyClick },
-    { name: "Build", handler: onBuildClick },
+    { name: "Integration", handler: onBuildClick },
   ];
 
   // Scroll active tab into center

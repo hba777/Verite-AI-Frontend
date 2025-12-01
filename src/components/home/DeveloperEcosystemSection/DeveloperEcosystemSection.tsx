@@ -25,8 +25,8 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Build with cutting-edge generative AI models and tools to make AI
-            helpful for everyone.
+            Integrate with advanced media authenticity detection APIs and tools
+            to build trustworthy media verification solutions.
           </motion.p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
@@ -80,9 +80,9 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
                 {/* Text Content */}
                 <div className="text-left w-full">
-                  <h3 className="font-medium text-xl">Google AI Studio</h3>
+                  <h3 className="font-medium text-xl">XDetect Dashboard</h3>
                   <p className="text-base text-gray-400 mt-2">
-                    Build with the latest models from Google DeepMind
+                    Access detection tools and manage your media analysis workflows
                   </p>
                 </div>
               </div>
@@ -138,9 +138,9 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
                 {/* Text Content */}
                 <div className="text-left w-full">
-                  <h3 className="font-medium text-xl">Gemini API</h3>
+                  <h3 className="font-medium text-xl">XDetect API</h3>
                   <p className="text-base text-gray-400 mt-2">
-                    Easily integrate Google’s most capable AI model to your apps
+                    Seamlessly integrate advanced media authenticity detection into your applications
                   </p>
                 </div>
               </div>
