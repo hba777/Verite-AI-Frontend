@@ -1,52 +1,59 @@
-import React, { useCallback, useState } from "react";
-import VideoCard from "@/features/Dashboard/VideoCard/VideoCard";
-import VideoTimeline from "@/features/Dashboard/VideoTimeline/VideoTimeline";
+import React, { useState, useEffect } from "react";
+import IngestionHub from "@/components/dashboard/IngestionHub";
+import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
+import { AppState, FrameData } from "@/types";
+import { generateMockFrames } from "@/constants";
 
 const Dashboard: React.FC = () => {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [frames, setFrames] = useState<Array<{frameIndex: number, frameData: string, timestamp: number}>>([]);
-  const [frameSelector, setFrameSelector] = useState<((frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) | null>(null);
+  const [appState, setAppState] = useState<AppState>(AppState.IDLE);
+  const [frames, setFrames] = useState<FrameData[]>([]);
 
-  const handleFramesReceived = useCallback((newFrames: Array<{frameIndex: number, frameData: string, timestamp: number}>, selector?: (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) => {
-    setFrames(newFrames);
-    if (selector) {
-      setFrameSelector(() => selector);
-    }
-  }, []);
+  const handleFileSelect = (file: File) => {
+    // In a real app, we would upload the file here.
+    // For this demo, we transition to dashboard and start mock processing.
+    console.log("File selected:", file);
+    setAppState(AppState.ANALYZING);
 
-  const handleFrameClick = useCallback((frame: {frameIndex: number, frameData: string, timestamp: number}) => {
-    // Jump to the timestamp in the video
-    setCurrentTime(frame.timestamp);
-    
-    // Update the selected frame in VideoCard
-    if (frameSelector) {
-      frameSelector(frame);
+    // Initialize mock frames
+    const initialFrames = generateMockFrames();
+    setFrames(initialFrames);
+  };
+
+  // Simulate the "Waterfall" processing effect
+  useEffect(() => {
+    if (appState === AppState.ANALYZING) {
+      let currentIndex = 0;
+
+      const processInterval = setInterval(() => {
+        setFrames((prevFrames) => {
+          const newFrames = [...prevFrames];
+          // Process batches of frames to simulate speed
+          for (let i = 0; i < 2; i++) {
+            if (currentIndex < newFrames.length) {
+              newFrames[currentIndex].isProcessed = true;
+              currentIndex++;
+            }
+          }
+          return newFrames;
+        });
+
+        if (currentIndex >= frames.length && frames.length > 0) {
+          clearInterval(processInterval);
+          setAppState(AppState.COMPLETE);
+        }
+      }, 150); // Speed of processing
+
+      return () => clearInterval(processInterval);
     }
-  }, [frameSelector]);
+  }, [appState, frames.length]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#060606] text-white pt-20 pb-12">
-      <div className="w-full flex flex-col gap-8">
-        <VideoCard
-          onVideoSelect={setVideoUrl}
-          videoUrl={videoUrl}
-          currentTime={currentTime}
-          onCurrentTimeChange={setCurrentTime}
-          showImageCard={true}
-          onUploadProgress={setUploadProgress}
-          onFramesReceived={handleFramesReceived}
-        />
-        <VideoTimeline
-          videoUrl={videoUrl}
-          currentTime={currentTime}
-          onSeek={setCurrentTime}
-          uploadProgress={uploadProgress}
-          frames={frames}
-          onFrameClick={handleFrameClick}
-        />
-      </div>
+    <div className="font-sans text-text-high antialiased">
+      {appState === AppState.IDLE ? (
+        <IngestionHub onFileSelect={handleFileSelect} />
+      ) : (
+        <AnalysisDashboard appState={appState} frames={frames} />
+      )}
     </div>
   );
 };

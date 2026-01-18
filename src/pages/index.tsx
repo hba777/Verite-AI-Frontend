@@ -15,6 +15,7 @@ import PerformanceSection from "@/components/home/PerformanceSection/Performance
 import BenchmarkTable from "@/components/home/BenchmarkTable/BenchmarkTable";
 import HandsOn from "@/components/home/Hands-OnSection/Hands-OnSection";
 import CardCarousel from "@/components/home/CardCarousel/CardCarousel";
+import Dashboard from "./dashboard";
 
 const Home: NextPage = () => {
   const [isHeaderVisible, setHeaderVisible] = useState(true);
@@ -102,7 +103,10 @@ const Home: NextPage = () => {
     <div className="bg-[#060606]">
       <Head>
         <title>XDetect-RT</title>
-        <meta name="description" content="Advanced Media Authenticity Detection Service" />
+        <meta
+          name="description"
+          content="Advanced Media Authenticity Detection Service"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -150,6 +154,7 @@ const Home: NextPage = () => {
       <DeveloperBuildSection ref={buildRef} />
       <DeveloperEcosystemSection ref={ecosystemRef} />
       <GetUpdatesSection ref={getUpdatesRef} />
+      <Dashboard />
     </div>
   );
 };
