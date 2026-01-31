@@ -11,6 +11,7 @@ const Dashboard: React.FC = () => {
   const [status, setStatus] = useState("Idle");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFrames, setProcessedFrames] = useState(0);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   // Generate mock frames for demo/initial state
@@ -49,6 +50,10 @@ const Dashboard: React.FC = () => {
   const handleFileSelect = async (file: File) => {
     try {
       setStatus("Starting task...");
+      
+      // Create local video URL for playback
+      const url = URL.createObjectURL(file);
+      setVideoUrl(url);
       
       // 1. Start task via HTTP POST
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/video/start-task`, {
@@ -120,13 +125,21 @@ const Dashboard: React.FC = () => {
                 // Handle real-time frame update
                 const frameIndex = jsonData.frame_index;
                 
+                // Convert timestamp to string format (e.g., "00:00:12")
+                const formatTimestamp = (time: number) => {
+                  const hrs = Math.floor(time / 3600);
+                  const mins = Math.floor((time % 3600) / 60);
+                  const secs = Math.floor(time % 60);
+                  return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+                };
+                
                 setFrames(prev => {
                   const updated = [...prev];
                   // Ensure array is large enough
                   while (updated.length <= frameIndex) {
                     updated.push({
                       id: updated.length,
-                      timestamp: `00:00:${updated.length.toString().padStart(2, "0")}`,
+                      timestamp: formatTimestamp(jsonData.timestamp || updated.length),
                       thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
                       isAnomaly: jsonData.is_anomaly || false,
                       confidenceScore: jsonData.confidence || 0,
@@ -139,7 +152,7 @@ const Dashboard: React.FC = () => {
                   // Update the specific frame
                   updated[frameIndex] = {
                     id: frameIndex,
-                    timestamp: jsonData.timestamp || `00:00:${frameIndex.toString().padStart(2, "0")}`,
+                    timestamp: formatTimestamp(jsonData.timestamp ?? frameIndex),
                     thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
                     isAnomaly: jsonData.is_anomaly || false,
                     confidenceScore: jsonData.confidence || 0,
@@ -245,6 +258,7 @@ const Dashboard: React.FC = () => {
           status={status}
           isProcessing={isProcessing}
           processedFrames={processedFrames}
+          videoUrl={videoUrl || undefined}
         />
       )}
     </div>

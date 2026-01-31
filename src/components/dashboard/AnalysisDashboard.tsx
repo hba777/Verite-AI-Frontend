@@ -11,12 +11,16 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   status = "Idle",
   isProcessing = false,
   processedFrames = 0,
+  videoUrl,
 }) => {
   const [progress, setProgress] = useState(0);
   const [selectedFrame, setSelectedFrame] = useState<FrameData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const analysisRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Update progress from upload or processing
   useEffect(() => {
@@ -44,9 +48,78 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
     }
   }, [selectedFrame]);
 
+  // Video time update
+  useEffect(() => {
+    if (videoRef.current && videoUrl) {
+      const video = videoRef.current;
+      
+      const handleTimeUpdate = () => {
+        setCurrentTime(video.currentTime);
+      };
+      
+      const handleLoadedMetadata = () => {
+        setDuration(video.duration);
+      };
+      
+      const handleEnded = () => {
+        setIsPlaying(false);
+      };
+      
+      video.addEventListener("timeupdate", handleTimeUpdate);
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+      video.addEventListener("ended", handleEnded);
+      
+      return () => {
+        video.removeEventListener("timeupdate", handleTimeUpdate);
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeEventListener("ended", handleEnded);
+      };
+    }
+  }, [videoUrl]);
+
   const handleSelectAnomaly = (frame: FrameData) => {
     setSelectedFrame(frame);
     setIsPlaying(false);
+    
+    // Jump to frame timestamp if video is available
+    if (videoUrl && videoRef.current) {
+      // Parse timestamp string to seconds (format: "00:00:12")
+      const timestampParts = frame.timestamp.split(":");
+      const seconds = parseInt(timestampParts[0]) * 3600 + 
+                     parseInt(timestampParts[1]) * 60 + 
+                     parseInt(timestampParts[2]);
+      videoRef.current.currentTime = seconds;
+    }
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current && videoUrl) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const skipBackward = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
+    }
+  };
+
+  const skipForward = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const processedCount = frames.filter((f) => f.isProcessed).length;
@@ -178,7 +251,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
       {/* Main Workspace */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* Top Section: Main Video Player (Mock) */}
+        {/* Top Section: Video Player */}
         <div
           style={{
             height: "60vh",
@@ -200,10 +273,23 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
               backgroundSize: "40px 40px",
               pointerEvents: "none",
+              zIndex: 1,
             }}
           ></div>
 
-          {selectedFrame ? (
+          {/* Video Player */}
+          {videoUrl ? (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              style={{
+                height: "100%",
+                width: "100%",
+                objectFit: "contain",
+              }}
+              onClick={togglePlay}
+            />
+          ) : selectedFrame ? (
             <img
               src={selectedFrame.thumbnailUrl}
               alt="Main view"
@@ -297,26 +383,60 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
           )}
 
           {/* Player Controls */}
-          {frames.length > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "32px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+              backgroundColor: "rgba(18,20,22,0.9)",
+              backdropFilter: "blur(8px)",
+              border: `1px solid ${colors.borderWhite}`,
+              padding: "16px 32px",
+              borderRadius: "24px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              zIndex: 10,
+            }}
+          >
+            {/* Progress Bar */}
             <div
               style={{
-                position: "absolute",
-                bottom: "32px",
-                left: "50%",
-                transform: "translateX(-50%)",
+                width: "100%",
+                height: "4px",
+                backgroundColor: colors.surface,
+                borderRadius: "2px",
+                cursor: "pointer",
+              }}
+              onClick={(e) => {
+                if (videoRef.current && duration > 0) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const percent = (e.clientX - rect.left) / rect.width;
+                  videoRef.current.currentTime = percent * duration;
+                }
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+                  backgroundColor: colors.electricTeal,
+                  borderRadius: "2px",
+                  transition: "width 0.1s linear",
+                }}
+              />
+            </div>
+            
+            {/* Controls Row */}
+            <div
+              style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "24px",
-                backgroundColor: "rgba(18,20,22,0.9)",
-                backdropFilter: "blur(8px)",
-                border: `1px solid ${colors.borderWhite}`,
-                padding: "12px 32px",
-                borderRadius: "24px",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
-                opacity: 0,
-                transition: "opacity 0.3s",
               }}
-              className="player-controls"
             >
               <SkipBack
                 style={{
@@ -325,9 +445,10 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                   color: colors.textMed,
                   cursor: "pointer",
                 }}
+                onClick={skipBackward}
               />
               <button
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={togglePlay}
                 style={{
                   width: "48px",
                   height: "48px",
@@ -338,6 +459,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   transition: "background-color 0.2s",
+                  cursor: "pointer",
+                  border: "none",
                 }}
               >
                 {isPlaying ? (
@@ -353,9 +476,21 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                   color: colors.textMed,
                   cursor: "pointer",
                 }}
+                onClick={skipForward}
               />
             </div>
-          )}
+            
+            {/* Time Display */}
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "12px",
+                color: colors.textMed,
+              }}
+            >
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </div>
+          </div>
 
           {/* Stats Overlay */}
           {frames.length > 0 && (
@@ -370,6 +505,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 display: "flex",
                 flexDirection: "column",
                 gap: "8px",
+                zIndex: 10,
               }}
             >
               <div
@@ -391,6 +527,32 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               >
                 ANOMALIES: {anomalyCount}
               </div>
+            </div>
+          )}
+
+          {/* Selected Frame Info */}
+          {selectedFrame && (
+            <div
+              style={{
+                position: "absolute",
+                top: "32px",
+                right: "32px",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "12px",
+                color: colors.textHigh,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                padding: "8px 12px",
+                borderRadius: "4px",
+                zIndex: 10,
+              }}
+            >
+              <div>FRAME: {selectedFrame.id}</div>
+              <div>TIME: {selectedFrame.timestamp}</div>
+              {selectedFrame.isAnomaly && (
+                <div style={{ color: colors.hyperRed, marginTop: "4px" }}>
+                  ANOMALY: {selectedFrame.anomalyType}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -33,4 +33,5 @@ export interface AnalysisDashboardProps {
   status?: string;
   isProcessing?: boolean;
   processedFrames?: number;
+  videoUrl?: string; // Local video URL for playback
 }
