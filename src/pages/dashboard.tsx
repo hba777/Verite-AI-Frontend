@@ -12,7 +12,9 @@ const Dashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
   const wsRef = useRef<WebSocket | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // Generate mock frames for demo/initial state
   const generateMockFrames = useCallback((): FrameData[] => {
@@ -47,6 +49,22 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
+  // Helper function to get video duration
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      video.onerror = () => {
+        resolve(0);
+      };
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileSelect = async (file: File) => {
     try {
       setStatus("Starting task...");
@@ -54,6 +72,11 @@ const Dashboard: React.FC = () => {
       // Create local video URL for playback
       const url = URL.createObjectURL(file);
       setVideoUrl(url);
+      
+      // Get video duration
+      const duration = await getVideoDuration(file);
+      setVideoDuration(duration);
+      console.log("Video duration:", duration, "seconds");
       
       // 1. Start task via HTTP POST
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/video/start-task`, {
@@ -74,8 +97,11 @@ const Dashboard: React.FC = () => {
       ws.binaryType = "arraybuffer";
 
       ws.onopen = () => {
-        // Send task_id first to subscribe
-        ws.send(taskId);
+        // Send task_id and video_duration first to subscribe
+        ws.send(JSON.stringify({ 
+          task_id: taskId, 
+          video_duration: videoDuration 
+        }));
         setStatus("Connected, ready to upload...");
       };
 
@@ -139,7 +165,10 @@ const Dashboard: React.FC = () => {
                   while (updated.length <= frameIndex) {
                     updated.push({
                       id: updated.length,
-                      timestamp: formatTimestamp(jsonData.timestamp || updated.length),
+                      // Use timestamp from backend if available
+                      timestamp: typeof jsonData.timestamp === 'string'
+                        ? jsonData.timestamp
+                        : formatTimestamp(jsonData.timestamp || updated.length),
                       thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
                       isAnomaly: jsonData.is_anomaly || false,
                       confidenceScore: jsonData.confidence || 0,
@@ -152,7 +181,11 @@ const Dashboard: React.FC = () => {
                   // Update the specific frame
                   updated[frameIndex] = {
                     id: frameIndex,
-                    timestamp: formatTimestamp(jsonData.timestamp ?? frameIndex),
+                    // Use timestamp from backend if available, otherwise format from seconds
+                    timestamp: typeof jsonData.timestamp === 'string' 
+                      ? jsonData.timestamp 
+                      : formatTimestamp(jsonData.timestamp ?? frameIndex),
+                    timestamp_seconds: jsonData.timestamp_seconds ?? (typeof jsonData.timestamp === 'number' ? jsonData.timestamp : frameIndex),
                     thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
                     isAnomaly: jsonData.is_anomaly || false,
                     confidenceScore: jsonData.confidence || 0,
@@ -182,6 +215,7 @@ const Dashboard: React.FC = () => {
                 const newFrames: FrameData[] = jsonData.preview_frames.map((url: string, idx: number) => ({
                   id: idx,
                   timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
+                  timestamp_seconds: idx,
                   thumbnailUrl: url,
                   isAnomaly: false,
                   confidenceScore: 0,

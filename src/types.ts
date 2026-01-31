@@ -7,6 +7,7 @@ export enum AppState {
 export interface FrameData {
   id: number;
   timestamp: string; // e.g., "00:34:12"
+  timestamp_seconds?: number; // Raw seconds for video seeking
   thumbnailUrl: string;
   isAnomaly: boolean;
   confidenceScore: number; // 0-100

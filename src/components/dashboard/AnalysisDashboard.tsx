@@ -83,13 +83,21 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
     
     // Jump to frame timestamp if video is available
     if (videoUrl && videoRef.current) {
-      // Parse timestamp string to seconds (format: "00:00:12")
-      const timestampParts = frame.timestamp.split(":");
-      const seconds = parseInt(timestampParts[0]) * 3600 + 
-                     parseInt(timestampParts[1]) * 60 + 
-                     parseInt(timestampParts[2]);
-      videoRef.current.currentTime = seconds;
+      // Use timestamp_seconds if available, otherwise parse the timestamp string
+      const seekTime = frame.timestamp_seconds !== undefined 
+        ? frame.timestamp_seconds 
+        : parseTimestampToSeconds(frame.timestamp);
+      videoRef.current.currentTime = seekTime;
     }
+  };
+
+  // Helper to parse timestamp string to seconds
+  const parseTimestampToSeconds = (timestamp: string): number => {
+    const parts = timestamp.split(":");
+    if (parts.length === 3) {
+      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(parts[2]);
+    }
+    return 0;
   };
 
   const togglePlay = () => {
