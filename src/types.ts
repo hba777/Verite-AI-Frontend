@@ -25,3 +25,12 @@ export interface HeatmapConfig {
   show: boolean;
   opacity: number;
 }
+
+export interface AnalysisDashboardProps {
+  appState: AppState;
+  frames: FrameData[];
+  uploadProgress?: number;
+  status?: string;
+  isProcessing?: boolean;
+  processedFrames?: number;
+}

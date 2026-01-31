@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import Timeline from "./Timeline";
 import ForensicAnalysisSection from "./ForensicAnalysisSection";
-import { FrameData, AppState } from "@/types";
+import { FrameData, AppState, AnalysisDashboardProps } from "@/types";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
-
-interface AnalysisDashboardProps {
-  appState: AppState;
-  frames: FrameData[];
-}
 
 const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   appState,
   frames,
+  uploadProgress = 0,
+  status = "Idle",
+  isProcessing = false,
+  processedFrames = 0,
 }) => {
   const [progress, setProgress] = useState(0);
   const [selectedFrame, setSelectedFrame] = useState<FrameData | null>(null);
@@ -19,21 +18,19 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
   const analysisRef = useRef<HTMLDivElement>(null);
 
-  // Simulate analysis progress
+  // Update progress from upload or processing
   useEffect(() => {
-    if (appState === AppState.ANALYZING) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 0.5;
-        });
-      }, 50);
-      return () => clearInterval(interval);
+    if (uploadProgress > 0 && uploadProgress < 100) {
+      setProgress(uploadProgress);
+    } else if (isProcessing && frames.length > 0) {
+      // Calculate processing progress
+      const processedCount = frames.filter((f) => f.isProcessed).length;
+      const processingProgress = (processedCount / frames.length) * 100;
+      setProgress(processingProgress);
+    } else if (appState === AppState.COMPLETE) {
+      setProgress(100);
     }
-  }, [appState]);
+  }, [uploadProgress, isProcessing, frames.length, appState]);
 
   // Scroll to analysis when frame selected
   useEffect(() => {
@@ -135,8 +132,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                backgroundColor: colors.electricTeal,
-                animation: "pulse 2s infinite",
+                backgroundColor: isProcessing ? colors.electricTeal : appState === AppState.COMPLETE ? colors.neuralGreen : colors.textMed,
+                animation: isProcessing ? "pulse 2s infinite" : "none",
               }}
             ></div>
             <span
@@ -148,12 +145,35 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 letterSpacing: "1px",
               }}
             >
-              {progress < 100
-                ? `ANALYZING FRAMES (${Math.floor(progress)}%)`
+              {uploadProgress > 0 && uploadProgress < 100
+                ? `UPLOADING ${Math.floor(uploadProgress)}%`
+                : progress < 100
+                ? `ANALYZING FRAMES ${processedFrames}/${frames.length || '?'}`
                 : "ANALYSIS COMPLETE"}
             </span>
           </div>
         </div>
+
+        {/* Status Message */}
+        {status && status !== "Idle" && (
+          <div
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "11px",
+                color: colors.textMed,
+              }}
+            >
+              {status}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Main Workspace */}
@@ -194,7 +214,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 padding: "32px",
               }}
             />
-          ) : (
+          ) : frames.length > 0 ? (
             <div
               style={{
                 display: "flex",
@@ -233,115 +253,163 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 SELECT A FRAME TO INSPECT
               </p>
             </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                color: "rgba(245,245,245,0.2)",
+              }}
+            >
+              <div
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  border: `2px solid ${colors.electricTeal}`,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "16px",
+                  animation: "pulse 2s infinite",
+                }}
+              >
+                <div
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: colors.electricTeal,
+                  }}
+                />
+              </div>
+              <p
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "14px",
+                  color: colors.electricTeal,
+                }}
+              >
+                {status || "PROCESSING..."}
+              </p>
+            </div>
           )}
 
           {/* Player Controls */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "32px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              alignItems: "center",
-              gap: "24px",
-              backgroundColor: "rgba(18,20,22,0.9)",
-              backdropFilter: "blur(8px)",
-              border: `1px solid ${colors.borderWhite}`,
-              padding: "12px 32px",
-              borderRadius: "24px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
-              opacity: 0,
-              transition: "opacity 0.3s",
-            }}
-          >
-            <SkipBack
+          {frames.length > 0 && (
+            <div
               style={{
-                width: "20px",
-                height: "20px",
-                color: colors.textMed,
-                cursor: "pointer",
-              }}
-            />
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                backgroundColor: colors.electricTeal,
-                color: colors.deepVoid,
+                position: "absolute",
+                bottom: "32px",
+                left: "50%",
+                transform: "translateX(-50%)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                transition: "background-color 0.2s",
+                gap: "24px",
+                backgroundColor: "rgba(18,20,22,0.9)",
+                backdropFilter: "blur(8px)",
+                border: `1px solid ${colors.borderWhite}`,
+                padding: "12px 32px",
+                borderRadius: "24px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+                opacity: 0,
+                transition: "opacity 0.3s",
               }}
+              className="player-controls"
             >
-              {isPlaying ? (
-                <Pause style={{ fill: "currentColor" }} />
-              ) : (
-                <Play style={{ fill: "currentColor", marginLeft: "4px" }} />
-              )}
-            </button>
-            <SkipForward
-              style={{
-                width: "20px",
-                height: "20px",
-                color: colors.textMed,
-                cursor: "pointer",
-              }}
-            />
-          </div>
+              <SkipBack
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  color: colors.textMed,
+                  cursor: "pointer",
+                }}
+              />
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "50%",
+                  backgroundColor: colors.electricTeal,
+                  color: colors.deepVoid,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background-color 0.2s",
+                }}
+              >
+                {isPlaying ? (
+                  <Pause style={{ fill: "currentColor" }} />
+                ) : (
+                  <Play style={{ fill: "currentColor", marginLeft: "4px" }} />
+                )}
+              </button>
+              <SkipForward
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  color: colors.textMed,
+                  cursor: "pointer",
+                }}
+              />
+            </div>
+          )}
 
           {/* Stats Overlay */}
-          <div
-            style={{
-              position: "absolute",
-              top: "32px",
-              left: "32px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "12px",
-              color: colors.textMed,
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-            }}
-          >
+          {frames.length > 0 && (
             <div
               style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                padding: "4px 8px",
-                borderRadius: "4px",
+                position: "absolute",
+                top: "32px",
+                left: "32px",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "12px",
+                color: colors.textMed,
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
               }}
             >
-              PROCESSED: {processedCount} / {frames.length}
+              <div
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                }}
+              >
+                PROCESSED: {processedCount} / {frames.length}
+              </div>
+              <div
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  color: colors.hyperRed,
+                }}
+              >
+                ANOMALIES: {anomalyCount}
+              </div>
             </div>
-            <div
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                padding: "4px 8px",
-                borderRadius: "4px",
-                color: colors.hyperRed,
-              }}
-            >
-              ANOMALIES: {anomalyCount}
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Timeline */}
-        <div
-          style={{
-            height: "192px",
-            backgroundColor: colors.surface,
-            borderTop: `1px solid ${colors.borderWhite}`,
-            position: "relative",
-            zIndex: 20,
-            flexShrink: 0,
-          }}
-        >
-          <Timeline frames={frames} onSelectAnomaly={handleSelectAnomaly} />
-        </div>
+        {frames.length > 0 && (
+          <div
+            style={{
+              height: "192px",
+              backgroundColor: colors.surface,
+              borderTop: `1px solid ${colors.borderWhite}`,
+              position: "relative",
+              zIndex: 20,
+              flexShrink: 0,
+            }}
+          >
+            <Timeline frames={frames} onSelectAnomaly={handleSelectAnomaly} />
+          </div>
+        )}
       </div>
 
       {/* Expanded Analysis Section */}
