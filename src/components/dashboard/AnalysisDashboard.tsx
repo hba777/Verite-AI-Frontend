@@ -18,6 +18,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const analysisRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -214,7 +216,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 height: "8px",
                 borderRadius: "50%",
                 backgroundColor: isProcessing ? colors.electricTeal : appState === AppState.COMPLETE ? colors.neuralGreen : colors.textMed,
-                animation: isProcessing ? "pulse 2s infinite" : "none",
+                animation: isProcessing ? "pulse 1s infinite" : "none",
               }}
             ></div>
             <span
@@ -270,6 +272,20 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
             alignItems: "center",
             justifyContent: "center",
             borderBottom: `1px solid ${colors.borderWhite}`,
+          }}
+          onMouseEnter={() => {
+            setControlsVisible(true);
+            if (controlsTimeoutRef.current) {
+              clearTimeout(controlsTimeoutRef.current);
+            }
+          }}
+          onMouseLeave={() => {
+            if (controlsTimeoutRef.current) {
+              clearTimeout(controlsTimeoutRef.current);
+            }
+            controlsTimeoutRef.current = setTimeout(() => {
+              setControlsVisible(false);
+            }, 2000);
           }}
         >
           {/* Grid Overlay */}
@@ -408,6 +424,9 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               borderRadius: "24px",
               boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
               zIndex: 10,
+              opacity: controlsVisible ? 1 : 0,
+              transition: "opacity 0.3s ease-in-out",
+              pointerEvents: controlsVisible ? "auto" : "none",
             }}
           >
             {/* Progress Bar */}
