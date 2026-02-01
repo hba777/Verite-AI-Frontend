@@ -15,6 +15,7 @@ const Dashboard: React.FC = () => {
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
 
   // Generate mock frames for demo/initial state
   const generateMockFrames = useCallback((): FrameData[] => {
@@ -148,6 +149,9 @@ const Dashboard: React.FC = () => {
               console.log("Received JSON data:", jsonData);
               
               if (jsonData.type === "frame_ready" || jsonData.type === "detection_ready") {
+                // Mark that frames are being received via WebSocket
+                framesReceivedRef.current = true;
+                
                 // Handle real-time frame update or detection result
                 const frameIndex = jsonData.frame_index;
                 
@@ -252,7 +256,11 @@ const Dashboard: React.FC = () => {
 
   // Simulate the "Waterfall" processing effect (fallback if WebSocket not available)
   useEffect(() => {
-    if (appState === AppState.ANALYZING && frames.length === 0 && status !== "Upload complete, processing...") {
+    // Only run mock processing if:
+    // 1. We're analyzing
+    // 2. No frames yet
+    // 3. NOT receiving frames via WebSocket (checked via ref)
+    if (appState === AppState.ANALYZING && frames.length === 0 && !framesReceivedRef.current && status !== "Upload complete, processing...") {
       // Initialize mock frames for demo
       const initialFrames = generateMockFrames();
       setFrames(initialFrames);
@@ -264,14 +272,14 @@ const Dashboard: React.FC = () => {
           // Process batches of frames to simulate speed
           for (let i = 0; i < 2; i++) {
             if (currentIndex < newFrames.length) {
-              newFrames[currentIndex].isProcessed = true;
+              newFrames[currentIndex] = { ...newFrames[currentIndex], isProcessed: true };
               currentIndex++;
             }
           }
           return newFrames;
         });
 
-        if (currentIndex >= frames.length && frames.length > 0) {
+        if (currentIndex >= initialFrames.length && initialFrames.length > 0) {
           clearInterval(processInterval);
           setAppState(AppState.COMPLETE);
         }
@@ -279,7 +287,7 @@ const Dashboard: React.FC = () => {
 
       return () => clearInterval(processInterval);
     }
-  }, [appState, frames.length, generateMockFrames, status]);
+  }, [appState, status, generateMockFrames]);
 
   return (
     <div className="font-sans text-text-high antialiased">
