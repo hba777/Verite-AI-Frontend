@@ -147,8 +147,8 @@ const Dashboard: React.FC = () => {
               const jsonData = JSON.parse(event.data as string);
               console.log("Received JSON data:", jsonData);
               
-              if (jsonData.type === "frame_ready") {
-                // Handle real-time frame update
+              if (jsonData.type === "frame_ready" || jsonData.type === "detection_ready") {
+                // Handle real-time frame update or detection result
                 const frameIndex = jsonData.frame_index;
                 
                 // Convert timestamp to string format (e.g., "00:00:12")
@@ -170,12 +170,12 @@ const Dashboard: React.FC = () => {
                         ? jsonData.timestamp
                         : formatTimestamp(jsonData.timestamp || updated.length),
                       thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
-                      isAnomaly: jsonData.is_anomaly || false,
-                      confidenceScore: jsonData.confidence || 0,
-                      isProcessed: true,
-                      anomalyType: jsonData.anomaly_type,
-                      elaScore: jsonData.ela_score,
-                      frequencySpike: jsonData.frequency_spike,
+                      isAnomaly: false,
+                      confidenceScore: 0,
+                      isProcessed: false,
+                      anomalyType: undefined,
+                      elaScore: undefined,
+                      frequencySpike: undefined,
                     });
                   }
                   // Update the specific frame
@@ -187,8 +187,9 @@ const Dashboard: React.FC = () => {
                       : formatTimestamp(jsonData.timestamp ?? frameIndex),
                     timestamp_seconds: jsonData.timestamp_seconds ?? (typeof jsonData.timestamp === 'number' ? jsonData.timestamp : frameIndex),
                     thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
-                    isAnomaly: jsonData.is_anomaly || false,
-                    confidenceScore: jsonData.confidence || 0,
+                    isAnomaly: jsonData.is_anomaly ?? false,
+                    confidenceScore: jsonData.confidence ?? 0,
+                    // Mark as processed if it's frame_ready or detection_ready
                     isProcessed: true,
                     anomalyType: jsonData.anomaly_type,
                     elaScore: jsonData.ela_score,
@@ -197,7 +198,7 @@ const Dashboard: React.FC = () => {
                   return updated;
                 });
                 setProcessedFrames(prev => prev + 1);
-                console.log(`Frame ${frameIndex} received`);
+                console.log(`Frame ${frameIndex} received (${jsonData.type})`);
               } else if (jsonData.type === "processing_complete") {
                 setStatus("Processing complete!");
                 setIsProcessing(false);
