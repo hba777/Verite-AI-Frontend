@@ -285,7 +285,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
             }
             controlsTimeoutRef.current = setTimeout(() => {
               setControlsVisible(false);
-            }, 2000);
+            }, 500);
           }}
         >
           {/* Grid Overlay */}
