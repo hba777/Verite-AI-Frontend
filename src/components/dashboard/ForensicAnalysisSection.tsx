@@ -94,7 +94,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   cx="32"
                   cy="32"
                   r={radius}
-                  stroke="#00E5FF"
+                  stroke="#3b6bff"
                   strokeWidth="4"
                   fill="transparent"
                   strokeDasharray={circumference}
@@ -115,9 +115,9 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 Visual Forensics
               </h3>
             </div>
-            <div className="flex items-center gap-6 bg-black/20 px-4 py-2 rounded-full border border-white/5">
+            <div className="flex flex-wrap items-center gap-4 bg-black/20 px-4 py-2 rounded-full border border-white/5">
               <div className="flex items-center gap-3">
-                <label className="text-xs font-mono text-text-med uppercase">
+                <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
                   Heatmap Overlay
                 </label>
                 <div
@@ -135,9 +135,9 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   />
                 </div>
               </div>
-              <div className="h-4 w-px bg-white/10"></div>
+              <div className="hidden sm:block h-4 w-px bg-white/10"></div>
               <div className="flex items-center gap-3">
-                <label className="text-xs font-mono text-text-med uppercase">
+                <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
                   Opacity
                 </label>
                 <input
@@ -151,7 +151,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                       opacity: parseInt(e.target.value),
                     }))
                   }
-                  className="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-electric-teal"
+                  className="w-20 sm:w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-electric-teal"
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           </section>
 
           {/* Section 3: Metrics */}
-          <section className="space-y-6">
+          <section className="pt-10 sm:pt-0 space-y-6">
             <div className="flex items-center gap-3">
               <Activity className="w-5 h-5 text-electric-teal" />
               <h3 className="font-display text-xl font-bold text-text-high">
@@ -240,7 +240,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                       {freqData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={index === 2 ? "#FF2D55" : "#00E5FF"}
+                          fill={index === 2 ? "#FF2D55" : "#3b6bff"}
                         />
                       ))}
                     </Bar>
@@ -276,7 +276,24 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
         <div className="flex justify-center pt-8">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-text-med hover:text-white transition-all font-mono text-xs tracking-widest uppercase"
+            className="flex items-center gap-2 px-6 py-3 rounded-full font-mono text-xs tracking-widest uppercase text-white"
+            style={{
+              backgroundImage:
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+              backgroundOrigin: "border-box",
+              backgroundClip: "padding-box, border-box",
+              border: "2px solid transparent",
+              transition:
+                "background-color 0.3s ease, background-image 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundImage =
+                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            }
           >
             <X className="w-4 h-4" />
             Close Analysis

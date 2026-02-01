@@ -21,46 +21,30 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "space-between", 
-        padding: "8px 24px", 
-        borderBottom: `1px solid ${colors.borderWhite}`,
-        backgroundColor: colors.surface,
-      }}>
-        <h3 style={{ 
-          fontFamily: "'JetBrains Mono', monospace", 
-          fontSize: "12px", 
-          color: colors.textMed, 
-          textTransform: "uppercase", 
-          letterSpacing: "2px",
-        }}>
+    <div className="w-full h-full flex flex-col bg-black">
+      <div className="flex items-center justify-between px-6 py-2 border-b border-white/5 bg-surface">
+        <h3 className="font-mono text-xs text-text-med uppercase tracking-widest">
           Timeline Sequence
         </h3>
-        <span style={{ 
-          fontFamily: "'JetBrains Mono', monospace", 
-          fontSize: "12px", 
-          color: colors.electricTeal,
-          animation: "pulse 2s infinite",
-        }}>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "12px",
+            color: colors.electricTeal,
+            animation: "pulse 2s infinite",
+          }}
+        >
           {frames.filter((f) => f.isProcessed).length} FRAMES PROCESSED
         </span>
       </div>
 
       <div
         ref={scrollContainerRef}
+        className="flex-1 overflow-x-auto flex items-center px-6 gap-2 py-4 relative scrollbar-thin"
         style={{
-          flex: 1,
-          overflowX: "auto",
-          display: "flex",
-          alignItems: "center",
-          padding: "16px 24px",
-          gap: "8px",
-          position: "relative",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#3b6bff #060606",
         }}
-        className="hide-scrollbar"
       >
         {frames.map((frame) => {
           if (!frame.isProcessed) return null;
@@ -78,25 +62,26 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
               }}
             >
               <div
+                className={`
+                  relative w-40 aspect-video rounded bg-gray-900 overflow-hidden transition-all duration-300
+                  ${
+                    frame.isAnomaly
+                      ? "border-2 border-[#FF2D55] shadow-[0_0_20px_rgba(255,45,85,0.5)]"
+                      : "border border-white/10 opacity-60 hover:opacity-100"
+                  }
+                `}
                 onClick={() => onSelectAnomaly(frame)}
-                style={{
-                  position: "relative",
-                  width: "160px",
-                  aspectRatio: "16/9",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  transform: "scale(1)",
-                }}
-                className="frame-item"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "scale(1.05)";
-                  e.currentTarget.style.boxShadow = `0 0 20px ${colors.electricTeal}40`;
+                  if (!frame.isAnomaly) {
+                    e.currentTarget.style.boxShadow = `0 0 20px ${colors.electricTeal}40`;
+                  }
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.boxShadow = frame.isAnomaly
+                    ? "0 0 20px rgba(255,45,85,0.5)"
+                    : "none";
                 }}
               >
                 {/* Frame Image */}
@@ -118,8 +103,8 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundColor: frame.isAnomaly 
-                      ? `${colors.hyperRed}10` 
+                    backgroundColor: frame.isAnomaly
+                      ? `${colors.hyperRed}10`
                       : `${colors.electricTeal}05`,
                     opacity: 0,
                     transition: "opacity 0.3s",
@@ -180,26 +165,22 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
               </div>
 
               {/* Metadata / Action */}
-              <div style={{ height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  height: "32px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 {frame.isAnomaly ? (
                   <button
                     onClick={() => onSelectAnomaly(frame)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      padding: "6px 12px",
-                      borderRadius: "9999px",
-                      backgroundColor: `${colors.hyperRed}20`,
-                      border: `1px solid ${colors.hyperRed}50`,
-                      color: colors.hyperRed,
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                      textTransform: "uppercase",
-                      letterSpacing: "1px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }}
+                    className="
+                      flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D55]/20 border border-[#FF2D55]
+                      text-[#FF2D55] text-[10px] font-bold tracking-wider uppercase hover:bg-[#FF2D55] hover:text-white transition-all
+                      scale-90 group-hover:scale-100 opacity-100
+                    "
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = colors.hyperRed;
                       e.currentTarget.style.color = "#fff";
@@ -233,7 +214,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
         })}
 
         {/* Spacer for end of list */}
-        <div style={{ width: "80px", flexShrink: 0 }}></div>
+        <div className="bg-black w-20 flex-shrink-0"></div>
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
   return (
     <div
       className={`
-        fixed top-[4px] right-0 bottom-0 w-[450px] bg-surface border-l border-white/10 shadow-2xl
+        fixed top-[4px] right-0 bottom-0 w-[450px] bg-black border-l border-white/10 shadow-2xl
         transform transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-40
         flex flex-col
         ${isOpen ? "translate-x-0" : "translate-x-full"}
