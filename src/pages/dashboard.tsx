@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import IngestionHub from "@/components/dashboard/IngestionHub";
 import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
 import { AppState, FrameData } from "@/types";
+import { useUser } from "../context/UserContext";
 
 
 const Dashboard: React.FC = () => {
+  const { token } = useUser();
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [frames, setFrames] = useState<FrameData[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -80,8 +82,13 @@ const Dashboard: React.FC = () => {
       console.log("Video duration:", duration, "seconds");
       
       // 1. Start task via HTTP POST
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/video/start-task`, {
         method: "POST",
+        headers,
       });
       if (!res.ok) throw new Error("Failed to start task");
       const data = await res.json();
