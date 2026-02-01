@@ -23,7 +23,7 @@
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  --chart-1: #3169e6; /* bright blue */
+  --chart-1: #3b6bff; /* bright blue */
   --chart-2: #222323; /* medium blue */
   --chart-3: oklch(0.55 0.15 240); /* darker blue */
   --chart-4: oklch(0.48 0.12 235); /* deep navy blue */
@@ -110,7 +110,7 @@ body {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
-  --chart-1: #3169e6; /* bright blue */
+  --chart-1: #3b6bff; /* bright blue */
   --chart-2: oklch(0.62 0.18 250); /* medium blue */
   --chart-3: oklch(0.55 0.15 240); /* darker blue */
   --chart-4: oklch(0.48 0.12 235); /* deep navy blue */
@@ -142,4 +142,27 @@ body {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+/* Custom Scrollbar for Timeline */
+.scrollbar-thin {
+  overflow-y: hidden;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 12px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #060606;
+  border-radius: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff);
+  border-radius: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #345fe6, #2786e6 65%, #9ca6e6);
 }

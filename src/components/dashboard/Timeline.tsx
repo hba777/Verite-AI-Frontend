@@ -13,7 +13,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
   // Auto-scroll to end while processing (optional, disabled here for user control)
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col bg-black">
       <div className="flex items-center justify-between px-6 py-2 border-b border-white/5 bg-surface">
         <h3 className="font-mono text-xs text-text-med uppercase tracking-widest">
           Timeline Sequence
@@ -25,7 +25,11 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
 
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-x-auto hide-scrollbar flex items-center px-6 gap-2 py-4 relative"
+        className="flex-1 overflow-x-auto flex items-center px-6 gap-2 py-4 relative scrollbar-thin"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#3b6bff #060606',
+        }}
       >
         {frames.map((frame) => {
           if (!frame.isProcessed) return null;
@@ -40,7 +44,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                   relative w-40 aspect-video rounded bg-gray-900 overflow-hidden transition-all duration-300
                   ${
                     frame.isAnomaly
-                      ? "border-2 border-hyper-red shadow-[0_0_15px_rgba(255,45,85,0.3)]"
+                      ? "border-2 border-[#FF2D55] shadow-[0_0_20px_rgba(255,45,85,0.5)]"
                       : "border border-white/10 opacity-60 hover:opacity-100"
                   }
                 `}
@@ -66,9 +70,9 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                   <button
                     onClick={() => onSelectAnomaly(frame)}
                     className="
-                      flex items-center gap-2 px-3 py-1 rounded-full bg-hyper-red/10 border border-hyper-red/50
-                      text-hyper-red text-[10px] font-bold tracking-wider uppercase hover:bg-hyper-red hover:text-white transition-all
-                      scale-90 group-hover:scale-100 opacity-0 group-hover:opacity-100
+                      flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D55]/20 border border-[#FF2D55]
+                      text-[#FF2D55] text-[10px] font-bold tracking-wider uppercase hover:bg-[#FF2D55] hover:text-white transition-all
+                      scale-90 group-hover:scale-100 opacity-100
                     "
                   >
                     <Eye className="w-3 h-3" />
@@ -85,7 +89,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
         })}
 
         {/* Spacer for end of list */}
-        <div className="w-20 flex-shrink-0"></div>
+        <div className="bg-black w-20 flex-shrink-0"></div>
       </div>
     </div>
   );

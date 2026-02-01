@@ -39,8 +39,8 @@ const IngestionHub: React.FC<IngestionHubProps> = ({ onFileSelect }) => {
   );
 
   const colors = {
-    deepVoid: "#08090A",
-    surface: "#121416",
+    deepVoid: "#000000",
+    surface: "#141414",
     electricTeal: "#00E5FF",
     textHigh: "#F5F5F5",
     textMed: "#A0A0A0",
@@ -49,55 +49,24 @@ const IngestionHub: React.FC<IngestionHubProps> = ({ onFileSelect }) => {
 
   return (
     <div
+      className="bg-black flex flex-col items-center justify-center min-h-screen w-full relative overflow-hidden p-4 sm:p-6 lg:p-8"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        width: "100%",
         backgroundColor: colors.deepVoid,
-        position: "relative",
-        overflow: "hidden",
       }}
     >
-      {/* Background Ambient Glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "800px",
-          height: "800px",
-          borderRadius: "50%",
-          backgroundColor: `${colors.electricTeal}0D`, // /5 opacity ≈ 0.05
-          filter: "blur(120px)",
-          pointerEvents: "none",
-        }}
-      />
 
       {/* Dropzone */}
       <div
+        className="relative z-10 w-full max-w-[90vw] sm:max-w-[600px] lg:max-w-[800px] rounded-xl sm:rounded-2xl lg:rounded-[24px] border-2 transition-all duration-500 ease-out flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12"
         style={{
-          position: "relative",
-          zIndex: 10,
-          width: "800px",
-          height: "500px",
-          borderRadius: "24px",
-          border: `2px dashed ${
-            isDragOver ? colors.electricTeal : colors.borderWhite
-          }`,
+          borderStyle: "dashed",
+          borderColor: isDragOver ? colors.electricTeal : colors.borderWhite,
           backgroundColor: isDragOver
             ? `${colors.electricTeal}0D`
             : colors.surface,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "all 0.5s ease-out",
-          transform: isDragOver ? "scale(1.05)" : "scale(1)",
+          transform: isDragOver ? "scale(1.02)" : "scale(1)",
           boxShadow: isDragOver ? `0 0 50px rgba(0,229,255,0.2)` : "none",
+          minHeight: isDragOver ? "auto" : "400px",
         }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -106,85 +75,57 @@ const IngestionHub: React.FC<IngestionHubProps> = ({ onFileSelect }) => {
         <input
           type="file"
           id="file-upload"
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleInputChange}
           accept="video/*,image/*,audio/*"
         />
 
-        <div
-          style={{
-            marginBottom: "32px",
-            position: "relative",
-            width: "fit-content",
-          }}
-        >
+        <div className="mb-6 sm:mb-8 relative w-fit">
           <div
+            className="absolute inset-0 rounded-full transition-opacity duration-300"
             style={{
-              position: "absolute",
-              inset: 0,
               backgroundColor: colors.electricTeal,
               filter: "blur(20px)",
               opacity: isDragOver ? 0.5 : 0.2,
-              borderRadius: "50%",
-              transition: "opacity 0.3s",
             }}
           />
           <Upload
+            className={`w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 transition-colors duration-300 relative z-10 ${
+              isDragOver ? "text-electric-teal" : "text-text-med"
+            }`}
             style={{
-              width: "80px",
-              height: "80px",
               color: isDragOver ? colors.electricTeal : colors.textMed,
-              transition: "color 0.3s",
-              position: "relative",
-              zIndex: 10,
             }}
           />
         </div>
 
         <h1
+          className="text-xl sm:text-2xl lg:text-[2.25rem] font-bold text-text-high mb-3 sm:mb-4 lg:mb-6 text-center"
           style={{
             fontFamily: "'Montserrat', sans-serif",
-            fontSize: "2.25rem",
             fontWeight: 700,
-            color: colors.textHigh,
-            marginBottom: "16px",
             letterSpacing: "-0.5px",
-            textAlign: "center",
           }}
         >
           Initiate Forensic Analysis
         </h1>
         <p
+          className="text-sm sm:text-base text-text-med mb-6 sm:mb-8 lg:mb-12 text-center max-w-[90%] sm:max-w-[384px]"
           style={{
             fontFamily: "'Inter', sans-serif",
-            fontSize: "1.125rem",
-            color: colors.textMed,
-            marginBottom: "48px",
-            maxWidth: "384px",
-            textAlign: "center",
           }}
         >
           Drag & Drop source material or{" "}
           <label
             htmlFor="file-upload"
-            style={{
-              color: colors.electricTeal,
-              cursor: "pointer",
-              textDecoration: "underline",
-              textDecorationThickness: "2px",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = colors.electricTeal)
-            }
+            className="text-blue-300 hover:text-blue-200 transition-colors cursor-pointer underline decoration-2"
           >
             browse files
           </label>
         </p>
 
         {/* File Type Options */}
-        <div style={{ display: "flex", gap: "24px" }}>
+        <div className="flex flex-wrap gap-3 sm:gap-4 lg:gap-6 justify-center w-full">
           {[
             { icon: Video, label: "Video" },
             { icon: ImageIcon, label: "Image" },
@@ -192,27 +133,31 @@ const IngestionHub: React.FC<IngestionHubProps> = ({ onFileSelect }) => {
           ].map((item, idx) => (
             <div
               key={idx}
+              className="flex items-center justify-center rounded-full py-2 px-4 sm:py-3 sm:px-6 lg:px-8 font-normal text-white transition-all duration-300 cursor-pointer min-w-[100px]"
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "12px 24px",
-                borderRadius: "16px",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: `1px solid ${colors.borderWhite}`,
-                backdropFilter: "blur(8px)",
+                backgroundImage:
+                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+                border: "2px solid transparent",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundImage =
+                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+              }
             >
               <item.icon
-                style={{ width: "20px", height: "20px", color: colors.textMed }}
+                className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                style={{ color: "white" }}
               />
               <span
+                className="text-xs sm:text-sm uppercase tracking-wide"
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "0.875rem",
-                  color: colors.textMed,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
                 }}
               >
                 {item.label}

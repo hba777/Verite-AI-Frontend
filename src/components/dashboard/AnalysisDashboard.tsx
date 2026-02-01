@@ -70,11 +70,10 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   };
 
   return (
-    <div
+    <div className="bg-black"
       style={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: colors.deepVoid,
         display: "flex",
         flexDirection: "column",
         position: "relative",
