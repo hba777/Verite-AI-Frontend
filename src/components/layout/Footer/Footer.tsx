@@ -12,7 +12,7 @@ import {
 
 const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
-    <footer ref={ref} className="text-gray-400 py-16 px-4">
+    <footer ref={ref} className="bg-black text-gray-400 py-16 px-4">
       <div className="container mx-auto">
         {/* Top: Social Links */}
         <div className="flex flex-wrap items-center gap-6 border-b border-gray-800 pb-8">

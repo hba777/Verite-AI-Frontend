@@ -1,52 +1,316 @@
-import React, { useCallback, useState } from "react";
-import VideoCard from "@/features/Dashboard/VideoCard/VideoCard";
-import VideoTimeline from "@/features/Dashboard/VideoTimeline/VideoTimeline";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import IngestionHub from "@/components/dashboard/IngestionHub";
+import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
+import { AppState, FrameData } from "@/types";
+import { useUser } from "../context/UserContext";
+
 
 const Dashboard: React.FC = () => {
+  const { token } = useUser();
+  const [appState, setAppState] = useState<AppState>(AppState.IDLE);
+  const [frames, setFrames] = useState<FrameData[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [status, setStatus] = useState("Idle");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [frames, setFrames] = useState<Array<{frameIndex: number, frameData: string, timestamp: number}>>([]);
-  const [frameSelector, setFrameSelector] = useState<((frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
+  const wsRef = useRef<WebSocket | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
 
-  const handleFramesReceived = useCallback((newFrames: Array<{frameIndex: number, frameData: string, timestamp: number}>, selector?: (frame: {frameIndex: number, frameData: string, timestamp: number} | null) => void) => {
-    setFrames(newFrames);
-    if (selector) {
-      setFrameSelector(() => selector);
+  // Generate mock frames for demo/initial state
+  const generateMockFrames = useCallback((): FrameData[] => {
+    const newFrames: FrameData[] = [];
+    const totalFrames = 50;
+
+    for (let i = 0; i < totalFrames; i++) {
+      const isAnomaly = [15, 32, 45].includes(i);
+      const imgId = 100 + i;
+
+      newFrames.push({
+        id: i,
+        timestamp: `00:00:${i.toString().padStart(2, "0")}`,
+        thumbnailUrl: `https://picsum.photos/seed/${imgId}/800/450`,
+        isAnomaly: isAnomaly,
+        confidenceScore: isAnomaly ? 85 + Math.floor(Math.random() * 14) : 5,
+        isProcessed: false,
+        anomalyType: isAnomaly ? "FaceSwap-GAN" : undefined,
+        elaScore: isAnomaly ? 0.85 : 0.1,
+        frequencySpike: isAnomaly ? 85 : 12,
+      });
     }
+    return newFrames;
   }, []);
 
-  const handleFrameClick = useCallback((frame: {frameIndex: number, frameData: string, timestamp: number}) => {
-    // Jump to the timestamp in the video
-    setCurrentTime(frame.timestamp);
-    
-    // Update the selected frame in VideoCard
-    if (frameSelector) {
-      frameSelector(frame);
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
+
+  // Helper function to get video duration
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      video.onerror = () => {
+        resolve(0);
+      };
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelect = async (file: File) => {
+    try {
+      setStatus("Starting task...");
+      
+      // Create local video URL for playback
+      const url = URL.createObjectURL(file);
+      setVideoUrl(url);
+      
+      // Get video duration
+      const duration = await getVideoDuration(file);
+      setVideoDuration(duration);
+      console.log("Video duration:", duration, "seconds");
+      
+      // 1. Start task via HTTP POST
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/video/start-task`, {
+        method: "POST",
+        headers,
+      });
+      if (!res.ok) throw new Error("Failed to start task");
+      const data = await res.json();
+      const taskId = data.task_id;
+      console.log("Task ID:", taskId);
+      setAppState(AppState.ANALYZING);
+
+      // Initialize empty frames array for now
+      setFrames([]);
+
+      // 2. Open WebSocket
+      const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+      wsRef.current = ws;
+      ws.binaryType = "arraybuffer";
+
+      ws.onopen = () => {
+        // Send task_id and video_duration first to subscribe
+        ws.send(JSON.stringify({ 
+          task_id: taskId, 
+          video_duration: videoDuration 
+        }));
+        setStatus("Connected, ready to upload...");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          // Handle control messages (SEND_VIDEO, Processing, DONE)
+          if (event.data === "SEND_VIDEO") {
+            setStatus("Uploading video...");
+            // Start sending file chunks
+            const chunkSize = 64 * 1024; // 64 KB
+            let offset = 0;
+            
+            function sendNext() {
+              const slice = file.slice(offset, offset + chunkSize);
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                if (e.target?.result) {
+                  ws.send(e.target.result as ArrayBuffer);
+                  offset += chunkSize;
+                  // Update progress
+                  const progress = Math.min((offset / file.size) * 100, 100);
+                  setUploadProgress(progress);
+                  if (offset < file.size) {
+                    sendNext();
+                  } else {
+                    ws.send("END");
+                    setUploadProgress(100);
+                    setStatus("Upload complete, processing...");
+                  }
+                }
+              };
+              reader.readAsArrayBuffer(slice);
+            }
+            sendNext();
+          } else if (event.data === "Processing...") {
+            setStatus("Processing video...");
+            setUploadProgress(100);
+            setIsProcessing(true);
+            setProcessedFrames(0);
+          } else {
+            // Try parsing JSON message
+            try {
+              const jsonData = JSON.parse(event.data as string);
+              console.log("Received JSON data:", jsonData);
+              
+              if (jsonData.type === "frame_ready" || jsonData.type === "detection_ready") {
+                // Mark that frames are being received via WebSocket
+                framesReceivedRef.current = true;
+                
+                // Handle real-time frame update or detection result
+                const frameIndex = jsonData.frame_index;
+                
+                // Convert timestamp to string format (e.g., "00:00:12")
+                const formatTimestamp = (time: number) => {
+                  const hrs = Math.floor(time / 3600);
+                  const mins = Math.floor((time % 3600) / 60);
+                  const secs = Math.floor(time % 60);
+                  return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+                };
+                
+                setFrames(prev => {
+                  const updated = [...prev];
+                  // Ensure array is large enough
+                  while (updated.length <= frameIndex) {
+                    updated.push({
+                      id: updated.length,
+                      // Use timestamp from backend if available
+                      timestamp: typeof jsonData.timestamp === 'string'
+                        ? jsonData.timestamp
+                        : formatTimestamp(jsonData.timestamp || updated.length),
+                      thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                      isAnomaly: false,
+                      confidenceScore: 0,
+                      isProcessed: false,
+                      anomalyType: undefined,
+                      elaScore: undefined,
+                      frequencySpike: undefined,
+                    });
+                  }
+                  // Update the specific frame
+                  updated[frameIndex] = {
+                    id: frameIndex,
+                    // Use timestamp from backend if available, otherwise format from seconds
+                    timestamp: typeof jsonData.timestamp === 'string' 
+                      ? jsonData.timestamp 
+                      : formatTimestamp(jsonData.timestamp ?? frameIndex),
+                    timestamp_seconds: jsonData.timestamp_seconds ?? (typeof jsonData.timestamp === 'number' ? jsonData.timestamp : frameIndex),
+                    thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                    isAnomaly: jsonData.is_anomaly ?? false,
+                    confidenceScore: jsonData.confidence ?? 0,
+                    // Mark as processed if it's frame_ready or detection_ready
+                    isProcessed: true,
+                    anomalyType: jsonData.anomaly_type,
+                    elaScore: jsonData.ela_score,
+                    frequencySpike: jsonData.frequency_spike,
+                  };
+                  return updated;
+                });
+                setProcessedFrames(prev => prev + 1);
+                console.log(`Frame ${frameIndex} received (${jsonData.type})`);
+              } else if (jsonData.type === "processing_complete") {
+                setStatus("Processing complete!");
+                setIsProcessing(false);
+                setAppState(AppState.COMPLETE);
+                console.log("Processing completed:", jsonData);
+              } else if (jsonData.type === "error") {
+                setStatus(`Error: ${jsonData.message}`);
+                setIsProcessing(false);
+                console.error("Processing error:", jsonData);
+              } else if (jsonData.preview_frames) {
+                // Legacy support for old format
+                console.log("Preview frames received:", jsonData.preview_frames.length);
+                
+                // Convert preview frames to FrameData format
+                const newFrames: FrameData[] = jsonData.preview_frames.map((url: string, idx: number) => ({
+                  id: idx,
+                  timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
+                  timestamp_seconds: idx,
+                  thumbnailUrl: url,
+                  isAnomaly: false,
+                  confidenceScore: 0,
+                  isProcessed: true,
+                }));
+                setFrames(newFrames);
+              }
+            } catch (parseError) {
+              console.log("Non-JSON message:", event.data);
+            }
+          }
+        } catch (err) {
+          console.error("Error parsing WebSocket message:", err);
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.error("WebSocket error:", err);
+        setStatus("WebSocket error");
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket closed");
+        if (status !== "Processing complete!") {
+          setStatus("Connection closed");
+        }
+      };
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setStatus("Failed to start upload");
     }
-  }, [frameSelector]);
+  };
+
+  // Simulate the "Waterfall" processing effect (fallback if WebSocket not available)
+  useEffect(() => {
+    // Only run mock processing if:
+    // 1. We're analyzing
+    // 2. No frames yet
+    // 3. NOT receiving frames via WebSocket (checked via ref)
+    if (appState === AppState.ANALYZING && frames.length === 0 && !framesReceivedRef.current && status !== "Upload complete, processing...") {
+      // Initialize mock frames for demo
+      const initialFrames = generateMockFrames();
+      setFrames(initialFrames);
+      
+      let currentIndex = 0;
+      const processInterval = setInterval(() => {
+        setFrames((prevFrames) => {
+          const newFrames = [...prevFrames];
+          // Process batches of frames to simulate speed
+          for (let i = 0; i < 2; i++) {
+            if (currentIndex < newFrames.length) {
+              newFrames[currentIndex] = { ...newFrames[currentIndex], isProcessed: true };
+              currentIndex++;
+            }
+          }
+          return newFrames;
+        });
+
+        if (currentIndex >= initialFrames.length && initialFrames.length > 0) {
+          clearInterval(processInterval);
+          setAppState(AppState.COMPLETE);
+        }
+      }, 150);
+
+      return () => clearInterval(processInterval);
+    }
+  }, [appState, status, generateMockFrames]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#060606] text-white pt-20 pb-12">
-      <div className="w-full flex flex-col gap-8">
-        <VideoCard
-          onVideoSelect={setVideoUrl}
-          videoUrl={videoUrl}
-          currentTime={currentTime}
-          onCurrentTimeChange={setCurrentTime}
-          showImageCard={true}
-          onUploadProgress={setUploadProgress}
-          onFramesReceived={handleFramesReceived}
-        />
-        <VideoTimeline
-          videoUrl={videoUrl}
-          currentTime={currentTime}
-          onSeek={setCurrentTime}
-          uploadProgress={uploadProgress}
+    <div className="font-sans text-text-high antialiased">
+      {appState === AppState.IDLE ? (
+        <IngestionHub onFileSelect={handleFileSelect} />
+      ) : (
+        <AnalysisDashboard 
+          appState={appState} 
           frames={frames}
-          onFrameClick={handleFrameClick}
+          uploadProgress={uploadProgress}
+          status={status}
+          isProcessing={isProcessing}
+          processedFrames={processedFrames}
+          videoUrl={videoUrl || undefined}
         />
-      </div>
+      )}
     </div>
   );
 };

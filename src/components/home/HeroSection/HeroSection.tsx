@@ -1,6 +1,8 @@
 // src/components/home/HeroSection.tsx
 
 import React from "react";
+import router, { useRouter } from "next/router";
+import { userAgent } from "next/server";
 
 // Helper component for the arrow icon
 const ArrowIcon = () => (
@@ -21,6 +23,8 @@ const ArrowIcon = () => (
 );
 
 const HeroSection = () => {
+  const router = useRouter();
+
   return (
     <main
       className="relative flex h-screen items-start justify-center overflow-hidden bg-black text-center text-white pt-60"
@@ -50,7 +54,9 @@ const HeroSection = () => {
           Detect deepfakes and manipulated media with confidence
         </p>
 
-        <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+        <div onClick={()=>{
+          router.push('/dashboard')
+        }} className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           {/* First Button */}
           <a
             href="#"
