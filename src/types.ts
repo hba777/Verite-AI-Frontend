@@ -4,10 +4,14 @@ export enum AppState {
   COMPLETE = 'COMPLETE'
 }
 
+export enum View {
+  FORENSICS = 'FORENSICS',
+  ADMIN = 'ADMIN'
+}
+
 export interface FrameData {
   id: number;
   timestamp: string; // e.g., "00:34:12"
-  timestamp_seconds?: number; // Raw seconds for video seeking
   thumbnailUrl: string;
   isAnomaly: boolean;
   confidenceScore: number; // 0-100
@@ -27,12 +31,22 @@ export interface HeatmapConfig {
   opacity: number;
 }
 
-export interface AnalysisDashboardProps {
-  appState: AppState;
-  frames: FrameData[];
-  uploadProgress?: number;
-  status?: string;
-  isProcessing?: boolean;
-  processedFrames?: number;
-  videoUrl?: string; // Local video URL for playback
+export interface AdminStats {
+  totalUploads: number;
+  anomaliesFound: number;
+  activeUsers: number;
+  systemHealth: number;
+  recentUploads: {
+    id: string;
+    user: string;
+    filename: string;
+    timestamp: string;
+    status: 'Clean' | 'Suspicious' | 'Malicious';
+    size: string;
+  }[];
+  trends: {
+    date: string;
+    uploads: number;
+    anomalies: number;
+  }[];
 }
