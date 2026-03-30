@@ -12,6 +12,7 @@ export enum View {
 export interface FrameData {
   id: number;
   timestamp: string; // e.g., "00:34:12"
+  timestamp_seconds?: number;
   thumbnailUrl: string;
   isAnomaly: boolean;
   confidenceScore: number; // 0-100
@@ -49,4 +50,14 @@ export interface AdminStats {
     uploads: number;
     anomalies: number;
   }[];
+}
+
+export interface AnalysisDashboardProps {
+  appState: AppState;
+  frames: FrameData[];
+  uploadProgress?: number;
+  status?: string;
+  isProcessing?: boolean;
+  processedFrames?: number;
+  videoUrl?: string;
 }

@@ -16,7 +16,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Developer ecosystem
+            Research Ecosystem
           </motion.h2>
           <motion.p
             className="max-w-2xl mx-auto text-3xl text-gray-400 mb-16"
@@ -25,8 +25,9 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Integrate with advanced media authenticity detection APIs and tools
-            to build trustworthy media verification solutions.
+            A modular microservices architecture enables researchers and
+            integrators to interact with Verité AI's tri-modal detection engine
+            via a documented REST API or directly through the web interface.
           </motion.p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
@@ -80,9 +81,10 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
                 {/* Text Content */}
                 <div className="text-left w-full">
-                  <h3 className="font-medium text-xl">XDetect Dashboard</h3>
+                  <h3 className="font-medium text-xl">Verité AI Dashboard</h3>
                   <p className="text-base text-gray-400 mt-2">
-                    Access detection tools and manage your media analysis workflows
+                    Authenticated interface for image, video, and audio deepfake
+                    detection with XAI visualisation and detection history access
                   </p>
                 </div>
               </div>
@@ -138,9 +140,10 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                 </div>
                 {/* Text Content */}
                 <div className="text-left w-full">
-                  <h3 className="font-medium text-xl">XDetect API</h3>
+                  <h3 className="font-medium text-xl">FastAPI Backend</h3>
                   <p className="text-base text-gray-400 mt-2">
-                    Seamlessly integrate advanced media authenticity detection into your applications
+                    JWT-secured REST endpoints for media upload, async Celery job
+                    polling, Grad-CAM retrieval, and PDF report download
                   </p>
                 </div>
               </div>

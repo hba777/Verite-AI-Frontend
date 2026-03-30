@@ -44,14 +44,14 @@ const HeroSection = () => {
         <h1
           className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3"
         >
-          XDetect-RT
+          Verité AI
         </h1>
 
         {/* Subheading */}
         <p
           className="mb-8 text-lg md:text-xl text-gray-300 font-extralight"
         >
-          Detect deepfakes and manipulated media with confidence
+          Tri-Modal Deepfake Detection with Explainable AI — Image, Video &amp; Audio
         </p>
 
         <div onClick={()=>{

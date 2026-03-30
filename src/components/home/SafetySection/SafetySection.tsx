@@ -23,7 +23,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Building responsibly in the agentic era
+            Responsible AI at MCS, NUST
           </motion.p>
           <motion.h1
             className="text-2xl sm:text-3xl md:text-[2.75rem] font-semibold leading-tight mb-8"
@@ -31,9 +31,11 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            As we develop media detection technologies, we recognize the
-            responsibility it entails, and aim to prioritize safety and security
-            in all our efforts.
+            Verité AI is developed in alignment with SDG 16 (Peace, Justice,
+            and Strong Institutions) and SDG 9 (Industry, Innovation, and
+            Infrastructure). We recognise the dual-use sensitivity of deepfake
+            detection technology and commit to transparent, audit-ready outputs
+            that protect individuals and democratic integrity.
           </motion.h1>
           <motion.a
             href="#"
@@ -59,7 +61,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Learn more
+            Read Our Ethics Statement
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
         </div>

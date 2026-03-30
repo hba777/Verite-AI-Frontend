@@ -117,41 +117,40 @@ const CardCarousel: React.FC = () => {
   // Card data
   const cardData = [
     {
-      imageUrl: "https://placehold.co/600x400/000000/FFFFFF?text=Deepfake+Detection",
-      title: "Deepfake Image Detection",
+      imageUrl: "https://placehold.co/600x400/000000/FFFFFF?text=Image+Deepfake+Detection",
+      title: "Image Deepfake Detection",
       description:
-        'See XDetect-RT analyze a manipulated image and provide a "Fake" verdict with 95% confidence and visual heatmaps highlighting manipulated regions.',
+        "Verité AI applies an EfficientNet-B4 classifier to flag manipulated facial regions, returning a Real/Fake verdict with a calibrated confidence score and a Grad-CAM heatmap overlay.",
     },
     {
       imageUrl: "/CarouselTest.png",
-      title: "Video Authenticity Check",
+      title: "Video Frame-Level Analysis",
       description:
-        "Watch real-time detection of face swaps and audio deepfakes in video content with frame-by-frame analysis and confidence scoring.",
+        "An asynchronous Celery pipeline extracts frames, runs per-frame inference, and aggregates results temporally — delivering a video-level verdict with per-frame attribution on Celeb-DF and FF++ sequences.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/0d0d0d/FFFFFF?text=Audio+Forgery",
-      title: "Audio Forgery Detection",
+      imageUrl: "https://placehold.co/600x400/0d0d0d/FFFFFF?text=Audio+Forgery+Detection",
+      title: "Audio Voice Cloning Detection",
       description:
-        "Detect voice cloning and synthetic speech with advanced spectral analysis and provide detailed reports on manipulation techniques used.",
+        "The SSL-AASIST classifier (WavLM features, wav2vec2-large-xlsr-53 backbone) detects TTS and voice-conversion attacks, outputting a confidence score and a temporal attribution overlay on the waveform.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/2a2a2a/FFFFFF?text=Batch+Processing",
-      title: "Batch Media Analysis",
+      imageUrl: "https://placehold.co/600x400/2a2a2a/FFFFFF?text=Grad-CAM+Heatmap",
+      title: "Grad-CAM Explainability Viewer",
       description:
-        "Process multiple files simultaneously with automated detection workflows, generating comprehensive authenticity reports.",
+        "Interactive heatmap viewer renders gradient-weighted activation maps on the original image or video frame, localising the artefact regions that drove the model's Fake classification.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/1f1f1f/FFFFFF?text=Explainability",
-      title: "Visual Explainability",
+      imageUrl: "https://placehold.co/600x400/1f1f1f/FFFFFF?text=PDF+Forensic+Report",
+      title: "Downloadable PDF Forensic Report",
       description:
-        "Understand detection decisions through Grad-CAM visualizations and textual explanations of why content was flagged as manipulated.",
+        "Each detection generates a structured PDF report containing the verdict, confidence score, Grad-CAM heatmap, temporal XAI overlay, and an LLM-narrated justification — ready for academic or legal review.",
     },
     {
-      imageUrl:
-        "https://placehold.co/600x400/3c3c3c/FFFFFF?text=API+Integration",
-      title: "API Integration Demo",
+      imageUrl: "https://placehold.co/600x400/3c3c3c/FFFFFF?text=Admin+Dashboard",
+      title: "Admin Dashboard &amp; User History",
       description:
-        "See how developers can integrate XDetect-RT into their applications with simple API calls for real-time media verification.",
+        "Administrators can monitor system metrics, manage user accounts, review per-user detection history, and access feedback logs from a dedicated Django-style admin panel.",
     },
   ];
 
@@ -219,7 +218,7 @@ const CardCarousel: React.FC = () => {
               transition={{ duration: 0.7 }}
               viewport={{ once: false, amount: 0.4 }}
             >
-              Detection Examples
+              System Capabilities Overview
             </motion.h2>
 
             <motion.p
@@ -229,8 +228,9 @@ const CardCarousel: React.FC = () => {
               transition={{ duration: 0.7, delay: 0.2 }}
               viewport={{ once: false, amount: 0.4 }}
             >
-              Explore real-world examples of XDetect-RT detecting deepfakes
-              and manipulated media with visual explainability.
+              Explore the full detection pipeline of Verité AI — from image and
+              video deepfake classification to audio forgery detection, XAI
+              visualisation, and PDF report generation.
             </motion.p>
           </section>
         </div>

@@ -101,10 +101,10 @@ const Home: NextPage = () => {
   return (
     <div className="bg-[#060606]">
       <Head>
-        <title>XDetect-RT</title>
+        <title>Verité AI — Deepfake Detection with XAI | MCS NUST</title>
         <meta
           name="description"
-          content="Advanced Media Authenticity Detection Service"
+          content="Verité AI: Tri-Modal Deepfake Detection (Image, Video, Audio) with Grad-CAM and LLM-Based Explainability — Final Year Project, Department of Computer Software Engineering, MCS NUST."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
