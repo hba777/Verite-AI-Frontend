@@ -1,12 +1,12 @@
 export enum AppState {
-  IDLE = 'IDLE',
-  ANALYZING = 'ANALYZING',
-  COMPLETE = 'COMPLETE'
+  IDLE = "IDLE",
+  ANALYZING = "ANALYZING",
+  COMPLETE = "COMPLETE",
 }
 
 export enum View {
-  FORENSICS = 'FORENSICS',
-  ADMIN = 'ADMIN'
+  FORENSICS = "FORENSICS",
+  ADMIN = "ADMIN",
 }
 
 export interface FrameData {
@@ -17,9 +17,16 @@ export interface FrameData {
   isAnomaly: boolean;
   confidenceScore: number; // 0-100
   isProcessed: boolean; // For waterfall effect
-  anomalyType?: 'FaceSwap-GAN' | 'Lip-Sync' | 'Artifacting' | 'Lighting-Mismatch';
+  anomalyType?:
+    | "FaceSwap-GAN"
+    | "Lip-Sync"
+    | "Artifacting"
+    | "Lighting-Mismatch"
+    | "GenD Deepfake";
   elaScore?: number;
   frequencySpike?: number;
+  real_prob?: number; // Real probability from GenD model (0-1)
+  fake_prob?: number; // Fake probability from GenD model (0-1)
 }
 
 export interface AnalysisResult {
@@ -42,7 +49,7 @@ export interface AdminStats {
     user: string;
     filename: string;
     timestamp: string;
-    status: 'Clean' | 'Suspicious' | 'Malicious';
+    status: "Clean" | "Suspicious" | "Malicious";
     size: string;
   }[];
   trends: {
