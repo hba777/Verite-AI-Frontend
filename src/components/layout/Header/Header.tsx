@@ -72,8 +72,15 @@ const Header = ({
         <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 3xl:px-16">
           <nav className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
-              {/* Main heading - weight 400 */}
-              <a href="#" className="text-xl text-white px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 font-normal">
+              {/* Main heading - weight 400 (links to homepage) */}
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push("/");
+                }}
+                className="text-xl text-white px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 font-normal"
+              >
                 Verité AI
               </a>
             </div>
@@ -92,8 +99,8 @@ const Header = ({
                 Start Detecting
               </a> */}
 
-              <a
-                href="#"
+              <button
+                onClick={() => router.push("/dashboard")}
                 className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
               px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
@@ -102,7 +109,7 @@ const Header = ({
               >
                 <RiGeminiFill size={20} className="text-gray-400 mr-2" />
                 Try Detection
-              </a>
+              </button>
 
               {user ? (
                 <div className="relative">
