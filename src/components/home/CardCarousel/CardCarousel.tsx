@@ -45,31 +45,6 @@ const Card: React.FC<CardProps> = ({
                 "https://placehold.co/600x400/333/FFF?text=Image+Not+Found";
             }}
           />
-
-          {/* START: Bottom Right Play Button */}
-          {isActive && (
-            <a
-              href="#"
-              onClick={(e) => {
-                // Prevent the click from triggering the carousel's drag handlers
-                e.stopPropagation();
-              }}
-              // same classes, still positioned absolutely inside the aspect box
-              className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/80 transition-all scale-100 hover:scale-110"
-              aria-label="Play"
-            >
-              {/* SVG for Play symbol */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 ml-0.5"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </a>
-          )}
-          {/* END: Bottom Right Play Button */}
         </div>
       </div>
 
@@ -117,37 +92,37 @@ const CardCarousel: React.FC = () => {
   // Card data
   const cardData = [
     {
-      imageUrl: "https://placehold.co/600x400/000000/FFFFFF?text=Image+Deepfake+Detection",
+      imageUrl: "/Carouselimages/01.png",
       title: "Image Deepfake Detection",
       description:
         "Verité AI applies an EfficientNet-B4 classifier to flag manipulated facial regions, returning a Real/Fake verdict with a calibrated confidence score and a Grad-CAM heatmap overlay.",
     },
     {
-      imageUrl: "/CarouselTest.png",
+      imageUrl: "/Carouselimages/02.png",
       title: "Video Frame-Level Analysis",
       description:
         "An asynchronous Celery pipeline extracts frames, runs per-frame inference, and aggregates results temporally — delivering a video-level verdict with per-frame attribution on Celeb-DF and FF++ sequences.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/0d0d0d/FFFFFF?text=Audio+Forgery+Detection",
+      imageUrl: "/Carouselimages/03.png",
       title: "Audio Voice Cloning Detection",
       description:
         "The SSL-AASIST classifier (WavLM features, wav2vec2-large-xlsr-53 backbone) detects TTS and voice-conversion attacks, outputting a confidence score and a temporal attribution overlay on the waveform.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/2a2a2a/FFFFFF?text=Grad-CAM+Heatmap",
+      imageUrl: "/Carouselimages/04.png",
       title: "Grad-CAM Explainability Viewer",
       description:
         "Interactive heatmap viewer renders gradient-weighted activation maps on the original image or video frame, localising the artefact regions that drove the model's Fake classification.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/1f1f1f/FFFFFF?text=PDF+Forensic+Report",
+      imageUrl: "/Carouselimages/05.png",
       title: "Downloadable PDF Forensic Report",
       description:
         "Each detection generates a structured PDF report containing the verdict, confidence score, Grad-CAM heatmap, temporal XAI overlay, and an LLM-narrated justification — ready for academic or legal review.",
     },
     {
-      imageUrl: "https://placehold.co/600x400/3c3c3c/FFFFFF?text=Admin+Dashboard",
+      imageUrl: "/Carouselimages/06.png",
       title: "Admin Dashboard &amp; User History",
       description:
         "Administrators can monitor system metrics, manage user accounts, review per-user detection history, and access feedback logs from a dedicated Django-style admin panel.",
@@ -258,8 +233,8 @@ const CardCarousel: React.FC = () => {
             const rotate = isActive
               ? ""
               : distance < 0
-              ? "-rotate-2"
-              : "rotate-2";
+                ? "-rotate-2"
+                : "rotate-2";
             const zIndex = 100 - absDistance;
 
             return (

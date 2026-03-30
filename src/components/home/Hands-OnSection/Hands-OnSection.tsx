@@ -27,8 +27,10 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
 }) => (
-  <div className="bg-[#141414] rounded-2xl p-10 flex flex-col items-center text-center h-full border border-gray-700/50">
-    <div className="text-blue-400 mb-8 text-[48px] pb-7">{icon}</div>{" "}
+  <div className="group bg-[#141414] rounded-2xl p-10 flex flex-col items-center text-center h-full border-2 border-transparent transition-all duration-300 hover:border-blue-500 hover:bg-[#1f1f1f]">
+    <div className="text-blue-400 mb-8 text-[48px] pb-7 group-hover:scale-105 transition-transform duration-300">
+      {icon}
+    </div>{" "}
     {/* Icon size increased */}
     <h3 className="text-white font-semibold text-xl mb-4">{title}</h3>{" "}
     {/* Title size increased */}

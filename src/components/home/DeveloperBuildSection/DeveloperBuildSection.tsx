@@ -6,7 +6,9 @@ import { useRouter } from "next/router";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import dynamic from "next/dynamic";
 
-const LoginForm = dynamic(() => import("../LoginForm/LoginForm"), { ssr: false });
+const LoginForm = dynamic(() => import("../LoginForm/LoginForm"), {
+  ssr: false,
+});
 
 function useDisclosure(initial = false) {
   const [isOpen, setIsOpen] = React.useState(initial);
@@ -32,29 +34,33 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           backgroundImage: `url('/gemini-bg.png')`,
         }}
       >
-        <div className={`absolute inset-0 ${isOpen ? "bg-black/70" : "bg-black/50"}`} />
+        <div
+          className={`absolute inset-0 ${isOpen ? "bg-black/70" : "bg-black/50"}`}
+        />
 
         <div className="relative z-10 px-6 py-10 text-center max-w-3xl">
-          <motion.p
-            className="text-sm uppercase tracking-wide text-gray-300 mb-4 font-semibold"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <motion.h2
+            className="text-5xl font-medium pb-5"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
           >
             For Integrators &amp; Researchers
-          </motion.p>
+          </motion.h2>
 
-          <motion.h1
-            className="text-2xl sm:text-3xl md:text-[2.5rem] font-medium leading-tight mb-6"
+          <motion.p
+            className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: false, amount: 0.4 }}
           >
             Verité AI exposes a fully documented FastAPI REST backend with
             JWT-secured endpoints for media upload, async job polling, and XAI
             report retrieval — enabling researchers and developers to integrate
             tri-modal deepfake detection into their own forensic pipelines.
-          </motion.h1>
+          </motion.p>
           <motion.a
             href="#"
             className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
@@ -86,7 +92,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             Access the API
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
-          {(
+          {
             <LoginForm
               isOpen={isOpen}
               onClose={close}
@@ -99,7 +105,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
                 router.push("/dashboard");
               }}
             />
-          )}
+          }
         </div>
       </div>
     </section>

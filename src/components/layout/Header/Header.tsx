@@ -60,7 +60,8 @@ const Header = ({
 }) => {
   const { user, logout } = useUser();
   const router = useRouter();
-  const initial = ((user?.username || user?.email || "").charAt(0).toUpperCase()) || "U";
+  const initial =
+    (user?.username || user?.email || "").charAt(0).toUpperCase() || "U";
   return (
     <>
       <header
@@ -73,7 +74,7 @@ const Header = ({
             <div className="flex items-center space-x-8">
               {/* Main heading - weight 400 */}
               <a href="#" className="text-xl text-white px-10 font-normal">
-                XDetect-RT
+                Verité AI
               </a>
 
               {/* Nav links (hidden at md and below) */}
@@ -125,7 +126,10 @@ const Header = ({
                     <summary className="list-none cursor-pointer">
                       <Avatar>
                         {user?.profile_url ? (
-                          <AvatarImage src={user.profile_url} alt={user?.username || "User"} />
+                          <AvatarImage
+                            src={user.profile_url}
+                            alt={user?.username || "User"}
+                          />
                         ) : (
                           <AvatarFallback className="bg-[#191919] text-gray-300">
                             {initial}

@@ -72,9 +72,6 @@ const ModelCard = ({ title, description }: ModelCardProps) => {
         </svg>
       </div>
 
-      <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
-        General Availability
-      </p>
       <h3 className="mt-3 text-2xl font-semibold">{title}</h3>
       <p className="mt-3 text-gray-400 flex-grow text-base">{description}</p>
       <a

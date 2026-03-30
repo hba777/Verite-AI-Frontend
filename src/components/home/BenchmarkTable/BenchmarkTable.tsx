@@ -212,39 +212,6 @@ const BenchmarkTable: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex flex-col items-start justify-center py-8 px-4 sm:px-6 lg:px-8 text-gray-400">
-          {/* Methodology Title */}
-          <p className="text-xs sm:text-xs text-left mb-4 leading-snug pb-3 uppercase tracking-wide">
-            Methodology
-          </p>
-
-          {/* Methodology Description */}
-          <p className="text-xs sm:text-xs text-left mb-4 leading-snug">
-            Verité AI results are evaluated on publicly available benchmark
-            datasets: FaceForensics++ (c23 compression), Celeb-DF v2, and
-            ASVspoof 2019/2021. Image and video accuracy figures represent
-            AUC-ROC scores computed on the official test splits. Audio
-            performance is reported as Equal Error Rate (EER); lower is better.
-            All evaluations are performed with a single inference pass (no
-            ensembling). Pre-trained backbone weights (EfficientNet-B4,
-            WavLM/wav2vec2-large-xlsr-53) are frozen; only classification heads
-            are fine-tuned.
-          </p>
-
-          <p className="text-xs sm:text-xs text-left mb-4 leading-snug">
-            Competitor figures are sourced from publicly available technical
-            reports and academic papers. Deepware Scanner and Microsoft Video
-            Authenticator do not support audio deepfake detection and provide
-            no XAI output or downloadable forensic reports, which accounts for
-            the feature gaps indicated above.
-          </p>
-
-          <p className="text-xs sm:text-xs text-left leading-snug">
-            MCS, NUST — Department of Computer Software Engineering. FYP
-            supervisors: Dr. Ayesha Naseer &amp; Dr. Naima Iltaf. Version 2.0,
-            May 2025.
-          </p>
-        </div>
       </div>
     </div>
   );
