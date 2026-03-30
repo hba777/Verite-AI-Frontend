@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import IngestionHub from "@/components/dashboard/IngestionHub";
 import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
+import ImageResult from "@/components/dashboard/ImageResult";
+import ImageLoader from "@/components/dashboard/ImageLoader";
 import { AppState, FrameData } from "@/types";
 import { useUser } from "../context/UserContext";
 
@@ -14,6 +16,10 @@ const Dashboard: React.FC = () => {
   const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [isImageMode, setIsImageMode] = useState(false);
+  const [imageFrame, setImageFrame] = useState<FrameData | null>(null);
+  const [imageDetectionResult, setImageDetectionResult] = useState<any>(null);
+  const [showImageLoader, setShowImageLoader] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
@@ -71,14 +77,26 @@ const Dashboard: React.FC = () => {
     try {
       setStatus("Starting task...");
 
-      // Create local video URL for playback
-      const url = URL.createObjectURL(file);
-      setVideoUrl(url);
+      // Determine if this is an image or video
+      const fileType = file.type.startsWith("image/") ? "image" : "video";
+      setIsImageMode(fileType === "image");
+      if (fileType === "image") {
+        setShowImageLoader(true);
+      }
 
-      // Get video duration
-      const duration = await getVideoDuration(file);
-      setVideoDuration(duration);
-      console.log("Video duration:", duration, "seconds");
+      // Create local video URL for playback (only for videos)
+      if (fileType === "video") {
+        const url = URL.createObjectURL(file);
+        setVideoUrl(url);
+
+        // Get video duration
+        const duration = await getVideoDuration(file);
+        setVideoDuration(duration);
+        console.log("Video duration:", duration, "seconds");
+      } else {
+        // For images, set videoUrl to null and create object URL for preview
+        setVideoUrl(null);
+      }
 
       // 1. Start task via HTTP POST
       const headers: Record<string, string> = {};
@@ -112,6 +130,7 @@ const Dashboard: React.FC = () => {
           JSON.stringify({
             task_id: taskId,
             video_duration: videoDuration,
+            file_type: fileType,
           }),
         );
         setStatus("Connected, ready to upload...");
@@ -119,7 +138,7 @@ const Dashboard: React.FC = () => {
 
       ws.onmessage = (event) => {
         try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
+          // Handle control messages (SEND_VIDEO, SEND_IMAGE, Processing, DONE)
           if (event.data === "SEND_VIDEO") {
             setStatus("Uploading video...");
             // Start sending file chunks
@@ -148,6 +167,22 @@ const Dashboard: React.FC = () => {
               reader.readAsArrayBuffer(slice);
             }
             sendNext();
+          } else if (event.data === "SEND_IMAGE") {
+            // Handle image upload
+            setStatus("Uploading image...");
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (e.target?.result) {
+                ws.send(e.target.result as ArrayBuffer);
+                // Send END after image
+                setTimeout(() => {
+                  ws.send("END");
+                }, 100);
+                setUploadProgress(100);
+                setStatus("Upload complete, processing...");
+              }
+            };
+            reader.readAsArrayBuffer(file);
           } else if (event.data === "Processing...") {
             setStatus("Processing video...");
             setUploadProgress(100);
@@ -233,13 +268,52 @@ const Dashboard: React.FC = () => {
                   };
                   return updated;
                 });
+
+                // For image mode, store the frame data for display
+                const isImageData = jsonData.is_image || isImageMode;
+                if (isImageData) {
+                  // Use original_frame_data or frame_data depending on what's available
+                  const imageData =
+                    jsonData.original_frame_data || jsonData.frame_data || "";
+                  const imageFrameData: FrameData = {
+                    id: 0,
+                    timestamp: "00:00:00.000",
+                    timestamp_seconds: 0,
+                    thumbnailUrl: imageData
+                      ? `data:image/jpeg;base64,${imageData}`
+                      : "",
+                    isAnomaly: jsonData.is_anomaly ?? false,
+                    confidenceScore: jsonData.confidence ?? 0,
+                    isProcessed: true,
+                    isImage: true,
+                    anomalyType: jsonData.anomaly_type,
+                    elaScore: jsonData.ela_score,
+                    frequencySpike: jsonData.frequency_spike,
+                    real_prob: jsonData.real_prob,
+                    fake_prob: jsonData.fake_prob,
+                  };
+                  setImageFrame(imageFrameData);
+                  setImageDetectionResult(jsonData);
+                  // Mark processing as complete for image mode
+                  setIsProcessing(false);
+                  setAppState(AppState.COMPLETE);
+                  setStatus("Processing complete!");
+                  setShowImageLoader(false);
+                }
+
                 setProcessedFrames((prev) => prev + 1);
                 console.log(`Frame ${frameIndex} received (${jsonData.type})`);
               } else if (jsonData.type === "processing_complete") {
                 setStatus("Processing complete!");
                 setIsProcessing(false);
                 setAppState(AppState.COMPLETE);
+                setShowImageLoader(false);
                 console.log("Processing completed:", jsonData);
+
+                // If this is an image, ensure we have the frame data
+                if (jsonData.is_image && !imageFrame) {
+                  setImageDetectionResult(jsonData);
+                }
               } else if (jsonData.type === "error") {
                 setStatus(`Error: ${jsonData.message}`);
                 setIsProcessing(false);
@@ -338,6 +412,17 @@ const Dashboard: React.FC = () => {
     <div className="font-sans text-text-high antialiased">
       {appState === AppState.IDLE ? (
         <IngestionHub onFileSelect={handleFileSelect} />
+      ) : isImageMode &&
+        showImageLoader &&
+        !imageFrame &&
+        !imageDetectionResult ? (
+        <ImageLoader status={status} />
+      ) : isImageMode && (imageFrame || imageDetectionResult) ? (
+        <ImageResult
+          frame={imageFrame}
+          detectionResult={imageDetectionResult}
+          taskId={imageDetectionResult?.task_id || "unknown"}
+        />
       ) : (
         <AnalysisDashboard
           appState={appState}
