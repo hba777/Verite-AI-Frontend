@@ -76,22 +76,6 @@ const Header = ({
               <a href="#" className="text-xl text-white px-10 font-normal">
                 Verité AI
               </a>
-
-              {/* Nav links (hidden at md and below) */}
-              <div className="hidden lg:flex items-center space-x-8">
-                {["Detection", "Dashboard", "About"].map((item) => (
-                  <a
-                    key={item}
-                    href="#"
-                    className="text-gray-400 transition-colors hover:text-white font-extralight"
-                    style={{
-                      fontFamily: '"Poppins", sans-serif',
-                    }}
-                  >
-                    {item}
-                  </a>
-                ))}
-              </div>
             </div>
 
             {/* Buttons - weight 450 */}
