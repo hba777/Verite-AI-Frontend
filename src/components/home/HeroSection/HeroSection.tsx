@@ -3,6 +3,7 @@
 import React from "react";
 import router, { useRouter } from "next/router";
 import { userAgent } from "next/server";
+import ParticleBackground from "./ParticleBackground"; // <-- Import it here
 
 // Helper component for the arrow icon
 const ArrowIcon = () => (
@@ -38,25 +39,24 @@ const HeroSection = () => {
         backgroundSize: "cover",
       }}
     >
+      {/* --- ADD THE PARTICLE COMPONENT HERE --- */}
+      <ParticleBackground />
 
       <div className="relative z-10 mx-auto max-w-4xl px-4">
         {/* Heading */}
-        <h1
-          className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3"
-        >
+        <h1 className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3">
           Verité AI
         </h1>
 
         {/* Subheading */}
-        <p
-          className="mb-8 text-lg md:text-xl text-gray-300 font-extralight"
-        >
+        <p className="mb-8 text-lg md:text-xl text-gray-300 font-extralight">
           Tri-Modal Deepfake Detection with Explainable AI — Image, Video &amp; Audio
         </p>
 
-        <div onClick={()=>{
+        <div onClick={() => {
           router.push('/dashboard')
-        }} className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+        }} className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 cursor-pointer">
+          
           {/* First Button */}
           <a
             href="#"
