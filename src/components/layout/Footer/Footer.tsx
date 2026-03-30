@@ -3,199 +3,57 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faXTwitter,
-  faInstagram,
-  faYoutube,
-  faLinkedin,
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 
 const Footer = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
-    <footer ref={ref} className="bg-black text-gray-400 py-16 px-4">
-      <div className="container mx-auto">
-        {/* Top: Social Links */}
-        <div className="flex flex-wrap items-center gap-6 border-b border-gray-800 pb-8">
-          <span className="text-white text-lg font-medium">Follow us</span>
+    <footer ref={ref} className="bg-black text-gray-500 py-12 px-6">
+      <div className="container mx-auto max-w-5xl">
 
-          <a
-            href="#"
-            className="hover:text-white text-gray-300 text-4xl font-bold transition"
-          >
-            <FontAwesomeIcon icon={faXTwitter} />
-          </a>
-          <a
-            href="#"
-            className="hover:text-white text-gray-300 text-4xl font-bold transition"
-          >
-            <FontAwesomeIcon icon={faInstagram} />
-          </a>
-          <a
-            href="#"
-            className="hover:text-white text-gray-300 text-4xl font-bold transition"
-          >
-            <FontAwesomeIcon icon={faYoutube} />
-          </a>
-          <a
-            href="#"
-            className="hover:text-white text-gray-300 text-4xl font-bold transition"
-          >
-            <FontAwesomeIcon icon={faLinkedin} />
-          </a>
-          <a
-            href="#"
-            className="hover:text-white text-gray-300 text-4xl font-bold transition"
-          >
-            <FontAwesomeIcon icon={faGithub} />
-          </a>
-        </div>
+        {/* Top row: brand + links */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-10 border-b border-gray-900 pb-10">
 
-        {/* Middle: Main Links Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-16 gap-y-10 py-12">
-          {/* Column 1 */}
-          <div className="text-3xl font-bold text-white col-span-1">
-            Build AI responsibly to benefit humanity
-          </div>
-
-          {/* Column 2 */}
-          <div>
-            <h4 className="text-xl font-bold text-white">Models</h4>
-            <p className="text-sm text-gray-400 mt-1">
-              Build with our next generation AI systems
+          {/* Brand + tagline */}
+          <div className="max-w-xs">
+            <p className="text-white text-lg font-semibold tracking-tight">Vérité AI</p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              Detecting synthetic media with precision.
             </p>
-            <ul className="mt-4 space-y-3 text-lg font-semibold text-gray-300">
-              <li>
-                <a href="#" className="hover:text-white">
-                  Gemini
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Gemma
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Veo
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Imagen
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Lyria
-                </a>
-              </li>
-            </ul>
           </div>
 
-          {/* Column 3 */}
-          <div>
-            <h4 className="text-xl font-bold text-white">Science</h4>
-            <p className="text-sm text-gray-400 mt-1">
-              Unlocking a new era of discovery with AI
-            </p>
-            <ul className="mt-4 space-y-3 text-lg font-semibold text-gray-300">
-              <li>
-                <a href="#" className="hover:text-white">
-                  AlphaFold
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  SynthiD
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  WeatherNext
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+          {/* Features + GitHub side by side */}
+          <div className="flex gap-16">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-gray-600 mb-4">Features</p>
+              <ul className="space-y-2 text-sm text-gray-400">
+                {["Image Detection", "Video Analysis", "Audio Deepfakes", "Real-time Results"].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:text-white transition-colors duration-150">{item}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div></div>
-          <div>
-            <h4 className="text-xl font-bold text-white">Learn more</h4>
-            <ul className="mt-4 space-y-3 text-lg font-semibold text-gray-300">
-              <li>
-                <a href="#" className="hover:text-white">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  News
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Research
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Responsibility & Safety
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Sign-up Form */}
-          <div>
-            <p className="text-base font-normal text-gray-400">
-              Sign up for updates on our latest innovations
-            </p>
-
-            <p className="mt-4 text-sm text-gray-400">
-              I accept Google's Terms and Conditions and acknowledge that my
-              information will be used in accordance with{" "}
-              <a href="#" className="underline hover:text-gray-300">
-                Google's Privacy Policy.
+            <div>
+              <p className="text-xs uppercase tracking-widest text-gray-600 mb-4">Source</p>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-150 text-xl">
+                <FontAwesomeIcon icon={faGithub} />
               </a>
-            </p>
+            </div>
+          </div>
 
-            <form className="mt-4 relative">
-              <input
-                type="text"
-                placeholder="Email Address"
-                className="w-full rounded-full bg-[#141414] p-5 pr-10 text-gray-400 placeholder:text-gray-400 focus:outline-none"
-              />
-              <span className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 select-none">
-                &gt;
-              </span>
-            </form>
+        </div>
+
+        {/* Bottom row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 text-xs text-gray-700">
+          <span>© {new Date().getFullYear()} Vérité AI. All rights reserved.</span>
+          <div className="flex gap-5">
+            <a href="#" className="hover:text-gray-400 transition-colors">Privacy</a>
+            <a href="#" className="hover:text-gray-400 transition-colors">Terms</a>
           </div>
         </div>
 
-        {/* Bottom: Google Links */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 border-t border-gray-800 pt-8 mt-16">
-          <span className="text-2xl text-white font-semibold">Google</span>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-lg font-medium">
-            <a href="#" className="hover:text-white">
-              About Google
-            </a>
-            <a href="#" className="hover:text-white">
-              Google products
-            </a>
-            <a href="#" className="hover:text-white">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-white">
-              Terms
-            </a>
-          </div>
-        </div>
       </div>
     </footer>
   );
