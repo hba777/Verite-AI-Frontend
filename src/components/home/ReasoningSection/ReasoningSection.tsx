@@ -35,10 +35,10 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
   onBuildClick,
 }) => {
   return (
-    <section className="relative min-h-[80vh] text-white flex flex-col items-center justify-center overflow-hidden">
-      <div className="max-w-4xl px-6 text-center">
+    <section className="relative min-h-[80vh] lg:min-h-[85vh] xl:min-h-[90vh] 2xl:min-h-[95vh] text-white flex flex-col items-center justify-center overflow-hidden">
+      <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl 3xl:max-w-8xl px-6 lg:px-8 xl:px-10 2xl:px-12 text-center">
         <motion.h2
-          className="text-3xl md:text-5xl font-medium leading-snug text-transparent bg-clip-text break-words"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl 3xl:text-8xl font-medium leading-snug text-transparent bg-clip-text break-words"
           style={{
             backgroundImage:
               "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",

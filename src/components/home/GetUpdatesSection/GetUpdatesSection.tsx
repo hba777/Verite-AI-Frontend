@@ -6,12 +6,12 @@ import { LuSquareArrowOutUpRight } from "react-icons/lu";
 
 const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
-    <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4">
+    <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4 lg:px-6 xl:px-8 2xl:px-10">
       <div className="container mx-auto text-center">
         {/* Top Part: Accessing Models */}
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <motion.h2
-            className="text-4xl sm:text-5xl font-medium pb-5"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium pb-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -21,7 +21,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </motion.h2>
 
           <motion.p
-            className="mt-4 text-3xl text-gray-400 max-w-2xl text-center mx-auto"
+            className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-gray-400 max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-8xl text-center mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -32,40 +32,20 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             full tri-modal deepfake detection, XAI reports, and detection history.
           </motion.p>
 
-          <motion.a
-            href="#"
-            className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-white transition-all duration-300 shadow-md"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.filter = "brightness(0.9)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.filter = "brightness(1)")
-            }
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            viewport={{ once: false, amount: 0.4 }}
-          >
-            Access Detection Dashboard
-            <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
-          </motion.a>
+          {/* Access Detection Dashboard button removed per request */}
         </div>
       </div>
 
       {/* Bottom Part: Get Updates Form */}
-      <section className="flex justify-center items-center pt-20 bg-black px-4">
+      <section className="flex justify-center items-center pt-20 bg-black px-4 lg:px-6 xl:px-8 2xl:px-10">
         <div
-          className="w-full max-w-6xl rounded-[3rem] lg:rounded-[300px] px-8 py-20 sm:px-20 lg:px-60 sm:py-32 text-center"
+          className="w-full max-w-6xl lg:max-w-7xl xl:max-w-8xl 2xl:max-w-9xl 3xl:max-w-10xl rounded-[3rem] lg:rounded-[300px] px-8 py-20 sm:px-20 lg:px-60 sm:py-32 text-center"
           style={{
             backgroundImage:
               "linear-gradient(90deg, #d7e6ff 6.02%, #c7e4ff 51.92%, #dce2ff 96.44%)",
           }}
         >
-          <h3 className="text-3xl sm:text-5xl font-medium text-black pb-4">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-medium text-black pb-4">
             Stay updated on Verité AI
           </h3>
           <p className="mt-2 text-gray-900">

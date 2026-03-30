@@ -1,8 +1,7 @@
 // src/components/home/HeroSection.tsx
 
 import React from "react";
-import router, { useRouter } from "next/router";
-import { userAgent } from "next/server";
+import { useRouter } from "next/router";
 import ParticleBackground from "./ParticleBackground"; // <-- Import it here
 
 // Helper component for the arrow icon
@@ -28,7 +27,7 @@ const HeroSection = () => {
 
   return (
     <main
-      className="relative flex h-screen items-start justify-center overflow-hidden bg-black text-center text-white pt-60"
+      className="relative flex h-screen items-start justify-center overflow-hidden bg-black text-center text-white pt-32 md:pt-40 lg:pt-48 xl:pt-56 2xl:pt-64 3xl:pt-72"
       style={{
         backgroundImage: `
       url('hero-bg.png'),
@@ -42,24 +41,21 @@ const HeroSection = () => {
       {/* --- ADD THE PARTICLE COMPONENT HERE --- */}
       <ParticleBackground />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-4">
+      <div className="relative z-10 mx-auto max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl 3xl:max-w-8xl px-4 sm:px-6 lg:px-8">
         {/* Heading */}
-        <h1 className="mb-4 text-7xl md:text-9xl tracking-tight font-normal pb-3">
+        <h1 className="mb-4 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl 2xl:text-[10rem] 3xl:text-[12rem] tracking-tight font-normal pb-3">
           Verité AI
         </h1>
 
         {/* Subheading */}
-        <p className="mb-8 text-lg md:text-xl text-gray-300 font-extralight">
+        <p className="mb-8 text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl text-gray-300 font-extralight">
           Tri-Modal Deepfake Detection with Explainable AI — Image, Video &amp; Audio
         </p>
 
-        <div onClick={() => {
-          router.push('/dashboard')
-        }} className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 cursor-pointer">
-          
+        <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           {/* First Button */}
-          <a
-            href="#"
+          <button
+            onClick={() => router.push('/dashboard')}
             className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
             style={{
               backgroundImage:
@@ -76,32 +72,7 @@ const HeroSection = () => {
             }
           >
             Analyze Media <ArrowIcon />
-          </a>
-
-          {/* Second Button with gradient border */}
-          <a
-            href="#"
-            className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
-            style={{
-              backgroundImage:
-                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-              border: "2px solid transparent",
-              transition:
-                "background-color 0.3s ease, background-image 0.3s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-            }
-          >
-            Learn More <ArrowIcon />
-          </a>
+          </button>
         </div>
       </div>
     </main>
