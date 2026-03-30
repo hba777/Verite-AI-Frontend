@@ -53,9 +53,10 @@ const ReasoningSection: React.FC<ReasoningSectionProps> = ({
           whileInView="visible"
           viewport={{ once: false, amount: 0.4 }}
         >
-          XDetect-RT analyzes media through advanced detection algorithms,
-          providing clear verdicts with confidence scores and visual
-          explainability for enhanced accuracy.
+          Verité AI leverages state-of-the-art deep learning across image,
+          video, and audio modalities — delivering forensic-grade verdicts,
+          Grad-CAM visualisations, and LLM-generated explanations for
+          transparent, accountable deepfake detection.
         </motion.h2>
       </div>
 

@@ -167,42 +167,42 @@ const HandsOn: React.FC = () => {
   const adaptiveFeatures: FeatureCardProps[] = [
     {
       icon: <CalibratedIcon />,
-      title: "High Confidence Scoring",
+      title: "Grad-CAM Heatmap Visualisation",
       description:
-        "Advanced algorithms provide precise confidence scores for each detection, helping you make informed decisions about media authenticity.",
+        "Gradient-weighted Class Activation Mapping highlights the exact facial or spectral regions responsible for a Fake verdict, providing pixel-level localisation of manipulated artefacts.",
     },
     {
       icon: <ControllableIcon />,
-      title: "Adjustable Thresholds",
+      title: "Calibrated Confidence Scores",
       description:
-        "Fine-tune detection sensitivity with customizable confidence thresholds to match your specific use case requirements.",
+        "Each detection is accompanied by a probability-calibrated confidence score, enabling downstream triage workflows to set institution-appropriate decision thresholds.",
     },
     {
       icon: <AdaptiveIcon />,
-      title: "Real-time Analysis",
+      title: "Asynchronous Task Orchestration",
       description:
-        "Automatic detection adapts to different media types and content complexity, providing fast results for both simple and complex cases.",
+        "Video and audio jobs are dispatched to modality-specific Celery workers via Redis, allowing long-running inference to proceed without blocking the UI or holding open HTTP connections.",
     },
   ];
 
   const deepThinkFeatures: FeatureCardProps[] = [
     {
       icon: <IterativeIcon />,
-      title: "Batch processing and workflows",
+      title: "LLM-Generated Forensic Narratives",
       description:
-        "Process large volumes of media files with automated detection pipelines, making incremental improvements to analysis accuracy over time.",
+        "GPT-4 synthesises Grad-CAM findings and confidence scores into a structured natural-language justification, bridging the gap between model output and human understanding.",
     },
     {
       icon: <ScienceIcon />,
-      title: "Forensic media analysis",
+      title: "Downloadable PDF Forensic Reports",
       description:
-        "Advanced detection algorithms help researchers and investigators analyze complex media manipulations with scientific precision.",
+        "Each detection generates an audit-ready PDF containing the verdict, confidence score, Grad-CAM heatmap, temporal XAI overlay, and the full LLM narrative — suitable for academic or legal review.",
     },
     {
       icon: <CodeIcon />,
-      title: "API integration and automation",
+      title: "REST API and FastAPI Backend",
       description:
-        "Seamlessly integrate detection capabilities into applications with robust APIs designed for complex automation scenarios.",
+        "A modular FastAPI backend with JWT-secured endpoints, multipart file upload, and JSON polling for async job status enables straightforward integration into enterprise verification pipelines.",
     },
   ];
 
@@ -218,7 +218,7 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Confidence Scoring and Explainability
+            XAI Transparency Features
           </motion.h2>
 
           <motion.p
@@ -228,8 +228,9 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Advanced confidence scoring and visual explainability features help
-            you understand detection results and build trust in the analysis.
+            Grad-CAM visualisations and LLM-generated narratives make Verité AI
+            results interpretable to both technical analysts and non-expert
+            stakeholders, fulfilling the explainability gap in existing tools.
           </motion.p>
 
           <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-24">
@@ -248,7 +249,7 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Advanced Detection Modes
+            Extended Detection Capabilities
           </motion.h2>
 
           <motion.p
@@ -258,9 +259,10 @@ const HandsOn: React.FC = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Enhanced detection capabilities using state-of-the-art AI techniques
-            for comprehensive media analysis, including forensic-level examination
-            and detailed manipulation detection.
+            Beyond binary verdicts, Verité AI provides a full forensic evidence
+            chain: Grad-CAM heatmaps, temporal XAI overlays for audio,
+            LLM-narrated justifications, and exportable PDF reports — covering
+            all three modalities in a unified web platform.
           </motion.p>
 
           <motion.div
@@ -337,9 +339,10 @@ const HandsOn: React.FC = () => {
                 whileInView="visible"
                 viewport={{ once: false, amount: 0.4 }}
               >
-                Advanced detection can better help tackle complex media analysis
-                that requires forensic examination, pattern recognition, and
-                detailed verification step-by-step.
+                Verité AI addresses multi-modal forensic analysis that demands
+                Grad-CAM localisation, temporal attribution, and LLM narrative
+                generation — producing a complete evidence chain for each
+                detection, step-by-step.
               </motion.h2>
             </div>
           </section>

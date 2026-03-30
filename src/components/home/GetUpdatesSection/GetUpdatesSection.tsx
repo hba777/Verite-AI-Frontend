@@ -17,7 +17,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Accessing our detection service
+            Accessing Verité AI
           </motion.h2>
 
           <motion.p
@@ -27,8 +27,9 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            We want users to access our media authenticity detection as quickly as
-            possible. We're making this available through the XDetect Dashboard.
+            Verité AI is available to registered users through the analysis
+            dashboard. Authenticate with your institutional account to access
+            full tri-modal deepfake detection, XAI reports, and detection history.
           </motion.p>
 
           <motion.a
@@ -49,7 +50,7 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7, delay: 0.4 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Access XDetect Dashboard
+            Access Detection Dashboard
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
         </div>
@@ -65,10 +66,11 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           }}
         >
           <h3 className="text-3xl sm:text-5xl font-medium text-black pb-4">
-            Get the latest updates
+            Stay updated on Verité AI
           </h3>
           <p className="mt-2 text-gray-900">
-            Sign up for news on the latest advancements in media authenticity detection.
+            Subscribe for updates on the FYP progress, published results, and
+            new features added to the deepfake detection pipeline.
           </p>
 
           <form className="mt-8 flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto">
@@ -112,8 +114,8 @@ const GetUpdatesSection = React.forwardRef<HTMLDivElement>((props, ref) => {
           </form>
 
           <p className="mt-4 text-xs text-gray-900">
-            I accept XDetect-RT's Terms and Conditions and acknowledge that my
-            information will be used in accordance with{" "}
+            By subscribing, you agree to be contacted about Verité AI research
+            updates in accordance with{" "}
             <a href="#" className="underline text-black hover:text-gray-900">
               our Privacy Policy.
             </a>

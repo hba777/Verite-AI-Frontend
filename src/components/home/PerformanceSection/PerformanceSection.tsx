@@ -26,7 +26,7 @@ const PerformanceSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Performance
+            Model Performance
           </motion.p>
 
           <motion.h1
@@ -35,8 +35,8 @@ const PerformanceSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            XDetect-RT delivers state-of-the-art accuracy across
-            <br className="hidden md:block" /> comprehensive detection benchmarks.
+            Verité AI achieves competitive accuracy on FaceForensics++,
+            <br className="hidden md:block" /> Celeb-DF, and ASVspoof 2019/2021.
           </motion.h1>
 
           <motion.a
@@ -63,7 +63,7 @@ const PerformanceSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            View Detection Benchmarks
+            View Benchmark Results
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
         </div>

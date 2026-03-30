@@ -41,7 +41,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            For Developers
+            For Integrators &amp; Researchers
           </motion.p>
 
           <motion.h1
@@ -50,8 +50,10 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            XDetect-RT’s advanced detection capabilities, comprehensive media analysis
-            and real-time processing empower developers to build secure media verification solutions.
+            Verité AI exposes a fully documented FastAPI REST backend with
+            JWT-secured endpoints for media upload, async job polling, and XAI
+            report retrieval — enabling researchers and developers to integrate
+            tri-modal deepfake detection into their own forensic pipelines.
           </motion.h1>
           <motion.a
             href="#"
@@ -81,7 +83,7 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Start integrating
+            Access the API
             <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
           </motion.a>
           {(
