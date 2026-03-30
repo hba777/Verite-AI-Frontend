@@ -17,7 +17,6 @@ export interface FrameData {
   isAnomaly: boolean;
   confidenceScore: number; // 0-100
   isProcessed: boolean; // For waterfall effect
-  isImage?: boolean; // Flag for image processing
   anomalyType?:
     | "FaceSwap-GAN"
     | "Lip-Sync"
