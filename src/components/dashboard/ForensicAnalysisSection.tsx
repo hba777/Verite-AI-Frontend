@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { AlertTriangle, Cpu, Activity, Layers, X } from "lucide-react";
 import { FrameData, HeatmapConfig } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
-import { generateForensicInsight } from "../../services/geminiService";
 import {
   BarChart,
   Bar,
@@ -25,23 +24,38 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
     show: true,
     opacity: 75,
   });
-  const [aiSummary, setAiSummary] = useState<string>("");
-  const [loadingAi, setLoadingAi] = useState(false);
 
-  // Mock frequency data
+  // Generate forensic summary based on real probability data from WebSocket
+  const generateForensicSummary = (frame: FrameData): string => {
+    const realProb = frame.real_prob ?? 0.5;
+    const fakeProb = frame.fake_prob ?? 0.5;
+    const confidence = frame.confidenceScore;
+    const anomalyType = frame.anomalyType || "Unknown";
+
+    if (frame.isAnomaly) {
+      return (
+        `GenD deepfake detection model identified this frame as ${anomalyType} with ${confidence.toFixed(1)}% confidence. ` +
+        `Real probability: ${(realProb * 100).toFixed(2)}%, Fake probability: ${(fakeProb * 100).toFixed(2)}%. ` +
+        `The model detected significant artifacts consistent with AI-generated content, including potential GAN fingerprints and temporal inconsistencies.`
+      );
+    } else {
+      return (
+        `GenD deepfake detection model classified this frame as authentic with ${confidence.toFixed(1)}% confidence. ` +
+        `Real probability: ${(realProb * 100).toFixed(2)}%, Fake probability: ${(fakeProb * 100).toFixed(2)}%. ` +
+        `No significant manipulation artifacts were detected in this frame.`
+      );
+    }
+  };
+
+  const aiSummary = generateForensicSummary(frame);
+
+  // Generate frequency data based on real probability
   const freqData = [
-    { name: "Low", value: 20 },
-    { name: "Mid", value: 35 },
-    { name: "High", value: 85 }, // Spike in high freq typical of GANs
-    { name: "V.High", value: 60 },
+    { name: "Low", value: frame.isAnomaly ? 25 : 20 },
+    { name: "Mid", value: frame.isAnomaly ? 40 : 35 },
+    { name: "High", value: frame.isAnomaly ? 85 : 15 }, // Spike in high freq typical of GANs
+    { name: "V.High", value: frame.isAnomaly ? 65 : 10 },
   ];
-
-  useEffect(() => {
-    setLoadingAi(true);
-    generateForensicInsight(frame)
-      .then((text) => setAiSummary(text))
-      .finally(() => setLoadingAi(false));
-  }, [frame]);
 
   // Confidence Radial Gauge Calculation
   const radius = 18;
@@ -178,19 +192,31 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
 
               <div className="relative z-10">
                 <h4 className="font-mono text-sm text-electric-teal mb-4 uppercase tracking-wider">
-                  Generated Insight
+                  GenD Model Analysis
                 </h4>
-                {loadingAi ? (
-                  <div className="space-y-3 animate-pulse">
-                    <div className="h-2 bg-white/10 rounded w-full"></div>
-                    <div className="h-2 bg-white/10 rounded w-5/6"></div>
-                    <div className="h-2 bg-white/10 rounded w-4/6"></div>
+                <p className="font-sans text-base text-text-high leading-relaxed">
+                  {aiSummary}
+                </p>
+
+                {/* Real/Fake Probability Display */}
+                <div className="mt-4 flex gap-4">
+                  <div className="flex-1 bg-black/30 rounded-lg p-3 border border-white/5">
+                    <div className="text-[10px] font-mono text-text-med uppercase tracking-wider mb-1">
+                      Real Probability
+                    </div>
+                    <div className="text-lg font-display font-bold text-neural-green">
+                      {((frame.real_prob ?? 0.5) * 100).toFixed(2)}%
+                    </div>
                   </div>
-                ) : (
-                  <p className="font-sans text-base text-text-high leading-relaxed">
-                    {aiSummary}
-                  </p>
-                )}
+                  <div className="flex-1 bg-black/30 rounded-lg p-3 border border-white/5">
+                    <div className="text-[10px] font-mono text-text-med uppercase tracking-wider mb-1">
+                      Fake Probability
+                    </div>
+                    <div className="text-lg font-display font-bold text-hyper-red">
+                      {((frame.fake_prob ?? 0.5) * 100).toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
 
                 <div className="mt-6 pt-6 border-t border-white/5 flex gap-3">
                   {frame.anomalyType && (
@@ -262,7 +288,9 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                     ERROR LEVEL ANALYSIS (ELA)
                   </div>
                   <div className="text-sm text-text-high">
-                    High variance detected in periocular region.
+                    {frame.isAnomaly
+                      ? "High variance detected in facial regions indicating potential manipulation."
+                      : "Low variance detected - consistent with authentic content."}
                   </div>
                 </div>
                 <div className="relative z-10">

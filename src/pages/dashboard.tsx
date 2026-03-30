@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import IngestionHub from "@/components/dashboard/IngestionHub";
 import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
+import ImageResult from "@/components/dashboard/ImageResult";
+import ImageLoader from "@/components/dashboard/ImageLoader";
 import { AppState, FrameData } from "@/types";
 import { useUser } from "../context/UserContext";
-
 
 const Dashboard: React.FC = () => {
   const { token } = useUser();
@@ -15,6 +16,10 @@ const Dashboard: React.FC = () => {
   const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [isImageMode, setIsImageMode] = useState(false);
+  const [imageFrame, setImageFrame] = useState<FrameData | null>(null);
+  const [imageDetectionResult, setImageDetectionResult] = useState<any>(null);
+  const [showImageLoader, setShowImageLoader] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
@@ -55,8 +60,8 @@ const Dashboard: React.FC = () => {
   // Helper function to get video duration
   const getVideoDuration = (file: File): Promise<number> => {
     return new Promise((resolve) => {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
+      const video = document.createElement("video");
+      video.preload = "metadata";
       video.onloadedmetadata = () => {
         URL.revokeObjectURL(video.src);
         resolve(video.duration);
@@ -71,25 +76,40 @@ const Dashboard: React.FC = () => {
   const handleFileSelect = async (file: File) => {
     try {
       setStatus("Starting task...");
-      
-      // Create local video URL for playback
-      const url = URL.createObjectURL(file);
-      setVideoUrl(url);
-      
-      // Get video duration
-      const duration = await getVideoDuration(file);
-      setVideoDuration(duration);
-      console.log("Video duration:", duration, "seconds");
-      
+
+      // Determine if this is an image or video
+      const fileType = file.type.startsWith("image/") ? "image" : "video";
+      setIsImageMode(fileType === "image");
+      if (fileType === "image") {
+        setShowImageLoader(true);
+      }
+
+      // Create local video URL for playback (only for videos)
+      if (fileType === "video") {
+        const url = URL.createObjectURL(file);
+        setVideoUrl(url);
+
+        // Get video duration
+        const duration = await getVideoDuration(file);
+        setVideoDuration(duration);
+        console.log("Video duration:", duration, "seconds");
+      } else {
+        // For images, set videoUrl to null and create object URL for preview
+        setVideoUrl(null);
+      }
+
       // 1. Start task via HTTP POST
       const headers: Record<string, string> = {};
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/video/start-task`, {
-        method: "POST",
-        headers,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/video/start-task`,
+        {
+          method: "POST",
+          headers,
+        },
+      );
       if (!res.ok) throw new Error("Failed to start task");
       const data = await res.json();
       const taskId = data.task_id;
@@ -106,22 +126,25 @@ const Dashboard: React.FC = () => {
 
       ws.onopen = () => {
         // Send task_id and video_duration first to subscribe
-        ws.send(JSON.stringify({ 
-          task_id: taskId, 
-          video_duration: videoDuration 
-        }));
+        ws.send(
+          JSON.stringify({
+            task_id: taskId,
+            video_duration: videoDuration,
+            file_type: fileType,
+          }),
+        );
         setStatus("Connected, ready to upload...");
       };
 
       ws.onmessage = (event) => {
         try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
+          // Handle control messages (SEND_VIDEO, SEND_IMAGE, Processing, DONE)
           if (event.data === "SEND_VIDEO") {
             setStatus("Uploading video...");
             // Start sending file chunks
             const chunkSize = 64 * 1024; // 64 KB
             let offset = 0;
-            
+
             function sendNext() {
               const slice = file.slice(offset, offset + chunkSize);
               const reader = new FileReader();
@@ -144,6 +167,22 @@ const Dashboard: React.FC = () => {
               reader.readAsArrayBuffer(slice);
             }
             sendNext();
+          } else if (event.data === "SEND_IMAGE") {
+            // Handle image upload
+            setStatus("Uploading image...");
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (e.target?.result) {
+                ws.send(e.target.result as ArrayBuffer);
+                // Send END after image
+                setTimeout(() => {
+                  ws.send("END");
+                }, 100);
+                setUploadProgress(100);
+                setStatus("Upload complete, processing...");
+              }
+            };
+            reader.readAsArrayBuffer(file);
           } else if (event.data === "Processing...") {
             setStatus("Processing video...");
             setUploadProgress(100);
@@ -154,14 +193,17 @@ const Dashboard: React.FC = () => {
             try {
               const jsonData = JSON.parse(event.data as string);
               console.log("Received JSON data:", jsonData);
-              
-              if (jsonData.type === "frame_ready" || jsonData.type === "detection_ready") {
+
+              if (
+                jsonData.type === "frame_ready" ||
+                jsonData.type === "detection_ready"
+              ) {
                 // Mark that frames are being received via WebSocket
                 framesReceivedRef.current = true;
-                
+
                 // Handle real-time frame update or detection result
                 const frameIndex = jsonData.frame_index;
-                
+
                 // Convert timestamp to string format (e.g., "00:00:12")
                 const formatTimestamp = (time: number) => {
                   const hrs = Math.floor(time / 3600);
@@ -169,18 +211,25 @@ const Dashboard: React.FC = () => {
                   const secs = Math.floor(time % 60);
                   return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
                 };
-                
-                setFrames(prev => {
+
+                setFrames((prev) => {
                   const updated = [...prev];
                   // Ensure array is large enough
                   while (updated.length <= frameIndex) {
                     updated.push({
                       id: updated.length,
                       // Use timestamp from backend if available
-                      timestamp: typeof jsonData.timestamp === 'string'
-                        ? jsonData.timestamp
-                        : formatTimestamp(jsonData.timestamp || updated.length),
-                      thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                      timestamp:
+                        typeof jsonData.timestamp === "string"
+                          ? jsonData.timestamp
+                          : formatTimestamp(
+                              jsonData.timestamp || updated.length,
+                            ),
+                      thumbnailUrl: jsonData.frame_data
+                        ? `data:image/jpeg;base64,${jsonData.frame_data}`
+                        : jsonData.original_frame_data
+                          ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
+                          : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
                       isAnomaly: false,
                       confidenceScore: 0,
                       isProcessed: false,
@@ -193,11 +242,20 @@ const Dashboard: React.FC = () => {
                   updated[frameIndex] = {
                     id: frameIndex,
                     // Use timestamp from backend if available, otherwise format from seconds
-                    timestamp: typeof jsonData.timestamp === 'string' 
-                      ? jsonData.timestamp 
-                      : formatTimestamp(jsonData.timestamp ?? frameIndex),
-                    timestamp_seconds: jsonData.timestamp_seconds ?? (typeof jsonData.timestamp === 'number' ? jsonData.timestamp : frameIndex),
-                    thumbnailUrl: jsonData.frame_data ? `data:image/jpeg;base64,${jsonData.frame_data}` : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                    timestamp:
+                      typeof jsonData.timestamp === "string"
+                        ? jsonData.timestamp
+                        : formatTimestamp(jsonData.timestamp ?? frameIndex),
+                    timestamp_seconds:
+                      jsonData.timestamp_seconds ??
+                      (typeof jsonData.timestamp === "number"
+                        ? jsonData.timestamp
+                        : frameIndex),
+                    thumbnailUrl: jsonData.frame_data
+                      ? `data:image/jpeg;base64,${jsonData.frame_data}`
+                      : jsonData.original_frame_data
+                        ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
+                        : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
                     isAnomaly: jsonData.is_anomaly ?? false,
                     confidenceScore: jsonData.confidence ?? 0,
                     // Mark as processed if it's frame_ready or detection_ready
@@ -205,34 +263,80 @@ const Dashboard: React.FC = () => {
                     anomalyType: jsonData.anomaly_type,
                     elaScore: jsonData.ela_score,
                     frequencySpike: jsonData.frequency_spike,
+                    real_prob: jsonData.real_prob,
+                    fake_prob: jsonData.fake_prob,
                   };
                   return updated;
                 });
-                setProcessedFrames(prev => prev + 1);
+
+                // For image mode, store the frame data for display
+                const isImageData = jsonData.is_image || isImageMode;
+                if (isImageData) {
+                  // Use original_frame_data or frame_data depending on what's available
+                  const imageData =
+                    jsonData.original_frame_data || jsonData.frame_data || "";
+                  const imageFrameData: FrameData = {
+                    id: 0,
+                    timestamp: "00:00:00.000",
+                    timestamp_seconds: 0,
+                    thumbnailUrl: imageData
+                      ? `data:image/jpeg;base64,${imageData}`
+                      : "",
+                    isAnomaly: jsonData.is_anomaly ?? false,
+                    confidenceScore: jsonData.confidence ?? 0,
+                    isProcessed: true,
+                    isImage: true,
+                    anomalyType: jsonData.anomaly_type,
+                    elaScore: jsonData.ela_score,
+                    frequencySpike: jsonData.frequency_spike,
+                    real_prob: jsonData.real_prob,
+                    fake_prob: jsonData.fake_prob,
+                  };
+                  setImageFrame(imageFrameData);
+                  setImageDetectionResult(jsonData);
+                  // Mark processing as complete for image mode
+                  setIsProcessing(false);
+                  setAppState(AppState.COMPLETE);
+                  setStatus("Processing complete!");
+                  setShowImageLoader(false);
+                }
+
+                setProcessedFrames((prev) => prev + 1);
                 console.log(`Frame ${frameIndex} received (${jsonData.type})`);
               } else if (jsonData.type === "processing_complete") {
                 setStatus("Processing complete!");
                 setIsProcessing(false);
                 setAppState(AppState.COMPLETE);
+                setShowImageLoader(false);
                 console.log("Processing completed:", jsonData);
+
+                // If this is an image, ensure we have the frame data
+                if (jsonData.is_image && !imageFrame) {
+                  setImageDetectionResult(jsonData);
+                }
               } else if (jsonData.type === "error") {
                 setStatus(`Error: ${jsonData.message}`);
                 setIsProcessing(false);
                 console.error("Processing error:", jsonData);
               } else if (jsonData.preview_frames) {
                 // Legacy support for old format
-                console.log("Preview frames received:", jsonData.preview_frames.length);
-                
+                console.log(
+                  "Preview frames received:",
+                  jsonData.preview_frames.length,
+                );
+
                 // Convert preview frames to FrameData format
-                const newFrames: FrameData[] = jsonData.preview_frames.map((url: string, idx: number) => ({
-                  id: idx,
-                  timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
-                  timestamp_seconds: idx,
-                  thumbnailUrl: url,
-                  isAnomaly: false,
-                  confidenceScore: 0,
-                  isProcessed: true,
-                }));
+                const newFrames: FrameData[] = jsonData.preview_frames.map(
+                  (url: string, idx: number) => ({
+                    id: idx,
+                    timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
+                    timestamp_seconds: idx,
+                    thumbnailUrl: url,
+                    isAnomaly: false,
+                    confidenceScore: 0,
+                    isProcessed: true,
+                  }),
+                );
                 setFrames(newFrames);
               }
             } catch (parseError) {
@@ -267,11 +371,16 @@ const Dashboard: React.FC = () => {
     // 1. We're analyzing
     // 2. No frames yet
     // 3. NOT receiving frames via WebSocket (checked via ref)
-    if (appState === AppState.ANALYZING && frames.length === 0 && !framesReceivedRef.current && status !== "Upload complete, processing...") {
+    if (
+      appState === AppState.ANALYZING &&
+      frames.length === 0 &&
+      !framesReceivedRef.current &&
+      status !== "Upload complete, processing..."
+    ) {
       // Initialize mock frames for demo
       const initialFrames = generateMockFrames();
       setFrames(initialFrames);
-      
+
       let currentIndex = 0;
       const processInterval = setInterval(() => {
         setFrames((prevFrames) => {
@@ -279,7 +388,10 @@ const Dashboard: React.FC = () => {
           // Process batches of frames to simulate speed
           for (let i = 0; i < 2; i++) {
             if (currentIndex < newFrames.length) {
-              newFrames[currentIndex] = { ...newFrames[currentIndex], isProcessed: true };
+              newFrames[currentIndex] = {
+                ...newFrames[currentIndex],
+                isProcessed: true,
+              };
               currentIndex++;
             }
           }
@@ -300,9 +412,20 @@ const Dashboard: React.FC = () => {
     <div className="font-sans text-text-high antialiased">
       {appState === AppState.IDLE ? (
         <IngestionHub onFileSelect={handleFileSelect} />
+      ) : isImageMode &&
+        showImageLoader &&
+        !imageFrame &&
+        !imageDetectionResult ? (
+        <ImageLoader status={status} />
+      ) : isImageMode && (imageFrame || imageDetectionResult) ? (
+        <ImageResult
+          frame={imageFrame}
+          detectionResult={imageDetectionResult}
+          taskId={imageDetectionResult?.task_id || "unknown"}
+        />
       ) : (
-        <AnalysisDashboard 
-          appState={appState} 
+        <AnalysisDashboard
+          appState={appState}
           frames={frames}
           uploadProgress={uploadProgress}
           status={status}

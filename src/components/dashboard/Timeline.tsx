@@ -162,6 +162,28 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                 >
                   #{frame.id}
                 </div>
+
+                {/* Probability Indicator */}
+                {frame.isProcessed && frame.fake_prob !== undefined && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "8px",
+                      right: "8px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "9px",
+                      color: frame.isAnomaly
+                        ? colors.hyperRed
+                        : colors.electricTeal,
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      border: `1px solid ${frame.isAnomaly ? colors.hyperRed : colors.electricTeal}`,
+                    }}
+                  >
+                    {(frame.fake_prob * 100).toFixed(1)}%
+                  </div>
+                )}
               </div>
 
               {/* Metadata / Action */}
