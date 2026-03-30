@@ -69,11 +69,11 @@ const Header = ({
           isVisible ? "translate-y-0" : "-translate-y-full"
         } ${isVisible && !isAtTop ? "border-b border-white/20" : ""}`}
       >
-        <div className="w-full px-2 sm:px-4 lg:px-6">
+        <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 3xl:px-16">
           <nav className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
               {/* Main heading - weight 400 */}
-              <a href="#" className="text-xl text-white px-10 font-normal">
+              <a href="#" className="text-xl text-white px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 font-normal">
                 Verité AI
               </a>
 

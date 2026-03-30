@@ -267,61 +267,7 @@ const HandsOn: React.FC = () => {
             all three modalities in a unified web platform.
           </motion.p>
 
-          <motion.div
-            className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            viewport={{ once: false, amount: 0.4 }}
-          >
-            {/* First Button (Try with Google AI Ultra) */}
-            <a
-              href="#"
-              className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
-              style={{
-                backgroundImage:
-                  "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-                transition: "background-image 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundImage =
-                  "linear-gradient(90deg, #345fe6, #2786e6 65%, #9ca6e6)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundImage =
-                  "linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-              }
-            >
-              Try Detection Demo
-              <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
-            </a>
-
-            {/* Second Button (View model card) */}
-            <a
-              href="#"
-              className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white gap-2"
-              style={{
-                backgroundImage:
-                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-                backgroundOrigin: "border-box",
-                backgroundClip: "padding-box, border-box",
-                border: "2px solid transparent",
-                transition:
-                  "background-color 0.3s ease, background-image 0.3s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundImage =
-                  "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #9ca6e6)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundImage =
-                  "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-              }
-            >
-              View API Documentation
-              <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
-            </a>
-          </motion.div>
+          {/* Buttons removed per design request */}
 
           <section className="flex items-center justify-center py-20">
             <div className="max-w-4xl px-6 text-center">

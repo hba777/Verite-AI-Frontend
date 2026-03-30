@@ -27,9 +27,9 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
     // Attach the ref to the root element of this section
     <div ref={ref} className="text-white relative">
-      <section className="container mx-auto px-6 py-20 max-w-5xl text-center">
+      <section className="container mx-auto px-6 lg:px-8 xl:px-10 2xl:px-12 py-20 max-w-5xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-8xl 3xl:max-w-9xl text-center">
         <motion.h2
-          className="text-5xl font-medium pb-5"
+          className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium pb-5"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -39,7 +39,7 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
         </motion.h2>
 
         <motion.p
-          className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5"
+          className="mt-4 max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl mx-auto text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl text-gray-400 font-medium pb-5"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -56,6 +56,7 @@ const ModelFamilySection = React.forwardRef<HTMLDivElement>((props, ref) => {
               key={model.title}
               title={model.title}
               description={model.description}
+              showLearnMore={false}
             />
           ))}
         </div>

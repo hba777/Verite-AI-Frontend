@@ -80,6 +80,9 @@ const CardCarousel: React.FC = () => {
   const [startX, setStartX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const dragThreshold = 50; // Min pixels to drag to trigger a slide change
+  const [isHovered, setIsHovered] = useState(false);
+
+
 
   // Track screen size
   useEffect(() => {
@@ -88,7 +91,6 @@ const CardCarousel: React.FC = () => {
     window.addEventListener("resize", updateIsMobile);
     return () => window.removeEventListener("resize", updateIsMobile);
   }, []);
-
   // Card data
   const cardData = [
     {
@@ -128,6 +130,17 @@ const CardCarousel: React.FC = () => {
         "Administrators can monitor system metrics, manage user accounts, review per-user detection history, and access feedback logs from a dedicated Django-style admin panel.",
     },
   ];
+
+  // Auto-scroll every 5 seconds, but pause while dragging or when hovered/touched
+  useEffect(() => {
+    if (isDragging || isHovered) return; // pause auto-scroll during interaction
+
+    const id = window.setInterval(() => {
+      setCurrentIndex((prev) => (prev === cardData.length - 1 ? 0 : prev + 1));
+    }, 5000);
+
+    return () => window.clearInterval(id);
+  }, [isDragging, isHovered, cardData.length]);
 
   // --- Navigation and Drag Handlers ---
   const goToNext = () => {
@@ -219,6 +232,10 @@ const CardCarousel: React.FC = () => {
           onMouseUp={handleDragEnd}
           onMouseLeave={handleDragEnd}
           onTouchEnd={handleDragEnd}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          onTouchEnd={() => setIsHovered(false)}
         >
           {cardData.map((card, index) => {
             const distance = index - currentIndex;

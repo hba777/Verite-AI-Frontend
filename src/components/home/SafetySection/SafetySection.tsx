@@ -6,7 +6,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
   return (
     <section
       ref={ref}
-      className="relative w-full h-screen bg-black text-white overflow-hidden"
+      className="relative w-full h-screen lg:h-[90vh] xl:h-[85vh] 2xl:h-[80vh] bg-black text-white overflow-hidden"
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -15,10 +15,10 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
         }}
       />
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative z-10 h-full flex items-center justify-center px-6">
-        <div className="text-center max-w-4xl">
+      <div className="relative z-10 h-full flex items-center justify-center px-6 lg:px-8 xl:px-10 2xl:px-12">
+        <div className="text-center max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl 3xl:max-w-8xl">
           <motion.h2
-            className="text-5xl font-medium pb-5"
+            className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium pb-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -27,7 +27,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             Responsible AI at NUST
           </motion.h2>
           <motion.p
-            className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5"
+            className="mt-4 max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl mx-auto text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl text-gray-400 font-medium pb-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -39,33 +39,7 @@ const SafetySection = React.forwardRef<HTMLDivElement>((props, ref) => {
             detection technology and commit to transparent, audit-ready outputs
             that protect individuals and democratic integrity.
           </motion.p>
-          <motion.a
-            href="#"
-            className="inline-flex items-center rounded-full py-3 px-8 font-normal text-white"
-            style={{
-              backgroundImage:
-                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)",
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-              border: "2px solid transparent",
-              transition:
-                "background-color 0.3s ease, background-image 0.3s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
-            }
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Read Our Ethics Statement
-            <LuSquareArrowOutUpRight strokeWidth={3} className="ml-2" />
-          </motion.a>
+          {/* Removed 'Read Our Ethics Statement' button per request */}
         </div>
       </div>
     </section>

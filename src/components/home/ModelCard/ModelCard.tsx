@@ -3,9 +3,10 @@ import React from "react";
 interface ModelCardProps {
   title: string;
   description: string;
+  showLearnMore?: boolean;
 }
 
-const ModelCard = ({ title, description }: ModelCardProps) => {
+const ModelCard = ({ title, description, showLearnMore = true }: ModelCardProps) => {
   return (
     <div className="flex flex-col rounded-2xl border border-white/10 bg-[#141414] p-8 text-center transition-all duration-300 hover:border-blue-500 hover:shadow-lg max-w-sm mx-auto font-medium">
       <div className="mb-8 flex justify-center">
@@ -74,12 +75,14 @@ const ModelCard = ({ title, description }: ModelCardProps) => {
 
       <h3 className="mt-3 text-2xl font-semibold">{title}</h3>
       <p className="mt-3 text-gray-400 flex-grow text-base">{description}</p>
-      <a
-        href="#"
-        className="mt-6 font-semibold text-blue-300 hover:text-blue-200 transition-colors"
-      >
-        Learn more
-      </a>
+      {showLearnMore && (
+        <a
+          href="#"
+          className="mt-6 font-semibold text-blue-300 hover:text-blue-200 transition-colors"
+        >
+          Learn more
+        </a>
+      )}
     </div>
   );
 };

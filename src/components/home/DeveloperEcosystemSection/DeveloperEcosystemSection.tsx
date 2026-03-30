@@ -7,10 +7,10 @@ import { LuSquareArrowOutUpRight } from "react-icons/lu";
 const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
   (props, ref) => {
     return (
-      <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4">
-        <div className="container mx-auto text-center">
+      <section ref={ref} className="bg-black text-white py-24 sm:py-32 px-4 lg:px-6 xl:px-8 2xl:px-10">
+        <div className="container mx-auto max-w-6xl lg:max-w-7xl xl:max-w-8xl 2xl:max-w-9xl 3xl:max-w-10xl text-center">
           <motion.h2
-            className="text-4xl sm:text-5xl font-medium mb-6 pb-5"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium mb-6 pb-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
@@ -19,7 +19,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             Research Ecosystem
           </motion.h2>
           <motion.p
-            className="max-w-2xl mx-auto text-3xl text-gray-400 mb-16"
+            className="max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl mx-auto text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl text-gray-400 mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
@@ -30,7 +30,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
             via a documented REST API or directly through the web interface.
           </motion.p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl lg:max-w-7xl xl:max-w-8xl 2xl:max-w-9xl mx-auto">
             {/* Google AI Studio Card */}
             <motion.div
               className="relative min-h-[280px] rounded-2xl bg-[#141414] border border-gray-800 hover:border-blue-500 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 p-8"
@@ -88,13 +88,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   </p>
                 </div>
               </div>
-              <div className="absolute bottom-4 right-4">
-                <LuSquareArrowOutUpRight
-                  strokeWidth={3}
-                  className="ml-2"
-                  style={{ color: "#accbfa" }}
-                />
-              </div>
+              {/* pointing icon removed */}
             </motion.div>
 
             {/* Gemini API Card */}
@@ -147,13 +141,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   </p>
                 </div>
               </div>
-              <div className="absolute bottom-4 right-4">
-                <LuSquareArrowOutUpRight
-                  strokeWidth={3}
-                  className="ml-2"
-                  style={{ color: "#accbfa" }}
-                />
-              </div>
+              {/* pointing icon removed */}
             </motion.div>
           </div>
         </div>
