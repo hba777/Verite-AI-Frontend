@@ -85,24 +85,7 @@ const TechCard: React.FC<{
       }}
     />
     <div style={{ paddingLeft: 12 }}>
-      {/* Technique badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <span
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            fontWeight: 700,
-            color: accentColor,
-            background: `${accentColor}18`,
-            border: `1px solid ${accentColor}40`,
-            borderRadius: 4,
-            padding: "2px 8px",
-            letterSpacing: 1,
-          }}
-        >
-          {tag}
-        </span>
-      </div>
+     
       <h4
         style={{
           fontFamily: "'Inter', sans-serif",
@@ -152,6 +135,7 @@ const SHAPTimeShap: React.FC<{ frame: FrameData }> = ({ frame }) => {
             <Tooltip
               contentStyle={{ background: C.void, border: `1px solid ${C.border}`, fontSize: 11 }}
               formatter={(v: number) => [v.toFixed(3), "SHAP φ"]}
+              cursor={{ fill: "transparent" }}
             />
             <ReferenceLine y={0} stroke="#333" />
             <Bar dataKey="value" radius={[2, 2, 0, 0]}>
@@ -246,6 +230,7 @@ const IntegratedGradients: React.FC<{ frame: FrameData }> = ({ frame }) => {
           <Tooltip
             contentStyle={{ background: C.void, border: `1px solid ${C.border}`, fontSize: 11 }}
             formatter={(v: number) => [`${(v * 100).toFixed(1)}%`, "IG Score"]}
+            cursor={{ fill: "transparent" }}
           />
           <Bar dataKey="ig" radius={[0, 4, 4, 0]}>
             {zones.map((_, i) => (
