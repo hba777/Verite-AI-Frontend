@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import IngestionHub from "@/components/dashboard/IngestionHub";
 import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
+import ImageResult from "@/components/dashboard/ImageResult";
 import { AppState, FrameData } from "@/types";
 import { useUser } from "../context/UserContext";
 
@@ -17,6 +18,13 @@ const Dashboard: React.FC = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
+
+  // Image processing states
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageDetectionResult, setImageDetectionResult] = useState<any>(null);
+  const [imageFrame, setImageFrame] = useState<FrameData | null>(null);
+  const [imageTaskId, setImageTaskId] = useState<string>("");
+  const [isImageProcessing, setIsImageProcessing] = useState(false);
 
   // Generate mock frames for demo/initial state
   const generateMockFrames = useCallback((): FrameData[] => {
@@ -68,226 +76,324 @@ const Dashboard: React.FC = () => {
   };
 
   const handleFileSelect = async (file: File) => {
-    try {
-      setStatus("Starting task...");
+    if (file.type.startsWith('video/')) {
+      // Video processing
+      try {
+        setStatus("Starting task...");
 
-      // Create local video URL for playback
-      const url = URL.createObjectURL(file);
-      setVideoUrl(url);
+        // Create local video URL for playback
+        const url = URL.createObjectURL(file);
+        setVideoUrl(url);
 
-      // Get video duration
-      const duration = await getVideoDuration(file);
-      setVideoDuration(duration);
-      console.log("Video duration:", duration, "seconds");
+        // Get video duration
+        const duration = await getVideoDuration(file);
+        setVideoDuration(duration);
+        console.log("Video duration:", duration, "seconds");
 
-      // 1. Start task via HTTP POST
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/video/start-task`,
-        {
-          method: "POST",
-          headers,
-        },
-      );
-      if (!res.ok) throw new Error("Failed to start task");
-      const data = await res.json();
-      const taskId = data.task_id;
-      console.log("Task ID:", taskId);
-      setAppState(AppState.ANALYZING);
-
-      // Initialize empty frames array for now
-      setFrames([]);
-
-      // 2. Open WebSocket
-      const ws = new WebSocket(`ws://localhost:8000/ws/task`);
-      wsRef.current = ws;
-      ws.binaryType = "arraybuffer";
-
-      ws.onopen = () => {
-        // Send task_id and video_duration first to subscribe
-        ws.send(
-          JSON.stringify({
-            task_id: taskId,
-            video_duration: videoDuration,
-          }),
+        // 1. Start task via HTTP POST
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/video/start-task`,
+          {
+            method: "POST",
+            headers,
+          },
         );
-        setStatus("Connected, ready to upload...");
-      };
+        if (!res.ok) throw new Error("Failed to start task");
+        const data = await res.json();
+        const taskId = data.task_id;
+        console.log("Task ID:", taskId);
+        setAppState(AppState.ANALYZING);
 
-      ws.onmessage = (event) => {
-        try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
-          if (event.data === "SEND_VIDEO") {
-            setStatus("Uploading video...");
-            // Start sending file chunks
-            const chunkSize = 64 * 1024; // 64 KB
-            let offset = 0;
+        // Initialize empty frames array for now
+        setFrames([]);
 
-            function sendNext() {
-              const slice = file.slice(offset, offset + chunkSize);
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                if (e.target?.result) {
-                  ws.send(e.target.result as ArrayBuffer);
-                  offset += chunkSize;
-                  // Update progress
-                  const progress = Math.min((offset / file.size) * 100, 100);
-                  setUploadProgress(progress);
-                  if (offset < file.size) {
-                    sendNext();
-                  } else {
-                    ws.send("END");
-                    setUploadProgress(100);
-                    setStatus("Upload complete, processing...");
+        // 2. Open WebSocket
+        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        wsRef.current = ws;
+        ws.binaryType = "arraybuffer";
+
+        ws.onopen = () => {
+          // Send task_id and video_duration first to subscribe
+          ws.send(
+            JSON.stringify({
+              task_id: taskId,
+              video_duration: videoDuration,
+            }),
+          );
+          setStatus("Connected, ready to upload...");
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            // Handle control messages (SEND_VIDEO, Processing, DONE)
+            if (event.data === "SEND_VIDEO") {
+              setStatus("Uploading video...");
+              // Start sending file chunks
+              const chunkSize = 64 * 1024; // 64 KB
+              let offset = 0;
+
+              function sendNext() {
+                const slice = file.slice(offset, offset + chunkSize);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  if (e.target?.result) {
+                    ws.send(e.target.result as ArrayBuffer);
+                    offset += chunkSize;
+                    // Update progress
+                    const progress = Math.min((offset / file.size) * 100, 100);
+                    setUploadProgress(progress);
+                    if (offset < file.size) {
+                      sendNext();
+                    } else {
+                      ws.send("END");
+                      setUploadProgress(100);
+                      setStatus("Upload complete, processing...");
+                    }
                   }
-                }
-              };
-              reader.readAsArrayBuffer(slice);
-            }
-            sendNext();
-          } else if (event.data === "Processing...") {
-            setStatus("Processing video...");
-            setUploadProgress(100);
-            setIsProcessing(true);
-            setProcessedFrames(0);
-          } else {
-            // Try parsing JSON message
-            try {
-              const jsonData = JSON.parse(event.data as string);
-              console.log("Received JSON data:", jsonData);
-
-              if (
-                jsonData.type === "frame_ready" ||
-                jsonData.type === "detection_ready"
-              ) {
-                // Mark that frames are being received via WebSocket
-                framesReceivedRef.current = true;
-
-                // Handle real-time frame update or detection result
-                const frameIndex = jsonData.frame_index;
-
-                // Convert timestamp to string format (e.g., "00:00:12")
-                const formatTimestamp = (time: number) => {
-                  const hrs = Math.floor(time / 3600);
-                  const mins = Math.floor((time % 3600) / 60);
-                  const secs = Math.floor(time % 60);
-                  return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
                 };
+                reader.readAsArrayBuffer(slice);
+              }
+              sendNext();
+            } else if (event.data === "Processing...") {
+              setStatus("Processing video...");
+              setUploadProgress(100);
+              setIsProcessing(true);
+              setProcessedFrames(0);
+            } else {
+              // Try parsing JSON message
+              try {
+                const jsonData = JSON.parse(event.data as string);
+                console.log("Received JSON data:", jsonData);
 
-                setFrames((prev) => {
-                  const updated = [...prev];
-                  // Ensure array is large enough
-                  while (updated.length <= frameIndex) {
-                    updated.push({
-                      id: updated.length,
-                      // Use timestamp from backend if available
+                if (
+                  jsonData.type === "frame_ready" ||
+                  jsonData.type === "detection_ready"
+                ) {
+                  // Mark that frames are being received via WebSocket
+                  framesReceivedRef.current = true;
+
+                  // Handle real-time frame update or detection result
+                  const frameIndex = jsonData.frame_index;
+
+                  // Convert timestamp to string format (e.g., "00:00:12")
+                  const formatTimestamp = (time: number) => {
+                    const hrs = Math.floor(time / 3600);
+                    const mins = Math.floor((time % 3600) / 60);
+                    const secs = Math.floor(time % 60);
+                    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+                  };
+
+                  setFrames((prev) => {
+                    const updated = [...prev];
+                    // Ensure array is large enough
+                    while (updated.length <= frameIndex) {
+                      updated.push({
+                        id: updated.length,
+                        // Use timestamp from backend if available
+                        timestamp:
+                          typeof jsonData.timestamp === "string"
+                            ? jsonData.timestamp
+                            : formatTimestamp(
+                                jsonData.timestamp || updated.length,
+                              ),
+                        thumbnailUrl: jsonData.frame_data
+                          ? `data:image/jpeg;base64,${jsonData.frame_data}`
+                          : jsonData.original_frame_data
+                            ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
+                            : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                        isAnomaly: false,
+                        confidenceScore: 0,
+                        isProcessed: false,
+                        anomalyType: undefined,
+                        elaScore: undefined,
+                        frequencySpike: undefined,
+                      });
+                    }
+                    // Update the specific frame
+                    updated[frameIndex] = {
+                      id: frameIndex,
+                      // Use timestamp from backend if available, otherwise format from seconds
                       timestamp:
                         typeof jsonData.timestamp === "string"
                           ? jsonData.timestamp
-                          : formatTimestamp(
-                              jsonData.timestamp || updated.length,
-                            ),
+                          : formatTimestamp(jsonData.timestamp ?? frameIndex),
+                      timestamp_seconds:
+                        jsonData.timestamp_seconds ??
+                        (typeof jsonData.timestamp === "number"
+                          ? jsonData.timestamp
+                          : frameIndex),
                       thumbnailUrl: jsonData.frame_data
                         ? `data:image/jpeg;base64,${jsonData.frame_data}`
                         : jsonData.original_frame_data
                           ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                          : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                          : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                      isAnomaly: jsonData.is_anomaly ?? false,
+                      confidenceScore: jsonData.confidence ?? 0,
+                      // Mark as processed if it's frame_ready or detection_ready
+                      isProcessed: true,
+                      anomalyType: jsonData.anomaly_type,
+                      elaScore: jsonData.ela_score,
+                      frequencySpike: jsonData.frequency_spike,
+                      real_prob: jsonData.real_prob,
+                      fake_prob: jsonData.fake_prob,
+                    };
+                    return updated;
+                  });
+                  setProcessedFrames((prev) => prev + 1);
+                  console.log(`Frame ${frameIndex} received (${jsonData.type})`);
+                } else if (jsonData.type === "processing_complete") {
+                  setStatus("Processing complete!");
+                  setIsProcessing(false);
+                  setAppState(AppState.COMPLETE);
+                  console.log("Processing completed:", jsonData);
+                } else if (jsonData.type === "error") {
+                  setStatus(`Error: ${jsonData.message}`);
+                  setIsProcessing(false);
+                  console.error("Processing error:", jsonData);
+                } else if (jsonData.preview_frames) {
+                  // Legacy support for old format
+                  console.log(
+                    "Preview frames received:",
+                    jsonData.preview_frames.length,
+                  );
+
+                  // Convert preview frames to FrameData format
+                  const newFrames: FrameData[] = jsonData.preview_frames.map(
+                    (url: string, idx: number) => ({
+                      id: idx,
+                      timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
+                      timestamp_seconds: idx,
+                      thumbnailUrl: url,
                       isAnomaly: false,
                       confidenceScore: 0,
-                      isProcessed: false,
-                      anomalyType: undefined,
-                      elaScore: undefined,
-                      frequencySpike: undefined,
-                    });
-                  }
-                  // Update the specific frame
-                  updated[frameIndex] = {
-                    id: frameIndex,
-                    // Use timestamp from backend if available, otherwise format from seconds
-                    timestamp:
-                      typeof jsonData.timestamp === "string"
-                        ? jsonData.timestamp
-                        : formatTimestamp(jsonData.timestamp ?? frameIndex),
-                    timestamp_seconds:
-                      jsonData.timestamp_seconds ??
-                      (typeof jsonData.timestamp === "number"
-                        ? jsonData.timestamp
-                        : frameIndex),
-                    thumbnailUrl: jsonData.frame_data
-                      ? `data:image/jpeg;base64,${jsonData.frame_data}`
-                      : jsonData.original_frame_data
-                        ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                        : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
-                    isAnomaly: jsonData.is_anomaly ?? false,
-                    confidenceScore: jsonData.confidence ?? 0,
-                    // Mark as processed if it's frame_ready or detection_ready
-                    isProcessed: true,
-                    anomalyType: jsonData.anomaly_type,
-                    elaScore: jsonData.ela_score,
-                    frequencySpike: jsonData.frequency_spike,
-                    real_prob: jsonData.real_prob,
-                    fake_prob: jsonData.fake_prob,
-                  };
-                  return updated;
-                });
-                setProcessedFrames((prev) => prev + 1);
-                console.log(`Frame ${frameIndex} received (${jsonData.type})`);
-              } else if (jsonData.type === "processing_complete") {
-                setStatus("Processing complete!");
-                setIsProcessing(false);
-                setAppState(AppState.COMPLETE);
-                console.log("Processing completed:", jsonData);
-              } else if (jsonData.type === "error") {
-                setStatus(`Error: ${jsonData.message}`);
-                setIsProcessing(false);
-                console.error("Processing error:", jsonData);
-              } else if (jsonData.preview_frames) {
-                // Legacy support for old format
-                console.log(
-                  "Preview frames received:",
-                  jsonData.preview_frames.length,
-                );
-
-                // Convert preview frames to FrameData format
-                const newFrames: FrameData[] = jsonData.preview_frames.map(
-                  (url: string, idx: number) => ({
-                    id: idx,
-                    timestamp: `00:00:${idx.toString().padStart(2, "0")}`,
-                    timestamp_seconds: idx,
-                    thumbnailUrl: url,
-                    isAnomaly: false,
-                    confidenceScore: 0,
-                    isProcessed: true,
-                  }),
-                );
-                setFrames(newFrames);
+                      isProcessed: true,
+                    }),
+                  );
+                  setFrames(newFrames);
+                }
+              } catch (parseError) {
+                console.log("Non-JSON message:", event.data);
               }
-            } catch (parseError) {
-              console.log("Non-JSON message:", event.data);
             }
+          } catch (err) {
+            console.error("Error parsing WebSocket message:", err);
           }
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
-        }
-      };
+        };
 
-      ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        setStatus("WebSocket error");
-      };
+        ws.onerror = (err) => {
+          console.error("WebSocket error:", err);
+          setStatus("WebSocket error");
+        };
 
-      ws.onclose = () => {
-        console.log("WebSocket closed");
-        if (status !== "Processing complete!") {
-          setStatus("Connection closed");
+        ws.onclose = () => {
+          console.log("WebSocket closed");
+          if (status !== "Processing complete!") {
+            setStatus("Connection closed");
+          }
+        };
+      } catch (error) {
+        console.error("Upload failed:", error);
+        setStatus("Failed to start upload");
+      }
+    } else if (file.type.startsWith('image/')) {
+      // Image processing
+      try {
+        setImageFile(file);
+        setIsImageProcessing(true);
+
+        // 1. Start task via HTTP POST
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
         }
-      };
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setStatus("Failed to start upload");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/video/start-task`,
+          {
+            method: "POST",
+            headers,
+          },
+        );
+        if (!res.ok) throw new Error("Failed to start task");
+        const data = await res.json();
+        const taskId = data.task_id;
+        console.log("Image Task ID:", taskId);
+        setImageTaskId(taskId);
+
+        // 2. Open WebSocket
+        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        ws.binaryType = "arraybuffer";
+
+        ws.onopen = () => {
+          // Send task_id and file_type
+          ws.send(JSON.stringify({ 
+            task_id: taskId, 
+            file_type: "image" 
+          }));
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            // Handle control messages (SEND_IMAGE, Processing, DONE)
+            if (event.data === "SEND_IMAGE") {
+              // Send image data
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                if (e.target?.result) {
+                  ws.send(e.target.result as ArrayBuffer);
+                  ws.send("END");
+                }
+              };
+              reader.readAsArrayBuffer(file);
+            } else if (typeof event.data === 'string') {
+              try {
+                const jsonData = JSON.parse(event.data);
+                console.log("Received image JSON data:", jsonData);
+
+                if (jsonData.type === "processing_complete" && jsonData.detection_result) {
+                  setImageDetectionResult(jsonData.detection_result);
+                  const frame: FrameData = {
+                    id: 0,
+                    timestamp: '00:00:00',
+                    thumbnailUrl: URL.createObjectURL(file),
+                    isAnomaly: jsonData.detection_result.is_anomaly ?? false,
+                    confidenceScore: jsonData.detection_result.confidence ?? 0,
+                    isProcessed: true,
+                    anomalyType: jsonData.detection_result.anomaly_type,
+                    elaScore: jsonData.detection_result.ela_score,
+                    frequencySpike: jsonData.detection_result.frequency_spike,
+                    real_prob: jsonData.detection_result.real_prob,
+                    fake_prob: jsonData.detection_result.fake_prob,
+                  };
+                  setImageFrame(frame);
+                  setIsImageProcessing(false);
+                } else if (jsonData.type === "error") {
+                  console.error("Image processing error:", jsonData);
+                  setIsImageProcessing(false);
+                }
+              } catch (parseError) {
+                console.log("Non-JSON message:", event.data);
+              }
+            }
+          } catch (err) {
+            console.error("Error parsing WebSocket message for image:", err);
+          }
+        };
+
+        ws.onerror = (err) => {
+          console.error("WebSocket error for image:", err);
+        };
+
+        ws.onclose = () => {
+          console.log("WebSocket closed for image");
+        };
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        setIsImageProcessing(false);
+      }
     }
   };
 
@@ -336,7 +442,20 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="font-sans text-text-high antialiased">
-      {appState === AppState.IDLE ? (
+      {isImageProcessing ? (
+        <div className="flex items-center justify-center min-h-screen bg-black">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white mx-auto"></div>
+            <p className="mt-4 text-white text-xl">Processing image...</p>
+          </div>
+        </div>
+      ) : imageFrame && imageDetectionResult ? (
+        <ImageResult
+          frame={imageFrame}
+          detectionResult={imageDetectionResult}
+          taskId={imageTaskId}
+        />
+      ) : appState === AppState.IDLE ? (
         <IngestionHub onFileSelect={handleFileSelect} />
       ) : (
         <AnalysisDashboard
