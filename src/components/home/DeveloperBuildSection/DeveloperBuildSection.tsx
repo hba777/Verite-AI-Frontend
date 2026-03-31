@@ -56,10 +56,11 @@ const DeveloperBuildSection = React.forwardRef<HTMLDivElement>((props, ref) => {
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: false, amount: 0.4 }}
           >
-            Verité AI exposes a fully documented FastAPI REST backend with
-            JWT-secured endpoints for media upload, async job polling, and XAI
-            report retrieval — enabling researchers and developers to integrate
-            tri-modal deepfake detection into their own forensic pipelines.
+            Verité AI provides a modular FastAPI core that simplifies the
+            deepfake detection process. By automating media submission and job
+            polling, it gives integrators a ready-to-use engine for tri-modal
+            analysis. This setup ensures that getting from a suspicious file to
+            a comprehensive XAI report is as seamless as possible.
           </motion.p>
           {/* 'Access the API' button removed per request */}
           {

@@ -19,7 +19,6 @@ const tableHeaders = [
     title: "VERITÉ AI",
     subtitle: "AUDIO",
     details: "SSL-AASIST",
-    link: "View Audio Benchmarks",
   },
   {
     title: "Deepware",
@@ -30,7 +29,6 @@ const tableHeaders = [
     title: "MS Video",
     subtitle: "Auth.",
     details: "Frame-Level",
-    link: "View Tool Comparison",
   },
 ];
 
