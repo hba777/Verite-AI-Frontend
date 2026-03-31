@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, Cpu, Activity, Layers, X } from "lucide-react";
+import { AlertTriangle, Cpu, Activity, Layers, X, FlaskConical } from "lucide-react";
 import { FrameData, HeatmapConfig } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
+import XAITechniquesPanel from "./XAITechniquesPanel";
 import {
   BarChart,
   Bar,
@@ -300,6 +301,20 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
             </div>
           </section>
         </div>
+
+        {/* ── XAI Techniques Section ─────────────────────────────────── */}
+        <section className="space-y-6 border-t border-white/5 pt-10">
+          <div className="flex items-center gap-3">
+            <FlaskConical className="w-5 h-5 text-electric-teal" />
+            <h3 className="font-display text-xl font-bold text-text-high">
+              Explainable AI (XAI) Analysis
+            </h3>
+            <span className="ml-2 px-2 py-0.5 bg-electric-teal/10 border border-electric-teal/30 rounded text-[10px] font-mono text-electric-teal uppercase tracking-wider">
+              7 Techniques
+            </span>
+          </div>
+          <XAITechniquesPanel frame={frame} />
+        </section>
 
         <div className="flex justify-center pt-8">
           <button
