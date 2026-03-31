@@ -543,7 +543,7 @@ const TABS = [
   { id: "temporal",   label: "Temporal",           icon: "⏱" },
   { id: "facial",     label: "Facial Artifacts",   icon: "👁" },
   { id: "global",     label: "Global / Comparative", icon: "🔬" },
-  { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
+  // { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
 ];
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
@@ -558,38 +558,7 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
     <div style={{ width: "100%" }}>
       {/* Section Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: `linear-gradient(135deg, ${C.teal}30, ${C.blue}30)`,
-            border: `1px solid ${C.teal}40`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 18,
-          }}
-        >
-          🧠
-        </div>
-        <div>
-          <h3
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 20,
-              fontWeight: 700,
-              color: C.textHigh,
-              margin: 0,
-            }}
-          >
-            XAI Forensic Techniques
-          </h3>
-          <p style={{ fontFamily: "monospace", fontSize: 11, color: C.textMed, margin: "2px 0 0 0" }}>
-            7 explainability methods applied to frame #{frame.id} ·{" "}
-            {frame.isAnomaly ? "FAKE verdict" : "REAL verdict"}
-          </p>
-        </div>
+     
 
         {/* Verdict badge */}
         <div style={{ marginLeft: "auto" }}>
