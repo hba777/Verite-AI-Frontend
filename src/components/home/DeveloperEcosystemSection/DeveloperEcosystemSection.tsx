@@ -84,7 +84,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   <h3 className="font-medium text-xl">Verité AI Dashboard</h3>
                   <p className="text-base text-gray-400 mt-2">
                     Authenticated interface for image, video, and audio deepfake
-                    detection with XAI visualisation and detection history access
+                    detection with XAI visualisation and detection history access.
                   </p>
                 </div>
               </div>
@@ -137,7 +137,7 @@ const DeveloperEcosystemSection = React.forwardRef<HTMLDivElement>(
                   <h3 className="font-medium text-xl">FastAPI Backend</h3>
                   <p className="text-base text-gray-400 mt-2">
                     JWT-secured REST endpoints for media upload, async Celery job
-                    polling, Grad-CAM retrieval, and PDF report download
+                    polling, Grad-CAM retrieval, and PDF report download.
                   </p>
                 </div>
               </div>
