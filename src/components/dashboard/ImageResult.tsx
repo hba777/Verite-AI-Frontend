@@ -8,6 +8,7 @@ import {
   Download,
   Share2,
 } from "lucide-react";
+import ForensicAnalysisSection from "./ForensicAnalysisSection";
 
 interface ImageResultProps {
   frame: FrameData | null;
@@ -21,6 +22,7 @@ const ImageResult: React.FC<ImageResultProps> = ({
   taskId,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [showForensic, setShowForensic] = useState(true); // Auto-open for images
 
   const colors = {
     deepVoid: "#08090A",
@@ -118,15 +120,7 @@ const ImageResult: React.FC<ImageResultProps> = ({
           >
             Image Analysis Result
           </h1>
-          <p
-            className="text-sm sm:text-base text-text-med mt-1"
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              color: colors.textMed,
-            }}
-          >
-            Task ID: {taskId}
-          </p>
+
         </div>
       </div>
 
@@ -231,268 +225,15 @@ const ImageResult: React.FC<ImageResultProps> = ({
           </div>
         </div>
 
-        {/* Analysis Details */}
-        <div style={{ padding: "24px" }}>
-          {/* Confidence Score */}
-          <div
-            style={{
-              marginBottom: "24px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "8px",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "12px",
-                  color: colors.textMed,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                }}
-              >
-                Confidence Score
-              </span>
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: colors.textHigh,
-                }}
-              >
-                {confidenceScore.toFixed(1)}%
-              </span>
-            </div>
-            <div
-              style={{
-                height: "8px",
-                backgroundColor: colors.deepVoid,
-                borderRadius: "4px",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: `${confidenceScore}%`,
-                  background: isAnomaly
-                    ? `linear-gradient(to right, ${colors.hyperRed}, ${colors.warningOrange})`
-                    : `linear-gradient(to right, ${colors.neuralGreen}, ${colors.electricTeal})`,
-                  borderRadius: "4px",
-                  transition: "width 0.5s ease-out",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Detection Details Grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "16px",
-            }}
-          >
-            {/* Anomaly Type */}
-            <div
-              style={{
-                padding: "16px",
-                backgroundColor: colors.deepVoid,
-                borderRadius: "12px",
-                border: `1px solid ${colors.borderWhite}`,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "10px",
-                  color: colors.textMed,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  display: "block",
-                  marginBottom: "8px",
-                }}
-              >
-                Detection Type
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: isAnomaly ? colors.hyperRed : colors.neuralGreen,
-                }}
-              >
-                {anomalyType}
-              </span>
-            </div>
-
-            {/* Processing Status */}
-            <div
-              style={{
-                padding: "16px",
-                backgroundColor: colors.deepVoid,
-                borderRadius: "12px",
-                border: `1px solid ${colors.borderWhite}`,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "10px",
-                  color: colors.textMed,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  display: "block",
-                  marginBottom: "8px",
-                }}
-              >
-                Status
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: colors.textHigh,
-                }}
-              >
-                {processingStatus}
-              </span>
-            </div>
-
-            {/* ELA Score */}
-            {detectionResult?.ela_score !== undefined && (
-              <div
-                style={{
-                  padding: "16px",
-                  backgroundColor: colors.deepVoid,
-                  borderRadius: "12px",
-                  border: `1px solid ${colors.borderWhite}`,
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: "10px",
-                    color: colors.textMed,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    display: "block",
-                    marginBottom: "8px",
-                  }}
-                >
-                  ELA Score
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Montserrat', sans-serif",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: colors.textHigh,
-                  }}
-                >
-                  {detectionResult.ela_score.toFixed(3)}
-                </span>
-              </div>
-            )}
-
-            {/* Frequency Spike */}
-            {detectionResult?.frequency_spike !== undefined && (
-              <div
-                style={{
-                  padding: "16px",
-                  backgroundColor: colors.deepVoid,
-                  borderRadius: "12px",
-                  border: `1px solid ${colors.borderWhite}`,
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: "10px",
-                    color: colors.textMed,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    display: "block",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Frequency Spike
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Montserrat', sans-serif",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: colors.textHigh,
-                  }}
-                >
-                  {detectionResult.frequency_spike}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              marginTop: "24px",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "12px 24px",
-                backgroundColor: colors.electricTeal,
-                color: colors.deepVoid,
-                border: "none",
-                borderRadius: "8px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-              }}
-            >
-              <Download className="w-4 h-4" />
-              Download Report
-            </button>
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "12px 24px",
-                backgroundColor: "transparent",
-                color: colors.textHigh,
-                border: `1px solid ${colors.borderWhite}`,
-                borderRadius: "8px",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-              }}
-            >
-              <Share2 className="w-4 h-4" />
-              Share Results
-            </button>
-          </div>
-        </div>
       </div>
+
+      {/* Forensic Analysis Section */}
+      {showForensic && frame && (
+        <ForensicAnalysisSection
+          frame={frame}
+          onClose={() => setShowForensic(false)}
+        />
+      )}
 
       {/* Back Button */}
       <button
