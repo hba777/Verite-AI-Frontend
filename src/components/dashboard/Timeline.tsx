@@ -160,7 +160,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                     borderRadius: "4px",
                   }}
                 >
-                  #{frame.id}
+                  #{frame.id+1}
                 </div>
 
                 {/* Probability Indicator */}
