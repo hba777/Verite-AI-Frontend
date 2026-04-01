@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, Cpu, Activity, Layers, X, FlaskConical } from "lucide-react";
+import {
+  AlertTriangle,
+  Cpu,
+  Activity,
+  Layers,
+  X,
+  FlaskConical,
+} from "lucide-react";
 import { FrameData, HeatmapConfig } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
 import XAITechniquesPanel from "./XAITechniquesPanel";
@@ -51,11 +58,12 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   const aiSummary = generateForensicSummary(frame);
 
   // Generate frequency data based on real probability
+  const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.15);
   const freqData = [
-    { name: "Low", value: frame.isAnomaly ? 25 : 20 },
-    { name: "Mid", value: frame.isAnomaly ? 40 : 35 },
-    { name: "High", value: frame.isAnomaly ? 85 : 15 }, // Spike in high freq typical of GANs
-    { name: "V.High", value: frame.isAnomaly ? 65 : 10 },
+    { name: "Low", value: Math.round(fakeProb * 20 + 15) },
+    { name: "Mid", value: Math.round(fakeProb * 30 + 25) },
+    { name: "High", value: Math.round(fakeProb * 70 + 10) }, // Spike in high freq typical of GANs
+    { name: "V.High", value: Math.round(fakeProb * 55 + 5) },
   ];
 
   // Confidence Radial Gauge Calculation

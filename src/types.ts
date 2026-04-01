@@ -27,6 +27,8 @@ export interface FrameData {
   frequencySpike?: number;
   real_prob?: number; // Real probability from GenD model (0-1)
   fake_prob?: number; // Fake probability from GenD model (0-1)
+  gradcam_b64?: string; // Base64 encoded Grad-CAM image from XAI
+  lipSyncData?: { t: string; deviation: number }[]; // Lip sync data for line chart
 }
 
 export interface AnalysisResult {
