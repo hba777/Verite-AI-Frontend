@@ -833,7 +833,7 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
 // ─── Tab Config ───────────────────────────────────────────────────────────────
 const TABS = [
   { id: "temporal", label: "Temporal", icon: "⏱" },
-  { id: "facial", label: "Facial Artifacts", icon: "👁" },
+  // { id: "facial", label: "Facial Artifacts", icon: "👁" },
   { id: "global", label: "Global / Comparative", icon: "🔬" },
   // { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
 ];
@@ -987,16 +987,6 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
           }}
         >
           <TechCard
-            id="xai-counterfactual"
-            label="Counterfactual Explanations"
-            tag="10 · GLOBAL"
-            accentColor={C.green}
-            subtitle="Minimum perturbation needed to flip FAKE → REAL. Tells investigators exactly what must change — highly actionable for forensic reporting."
-          >
-            <CounterfactualExplanations frame={frame} />
-          </TechCard>
-
-          <TechCard
             id="xai-tcav"
             label="TCAV — Concept Activation Vectors"
             tag="11 · GLOBAL"
@@ -1004,16 +994,6 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
             subtitle="Concept probes trained on known deepfake artifact categories. Quantifies model sensitivity per concept — rigorous for academic evaluators."
           >
             <TCAVAnalysis frame={frame} />
-          </TechCard>
-
-          <TechCard
-            id="xai-prototype"
-            label="Prototype / Criticism Analysis"
-            tag="12 · GLOBAL"
-            accentColor={C.amber}
-            subtitle="Nearest known examples in model embedding space via cosine similarity. Builds a forensic chain of evidence for legal and investigative use."
-          >
-            <PrototypeAnalysis frame={frame} />
           </TechCard>
         </div>
       )}

@@ -54,23 +54,23 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   useEffect(() => {
     if (videoRef.current && videoUrl) {
       const video = videoRef.current;
-      
+
       const handleTimeUpdate = () => {
         setCurrentTime(video.currentTime);
       };
-      
+
       const handleLoadedMetadata = () => {
         setDuration(video.duration);
       };
-      
+
       const handleEnded = () => {
         setIsPlaying(false);
       };
-      
+
       video.addEventListener("timeupdate", handleTimeUpdate);
       video.addEventListener("loadedmetadata", handleLoadedMetadata);
       video.addEventListener("ended", handleEnded);
-      
+
       return () => {
         video.removeEventListener("timeupdate", handleTimeUpdate);
         video.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -82,13 +82,14 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   const handleSelectAnomaly = (frame: FrameData) => {
     setSelectedFrame(frame);
     setIsPlaying(false);
-    
+
     // Jump to frame timestamp if video is available
     if (videoUrl && videoRef.current) {
       // Use timestamp_seconds if available, otherwise parse the timestamp string
-      const seekTime = frame.timestamp_seconds !== undefined 
-        ? frame.timestamp_seconds 
-        : parseTimestampToSeconds(frame.timestamp);
+      const seekTime =
+        frame.timestamp_seconds !== undefined
+          ? frame.timestamp_seconds
+          : parseTimestampToSeconds(frame.timestamp);
       videoRef.current.currentTime = seekTime;
     }
   };
@@ -97,7 +98,11 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   const parseTimestampToSeconds = (timestamp: string): number => {
     const parts = timestamp.split(":");
     if (parts.length === 3) {
-      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(parts[2]);
+      return (
+        parseInt(parts[0]) * 3600 +
+        parseInt(parts[1]) * 60 +
+        parseFloat(parts[2])
+      );
     }
     return 0;
   };
@@ -115,13 +120,19 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
   const skipBackward = () => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
+      videoRef.current.currentTime = Math.max(
+        0,
+        videoRef.current.currentTime - 5,
+      );
     }
   };
 
   const skipForward = () => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5);
+      videoRef.current.currentTime = Math.min(
+        duration,
+        videoRef.current.currentTime + 5,
+      );
     }
   };
 
@@ -134,7 +145,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
   const processedCount = frames.filter((f) => f.isProcessed).length;
   const anomalyCount = frames.filter(
-    (f) => f.isProcessed && f.isAnomaly
+    (f) => f.isProcessed && f.isAnomaly,
   ).length;
 
   // Theme colors from HTML
@@ -150,7 +161,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   };
 
   return (
-    <div className="bg-black"
+    <div
+      className="bg-black"
       style={{
         minHeight: "100vh",
         width: "100%",
@@ -214,7 +226,11 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                backgroundColor: isProcessing ? colors.electricTeal : appState === AppState.COMPLETE ? colors.neuralGreen : colors.textMed,
+                backgroundColor: isProcessing
+                  ? colors.electricTeal
+                  : appState === AppState.COMPLETE
+                    ? colors.neuralGreen
+                    : colors.textMed,
                 animation: isProcessing ? "pulse 1s infinite" : "none",
               }}
             ></div>
@@ -230,8 +246,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               {uploadProgress > 0 && uploadProgress < 100
                 ? `UPLOADING ${Math.floor(uploadProgress)}%`
                 : progress < 100
-                ? `ANALYZING FRAMES ${processedFrames}/${frames.length || '?'}`
-                : "ANALYSIS COMPLETE"}
+                  ? `ANALYZING FRAMES ${processedFrames}/${frames.length || "?"}`
+                  : "ANALYSIS COMPLETE"}
             </span>
           </div>
         </div>
@@ -313,16 +329,42 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               onClick={togglePlay}
             />
           ) : selectedFrame ? (
-            <img
-              src={selectedFrame.thumbnailUrl}
-              alt="Main view"
-              style={{
-                height: "100%",
-                width: "100%",
-                objectFit: "contain",
-                padding: "32px",
-              }}
-            />
+            selectedFrame.thumbnailUrl ? (
+              <img
+                src={selectedFrame.thumbnailUrl}
+                alt="Main view"
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  objectFit: "contain",
+                  padding: "32px",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: colors.deepVoid,
+                }}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 border-2 border-electric-teal/30 border-t-transparent rounded-full animate-spin" />
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "12px",
+                      color: colors.textMed,
+                    }}
+                  >
+                    Loading frame...
+                  </span>
+                </div>
+              </div>
+            )
           ) : frames.length > 0 ? (
             <div
               style={{
@@ -455,7 +497,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 }}
               />
             </div>
-            
+
             {/* Controls Row */}
             <div
               style={{
@@ -505,7 +547,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 onClick={skipForward}
               />
             </div>
-            
+
             {/* Time Display */}
             <div
               style={{

@@ -12,6 +12,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
 
   // Theme colors
   const colors = {
+    deepVoid: "#08090A",
     surface: "#121416",
     electricTeal: "#00E5FF",
     hyperRed: "#FF2D55",
@@ -84,19 +85,34 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                     : "none";
                 }}
               >
-                {/* Frame Image */}
-                <img
-                  src={frame.thumbnailUrl}
-                  alt={`Frame ${frame.id}`}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transition: "all 0.5s ease",
-                    filter: frame.isAnomaly ? "blur(4px)" : "none",
-                  }}
-                  loading="lazy"
-                />
+                {/* Frame Image - show placeholder if no thumbnail */}
+                {frame.thumbnailUrl ? (
+                  <img
+                    src={frame.thumbnailUrl}
+                    alt={`Frame ${frame.id}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transition: "all 0.5s ease",
+                      filter: frame.isAnomaly ? "blur(4px)" : "none",
+                    }}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: colors.deepVoid,
+                    }}
+                  >
+                    <div className="w-6 h-6 border-2 border-electric-teal/30 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
 
                 {/* Hover reveal effect */}
                 <div
@@ -160,7 +176,7 @@ const Timeline: React.FC<TimelineProps> = ({ frames, onSelectAnomaly }) => {
                     borderRadius: "4px",
                   }}
                 >
-                  #{frame.id+1}
+                  #{frame.id + 1}
                 </div>
 
                 {/* Probability Indicator */}

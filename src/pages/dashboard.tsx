@@ -204,7 +204,7 @@ const Dashboard: React.FC = () => {
                           ? `data:image/jpeg;base64,${jsonData.frame_data}`
                           : jsonData.original_frame_data
                             ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                            : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                            : "", // No mock images - will show placeholder
                         isAnomaly: false,
                         confidenceScore: 0,
                         isProcessed: false,
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
                         ? `data:image/jpeg;base64,${jsonData.frame_data}`
                         : jsonData.original_frame_data
                           ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                          : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                          : "", // No mock images - will show placeholder
                       isAnomaly: jsonData.is_anomaly ?? false,
                       confidenceScore: jsonData.confidence ?? 0,
                       // Mark as processed if it's frame_ready or detection_ready

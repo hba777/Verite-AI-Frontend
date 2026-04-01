@@ -185,7 +185,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           </div>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="flex gap-12">
           {/* Section 2: XAI + LLM */}
           <section className="space-y-6">
             <div className="flex items-center gap-3">
@@ -237,77 +237,6 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
               </div>
             </div>
           </section>
-
-          {/* Section 3: Metrics */}
-          <section className="pt-10 sm:pt-0 space-y-6">
-            <div className="flex items-center gap-3">
-              <Activity className="w-5 h-5 text-electric-teal" />
-              <h3 className="font-display text-xl font-bold text-text-high">
-                Signal Metrics
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              {/* Freq Spectrum */}
-              <div className="h-48 w-full bg-deep-void rounded-xl border border-white/10 p-4 relative">
-                <div className="absolute top-2 right-2 text-[10px] font-mono text-text-med">
-                  FREQUENCY SPECTRUM (Hz)
-                </div>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={freqData}>
-                    <XAxis
-                      dataKey="name"
-                      stroke="#666"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#121416",
-                        borderColor: "#333",
-                        fontSize: "12px",
-                      }}
-                      itemStyle={{ color: "#F5F5F5" }}
-                      cursor={{ fill: "rgba(255,255,255,0.05)" }}
-                    />
-                    <Bar dataKey="value" radius={[2, 2, 0, 0]}>
-                      {freqData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={index === 2 ? "#FF2D55" : "#3b6bff"}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* ELA Mock */}
-              <div className="h-24 w-full bg-deep-void rounded-xl border border-white/10 p-4 flex items-center gap-6 overflow-hidden relative">
-                <div
-                  className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage:
-                      'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.5%22/%3E%3C/svg%3E")',
-                  }}
-                ></div>
-                <div className="relative z-10 flex-1">
-                  <div className="text-[10px] font-mono text-text-med mb-1">
-                    ERROR LEVEL ANALYSIS (ELA)
-                  </div>
-                  <div className="text-sm text-text-high">
-                    {frame.isAnomaly
-                      ? "High variance detected in facial regions indicating potential manipulation."
-                      : "Low variance detected - consistent with authentic content."}
-                  </div>
-                </div>
-                <div className="relative z-10">
-                  <div className="w-2 h-2 rounded-full bg-hyper-red animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* ── XAI Techniques Section ─────────────────────────────────── */}
@@ -317,9 +246,6 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
             <h3 className="font-display text-xl font-bold text-text-high">
               Explainable AI (XAI) Analysis
             </h3>
-            <span className="ml-2 px-2 py-0.5 bg-electric-teal/10 border border-electric-teal/30 rounded text-[10px] font-mono text-electric-teal uppercase tracking-wider">
-              7 Techniques
-            </span>
           </div>
           <XAITechniquesPanel frame={frame} />
         </section>
