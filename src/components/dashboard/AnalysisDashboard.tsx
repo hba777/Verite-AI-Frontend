@@ -12,6 +12,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   isProcessing = false,
   processedFrames = 0,
   videoUrl,
+  imageUrl,
+  isImage = false,
 }) => {
   const [progress, setProgress] = useState(0);
   const [selectedFrame, setSelectedFrame] = useState<FrameData | null>(null);
@@ -49,6 +51,13 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
       }, 100);
     }
   }, [selectedFrame]);
+
+  // Auto-select frame for image
+  useEffect(() => {
+    if (isImage && frames.length > 0 && !selectedFrame) {
+      setSelectedFrame(frames[0]);
+    }
+  }, [isImage, frames, selectedFrame]);
 
   // Video time update
   useEffect(() => {
@@ -230,7 +239,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               {uploadProgress > 0 && uploadProgress < 100
                 ? `UPLOADING ${Math.floor(uploadProgress)}%`
                 : progress < 100
-                ? `ANALYZING FRAMES ${processedFrames}/${frames.length || '?'}`
+                ? (isImage ? `ANALYZING IMAGE` : `ANALYZING FRAMES ${processedFrames}/${frames.length || '?'}`)
                 : "ANALYSIS COMPLETE"}
             </span>
           </div>
@@ -300,8 +309,8 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
             }}
           ></div>
 
-          {/* Video Player */}
-          {videoUrl ? (
+          {/* Video / Image Player */}
+          {videoUrl && !isImage ? (
             <video
               ref={videoRef}
               src={videoUrl}
@@ -311,6 +320,17 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 objectFit: "contain",
               }}
               onClick={togglePlay}
+            />
+          ) : isImage && imageUrl && !selectedFrame ? (
+            <img
+              src={imageUrl}
+              alt="Uploaded view"
+              style={{
+                height: "100%",
+                width: "100%",
+                objectFit: "contain",
+                padding: "32px",
+              }}
             />
           ) : selectedFrame ? (
             <img
@@ -406,10 +426,11 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
           )}
 
           {/* Player Controls */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "32px",
+          {!isImage && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "32px",
               left: "50%",
               transform: "translateX(-50%)",
               display: "flex",
@@ -517,9 +538,10 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
               {formatTime(currentTime)} / {formatTime(duration)}
             </div>
           </div>
+          )}
 
           {/* Stats Overlay */}
-          {frames.length > 0 && (
+          {!isImage && frames.length > 0 && (
             <div
               style={{
                 position: "absolute",
@@ -584,7 +606,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
         </div>
 
         {/* Timeline */}
-        {frames.length > 0 && (
+        {!isImage && frames.length > 0 && (
           <div
             style={{
               height: "192px",

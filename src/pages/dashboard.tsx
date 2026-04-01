@@ -13,6 +13,8 @@ const Dashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isImage, setIsImage] = useState<boolean>(false);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -71,22 +73,35 @@ const Dashboard: React.FC = () => {
     try {
       setStatus("Starting task...");
 
-      // Create local video URL for playback
+      const isImageFile = file.type.startsWith("image/");
+      setIsImage(isImageFile);
+
+      // Create local URL for playback/preview
       const url = URL.createObjectURL(file);
-      setVideoUrl(url);
+      if (isImageFile) {
+        setImageUrl(url);
+        setVideoUrl(null);
+      } else {
+        setVideoUrl(url);
+        setImageUrl(null);
+      }
 
       // Get video duration
-      const duration = await getVideoDuration(file);
-      setVideoDuration(duration);
-      console.log("Video duration:", duration, "seconds");
+      let duration = 0;
+      if (!isImageFile) {
+        duration = await getVideoDuration(file);
+        setVideoDuration(duration);
+        console.log("Video duration:", duration, "seconds");
+      }
 
       // 1. Start task via HTTP POST
+      const endpoint = isImageFile ? "/image/start-task" : "/video/start-task";
       const headers: Record<string, string> = {};
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/video/start-task`,
+        `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
         {
           method: "POST",
           headers,
@@ -107,21 +122,20 @@ const Dashboard: React.FC = () => {
       ws.binaryType = "arraybuffer";
 
       ws.onopen = () => {
-        // Send task_id and video_duration first to subscribe
-        ws.send(
-          JSON.stringify({
-            task_id: taskId,
-            video_duration: videoDuration,
-          }),
-        );
+        // Send initialization manifest
+        if (isImageFile) {
+          ws.send(JSON.stringify({ task_id: taskId, file_type: "image" }));
+        } else {
+          ws.send(JSON.stringify({ task_id: taskId, video_duration: duration }));
+        }
         setStatus("Connected, ready to upload...");
       };
 
       ws.onmessage = (event) => {
         try {
-          // Handle control messages (SEND_VIDEO, Processing, DONE)
-          if (event.data === "SEND_VIDEO") {
-            setStatus("Uploading video...");
+          // Handle control messages (SEND_VIDEO, SEND_IMAGE, Processing, DONE)
+          if (event.data === "SEND_VIDEO" || event.data === "SEND_IMAGE") {
+            setStatus("Uploading file...");
             // Start sending file chunks
             const chunkSize = 64 * 1024; // 64 KB
             let offset = 0;
@@ -177,6 +191,24 @@ const Dashboard: React.FC = () => {
                   return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
                 };
 
+                // Process XAI results if present in detection_ready
+                let xaiResultsMap: Record<string, string> | undefined;
+                if (jsonData.xai_results && typeof jsonData.xai_results === 'object') {
+                  // If xai_results is already a map (from WebSocket handler), use it directly
+                  if (!Array.isArray(jsonData.xai_results)) {
+                    xaiResultsMap = jsonData.xai_results;
+                  } else {
+                    // If xai_results is an array, convert to map
+                    xaiResultsMap = jsonData.xai_results.reduce((acc: Record<string, string>, curr: any) => {
+                      if (curr.figure_base64) {
+                        const prefix = curr.figure_base64.startsWith('data:image') ? '' : 'data:image/jpeg;base64,';
+                        acc[curr.technique] = prefix + curr.figure_base64;
+                      }
+                      return acc;
+                    }, {} as Record<string, string>);
+                  }
+                }
+
                 setFrames((prev) => {
                   const updated = [...prev];
                   // Ensure array is large enough
@@ -205,6 +237,7 @@ const Dashboard: React.FC = () => {
                   }
                   // Update the specific frame
                   updated[frameIndex] = {
+                    ...(updated[frameIndex] || {}),
                     id: frameIndex,
                     // Use timestamp from backend if available, otherwise format from seconds
                     timestamp:
@@ -220,21 +253,48 @@ const Dashboard: React.FC = () => {
                       ? `data:image/jpeg;base64,${jsonData.frame_data}`
                       : jsonData.original_frame_data
                         ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                        : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
-                    isAnomaly: jsonData.is_anomaly ?? false,
-                    confidenceScore: jsonData.confidence ?? 0,
+                        : updated[frameIndex]?.thumbnailUrl 
+                        || `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                    isAnomaly: jsonData.is_anomaly ?? updated[frameIndex]?.isAnomaly ?? false,
+                    confidenceScore: jsonData.confidence ?? updated[frameIndex]?.confidenceScore ?? 0,
                     // Mark as processed if it's frame_ready or detection_ready
                     isProcessed: true,
-                    anomalyType: jsonData.anomaly_type,
-                    elaScore: jsonData.ela_score,
-                    frequencySpike: jsonData.frequency_spike,
-                    real_prob: jsonData.real_prob,
-                    fake_prob: jsonData.fake_prob,
+                    anomalyType: jsonData.anomaly_type ?? updated[frameIndex]?.anomalyType,
+                    elaScore: jsonData.ela_score ?? updated[frameIndex]?.elaScore,
+                    frequencySpike: jsonData.frequency_spike ?? updated[frameIndex]?.frequencySpike,
+                    real_prob: jsonData.real_prob ?? updated[frameIndex]?.real_prob,
+                    fake_prob: jsonData.fake_prob ?? updated[frameIndex]?.fake_prob,
+                    // XAI results are now included in detection_ready
+                    xai_results: xaiResultsMap ?? updated[frameIndex]?.xai_results,
                   };
                   return updated;
                 });
                 setProcessedFrames((prev) => prev + 1);
-                console.log(`Frame ${frameIndex} received (${jsonData.type})`);
+                console.log(`Frame ${frameIndex} received (${jsonData.type}, xai_count=${xaiResultsMap ? Object.keys(xaiResultsMap).length : 0})`);
+              } else if (jsonData.type === "xai_ready") {
+                const frameIndex = jsonData.frame_index;
+                const techniquesMap = jsonData.xai_results?.reduce((acc: Record<string, string>, curr: any) => {
+                    if (curr.figure_base64) {
+                       // Add data URL format if it's missing just purely base64
+                       const prefix = curr.figure_base64.startsWith('data:image') ? '' : 'data:image/jpeg;base64,';
+                       acc[curr.technique] = prefix + curr.figure_base64;
+                    }
+                    return acc;
+                }, {} as Record<string, string>);
+
+                if (techniquesMap) {
+                  setFrames((prev) => {
+                    const updated = [...prev];
+                    if (updated[frameIndex]) {
+                      updated[frameIndex] = {
+                        ...updated[frameIndex],
+                        xai_results: techniquesMap
+                      };
+                    }
+                    return updated;
+                  });
+                  console.log(`XAI results received for frame ${frameIndex}`);
+                }
               } else if (jsonData.type === "processing_complete") {
                 setStatus("Processing complete!");
                 setIsProcessing(false);
@@ -347,6 +407,8 @@ const Dashboard: React.FC = () => {
           isProcessing={isProcessing}
           processedFrames={processedFrames}
           videoUrl={videoUrl || undefined}
+          imageUrl={imageUrl || undefined}
+          isImage={isImage}
         />
       )}
     </div>

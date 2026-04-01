@@ -27,6 +27,26 @@ export interface FrameData {
   frequencySpike?: number;
   real_prob?: number; // Real probability from GenD model (0-1)
   fake_prob?: number; // Fake probability from GenD model (0-1)
+  xai_results?: Record<string, string>; // Mapping from technique name to base64 string
+}
+
+export interface XaiTechniqueResult {
+  technique: string;
+  figure_base64?: string;
+  scores?: Record<string, number>;
+  narrative?: string;
+  error?: string;
+  elapsed_seconds?: number;
+}
+
+export interface XaiReadyMessage {
+  type: "xai_ready";
+  frame_index: number;
+  timestamp: string;
+  is_anomaly: boolean;
+  fake_prob: number;
+  real_prob: number;
+  xai_results: XaiTechniqueResult[];
 }
 
 export interface AnalysisResult {
@@ -67,4 +87,6 @@ export interface AnalysisDashboardProps {
   isProcessing?: boolean;
   processedFrames?: number;
   videoUrl?: string;
+  imageUrl?: string;
+  isImage?: boolean;
 }
