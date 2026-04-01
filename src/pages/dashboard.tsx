@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleFileSelect = async (file: File) => {
-    if (file.type.startsWith('video/')) {
+    if (file.type.startsWith("video/")) {
       // Video processing
       try {
         setStatus("Starting task...");
@@ -204,7 +204,7 @@ const Dashboard: React.FC = () => {
                           ? `data:image/jpeg;base64,${jsonData.frame_data}`
                           : jsonData.original_frame_data
                             ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                            : `https://picsum.photos/seed/${updated.length + 100}/800/450`,
+                            : "", // No mock images - will show placeholder
                         isAnomaly: false,
                         confidenceScore: 0,
                         isProcessed: false,
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
                         ? `data:image/jpeg;base64,${jsonData.frame_data}`
                         : jsonData.original_frame_data
                           ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                          : `https://picsum.photos/seed/${frameIndex + 100}/800/450`,
+                          : "", // No mock images - will show placeholder
                       isAnomaly: jsonData.is_anomaly ?? false,
                       confidenceScore: jsonData.confidence ?? 0,
                       // Mark as processed if it's frame_ready or detection_ready
@@ -244,7 +244,27 @@ const Dashboard: React.FC = () => {
                     return updated;
                   });
                   setProcessedFrames((prev) => prev + 1);
-                  console.log(`Frame ${frameIndex} received (${jsonData.type})`);
+                  console.log(
+                    `Frame ${frameIndex} received (${jsonData.type})`,
+                  );
+                } else if (jsonData.type === "xai_ready") {
+                  // Handle XAI/Grad-CAM results
+                  const xaiFrameIndex = jsonData.frame_index;
+                  const gradcamB64 = jsonData.gradcam_b64;
+
+                  if (gradcamB64) {
+                    setFrames((prev) => {
+                      const updated = [...prev];
+                      if (updated[xaiFrameIndex]) {
+                        updated[xaiFrameIndex] = {
+                          ...updated[xaiFrameIndex],
+                          gradcam_b64: gradcamB64,
+                        };
+                      }
+                      return updated;
+                    });
+                    console.log(`XAI data received for frame ${xaiFrameIndex}`);
+                  }
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
@@ -299,7 +319,7 @@ const Dashboard: React.FC = () => {
         console.error("Upload failed:", error);
         setStatus("Failed to start upload");
       }
-    } else if (file.type.startsWith('image/')) {
+    } else if (file.type.startsWith("image/")) {
       // Image processing
       try {
         setImageFile(file);
@@ -329,10 +349,12 @@ const Dashboard: React.FC = () => {
 
         ws.onopen = () => {
           // Send task_id and file_type
-          ws.send(JSON.stringify({ 
-            task_id: taskId, 
-            file_type: "image" 
-          }));
+          ws.send(
+            JSON.stringify({
+              task_id: taskId,
+              file_type: "image",
+            }),
+          );
         };
 
         ws.onmessage = (event) => {
@@ -348,16 +370,19 @@ const Dashboard: React.FC = () => {
                 }
               };
               reader.readAsArrayBuffer(file);
-            } else if (typeof event.data === 'string') {
+            } else if (typeof event.data === "string") {
               try {
                 const jsonData = JSON.parse(event.data);
                 console.log("Received image JSON data:", jsonData);
 
-                if (jsonData.type === "processing_complete" && jsonData.detection_result) {
+                if (
+                  jsonData.type === "processing_complete" &&
+                  jsonData.detection_result
+                ) {
                   setImageDetectionResult(jsonData.detection_result);
                   const frame: FrameData = {
                     id: 0,
-                    timestamp: '00:00:00',
+                    timestamp: "00:00:00",
                     thumbnailUrl: URL.createObjectURL(file),
                     isAnomaly: jsonData.detection_result.is_anomaly ?? false,
                     confidenceScore: jsonData.detection_result.confidence ?? 0,

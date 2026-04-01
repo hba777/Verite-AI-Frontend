@@ -85,7 +85,6 @@ const TechCard: React.FC<{
       }}
     />
     <div style={{ paddingLeft: 12 }}>
-     
       <h4
         style={{
           fontFamily: "'Inter', sans-serif",
@@ -130,10 +129,24 @@ const SHAPTimeShap: React.FC<{ frame: FrameData }> = ({ frame }) => {
       <div style={{ height: 160 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={shapData} margin={{ left: -10, right: 4 }}>
-            <XAxis dataKey="frame" stroke="#444" fontSize={9} tickLine={false} />
-            <YAxis stroke="#444" fontSize={9} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey="frame"
+              stroke="#444"
+              fontSize={9}
+              tickLine={false}
+            />
+            <YAxis
+              stroke="#444"
+              fontSize={9}
+              tickLine={false}
+              axisLine={false}
+            />
             <Tooltip
-              contentStyle={{ background: C.void, border: `1px solid ${C.border}`, fontSize: 11 }}
+              contentStyle={{
+                background: C.void,
+                border: `1px solid ${C.border}`,
+                fontSize: 11,
+              }}
               formatter={(v: number) => [v.toFixed(3), "SHAP φ"]}
               cursor={{ fill: "transparent" }}
             />
@@ -148,12 +161,34 @@ const SHAPTimeShap: React.FC<{ frame: FrameData }> = ({ frame }) => {
       </div>
       <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: C.red }} />
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>→ FAKE</span>
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: C.red,
+            }}
+          />
+          <span
+            style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}
+          >
+            → FAKE
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: C.teal }} />
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>→ REAL</span>
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: C.teal,
+            }}
+          />
+          <span
+            style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}
+          >
+            → REAL
+          </span>
         </div>
       </div>
     </>
@@ -164,9 +199,21 @@ const SHAPTimeShap: React.FC<{ frame: FrameData }> = ({ frame }) => {
 const LIMEFacialSuperpixels: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.1);
   const zones = [
-    { zone: "Eye Region", score: Math.min(0.99, fakeProb * 1.08), color: C.red },
-    { zone: "Nasolabial", score: Math.min(0.99, fakeProb * 0.95), color: C.orange },
-    { zone: "Forehead", score: Math.min(0.99, fakeProb * 0.82), color: C.amber },
+    {
+      zone: "Eye Region",
+      score: Math.min(0.99, fakeProb * 1.08),
+      color: C.red,
+    },
+    {
+      zone: "Nasolabial",
+      score: Math.min(0.99, fakeProb * 0.95),
+      color: C.orange,
+    },
+    {
+      zone: "Forehead",
+      score: Math.min(0.99, fakeProb * 0.82),
+      color: C.amber,
+    },
     { zone: "Lips", score: Math.min(0.99, fakeProb * 0.76), color: C.blue },
     { zone: "Chin", score: Math.min(0.99, fakeProb * 0.61), color: C.blue },
     { zone: "Cheeks", score: Math.min(0.99, fakeProb * 0.55), color: C.teal },
@@ -176,10 +223,26 @@ const LIMEFacialSuperpixels: React.FC<{ frame: FrameData }> = ({ frame }) => {
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {zones.map((z, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, width: 72, flexShrink: 0 }}>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: C.textMed,
+              width: 72,
+              flexShrink: 0,
+            }}
+          >
             {z.zone}
           </span>
-          <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+          <div
+            style={{
+              flex: 1,
+              height: 8,
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
             <div
               style={{
                 width: `${(z.score * 100).toFixed(0)}%`,
@@ -190,12 +253,28 @@ const LIMEFacialSuperpixels: React.FC<{ frame: FrameData }> = ({ frame }) => {
               }}
             />
           </div>
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: z.color, width: 36, textAlign: "right" }}>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: z.color,
+              width: 36,
+              textAlign: "right",
+            }}
+          >
             {(z.score * 100).toFixed(0)}%
           </span>
         </div>
       ))}
-      <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, marginTop: 8, lineHeight: 1.5 }}>
+      <p
+        style={{
+          fontFamily: "monospace",
+          fontSize: 10,
+          color: C.textMed,
+          marginTop: 8,
+          lineHeight: 1.5,
+        }}
+      >
         {zones[0].score > 0.6
           ? `⚠ ${(zones[0].score * 100).toFixed(0)}% detection confidence from eye region anomaly`
           : "✓ No dominant facial zone anomaly detected"}
@@ -217,7 +296,11 @@ const IntegratedGradients: React.FC<{ frame: FrameData }> = ({ frame }) => {
   return (
     <div style={{ height: 150 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={zones} layout="vertical" margin={{ left: 10, right: 20 }}>
+        <BarChart
+          data={zones}
+          layout="vertical"
+          margin={{ left: 10, right: 20 }}
+        >
           <XAxis
             type="number"
             domain={[0, 1]}
@@ -226,9 +309,20 @@ const IntegratedGradients: React.FC<{ frame: FrameData }> = ({ frame }) => {
             tickLine={false}
             tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
           />
-          <YAxis type="category" dataKey="zone" stroke="#444" fontSize={9} tickLine={false} width={130} />
+          <YAxis
+            type="category"
+            dataKey="zone"
+            stroke="#444"
+            fontSize={9}
+            tickLine={false}
+            width={130}
+          />
           <Tooltip
-            contentStyle={{ background: C.void, border: `1px solid ${C.border}`, fontSize: 11 }}
+            contentStyle={{
+              background: C.void,
+              border: `1px solid ${C.border}`,
+              fontSize: 11,
+            }}
             formatter={(v: number) => [`${(v * 100).toFixed(1)}%`, "IG Score"]}
             cursor={{ fill: "transparent" }}
           />
@@ -263,8 +357,17 @@ const SAMGuidedAttribution: React.FC<{ frame: FrameData }> = ({ frame }) => {
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={radarData}>
           <PolarGrid stroke="#222" />
-          <PolarAngleAxis dataKey="subject" tick={{ fill: C.textMed, fontSize: 10 }} />
-          <Radar name="Attribution" dataKey="score" stroke={C.teal} fill={C.teal} fillOpacity={0.2} />
+          <PolarAngleAxis
+            dataKey="subject"
+            tick={{ fill: C.textMed, fontSize: 10 }}
+          />
+          <Radar
+            name="Attribution"
+            dataKey="score"
+            stroke={C.teal}
+            fill={C.teal}
+            fillOpacity={0.2}
+          />
         </RadarChart>
       </ResponsiveContainer>
     </div>
@@ -272,14 +375,28 @@ const SAMGuidedAttribution: React.FC<{ frame: FrameData }> = ({ frame }) => {
 };
 
 // ─── 10 · Counterfactual Explanations ────────────────────────────────────────
-const CounterfactualExplanations: React.FC<{ frame: FrameData }> = ({ frame }) => {
+const CounterfactualExplanations: React.FC<{ frame: FrameData }> = ({
+  frame,
+}) => {
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.2);
   const realProb = frame.real_prob ?? 1 - fakeProb;
   const flips = [
-    { feature: "Eye Symmetry", delta: `+${(fakeProb * 82).toFixed(0)}% more natural` },
-    { feature: "Skin Texture", delta: `+${(fakeProb * 61).toFixed(0)}% grain consistency` },
-    { feature: "Lighting Coherence", delta: `+${(fakeProb * 54).toFixed(0)}% directional fix` },
-    { feature: "Hairline Edges", delta: `+${(fakeProb * 45).toFixed(0)}% boundary smooth` },
+    {
+      feature: "Eye Symmetry",
+      delta: `+${(fakeProb * 82).toFixed(0)}% more natural`,
+    },
+    {
+      feature: "Skin Texture",
+      delta: `+${(fakeProb * 61).toFixed(0)}% grain consistency`,
+    },
+    {
+      feature: "Lighting Coherence",
+      delta: `+${(fakeProb * 54).toFixed(0)}% directional fix`,
+    },
+    {
+      feature: "Hairline Edges",
+      delta: `+${(fakeProb * 45).toFixed(0)}% boundary smooth`,
+    },
   ];
   const targetReal = Math.min(99, realProb * 100 + fakeProb * 35);
   return (
@@ -297,15 +414,47 @@ const CounterfactualExplanations: React.FC<{ frame: FrameData }> = ({ frame }) =
         }}
       >
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed, marginBottom: 2 }}>CURRENT</div>
-          <div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 700, color: C.red }}>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 9,
+              color: C.textMed,
+              marginBottom: 2,
+            }}
+          >
+            CURRENT
+          </div>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 18,
+              fontWeight: 700,
+              color: C.red,
+            }}
+          >
             {(fakeProb * 100).toFixed(1)}% FAKE
           </div>
         </div>
         <div style={{ fontSize: 20, color: C.textMed }}>→</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed, marginBottom: 2 }}>COUNTERFACTUAL</div>
-          <div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 700, color: C.green }}>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 9,
+              color: C.textMed,
+              marginBottom: 2,
+            }}
+          >
+            COUNTERFACTUAL
+          </div>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 18,
+              fontWeight: 700,
+              color: C.green,
+            }}
+          >
             {targetReal.toFixed(1)}% REAL
           </div>
         </div>
@@ -324,8 +473,20 @@ const CounterfactualExplanations: React.FC<{ frame: FrameData }> = ({ frame }) =
               padding: "6px 12px",
             }}
           >
-            <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>{f.feature}</span>
-            <span style={{ fontFamily: "monospace", fontSize: 10, color: C.green }}>{f.delta}</span>
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: 10,
+                color: C.textMed,
+              }}
+            >
+              {f.feature}
+            </span>
+            <span
+              style={{ fontFamily: "monospace", fontSize: 10, color: C.green }}
+            >
+              {f.delta}
+            </span>
           </div>
         ))}
       </div>
@@ -338,11 +499,31 @@ const TCAVAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.12);
   const concepts = [
     { concept: "GAN Fingerprint", sensitivity: fakeProb * 0.97, color: C.red },
-    { concept: "Texture Synthesis", sensitivity: fakeProb * 0.89, color: C.orange },
-    { concept: "Blending Artifact", sensitivity: fakeProb * 0.83, color: C.amber },
-    { concept: "Identity Inconsistency", sensitivity: fakeProb * 0.74, color: C.purple },
-    { concept: "Temporal Flicker", sensitivity: fakeProb * 0.68, color: C.blue },
-    { concept: "Compression Ghost", sensitivity: fakeProb * 0.52, color: C.teal },
+    {
+      concept: "Texture Synthesis",
+      sensitivity: fakeProb * 0.89,
+      color: C.orange,
+    },
+    {
+      concept: "Blending Artifact",
+      sensitivity: fakeProb * 0.83,
+      color: C.amber,
+    },
+    {
+      concept: "Identity Inconsistency",
+      sensitivity: fakeProb * 0.74,
+      color: C.purple,
+    },
+    {
+      concept: "Temporal Flicker",
+      sensitivity: fakeProb * 0.68,
+      color: C.blue,
+    },
+    {
+      concept: "Compression Ghost",
+      sensitivity: fakeProb * 0.52,
+      color: C.teal,
+    },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
@@ -358,10 +539,26 @@ const TCAVAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
               boxShadow: `0 0 6px ${c.color}`,
             }}
           />
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, width: 145, flexShrink: 0 }}>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: C.textMed,
+              width: 145,
+              flexShrink: 0,
+            }}
+          >
             {c.concept}
           </span>
-          <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+          <div
+            style={{
+              flex: 1,
+              height: 6,
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: 3,
+              overflow: "hidden",
+            }}
+          >
             <div
               style={{
                 width: `${(c.sensitivity * 100).toFixed(0)}%`,
@@ -372,13 +569,30 @@ const TCAVAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
               }}
             />
           </div>
-          <span style={{ fontFamily: "monospace", fontSize: 10, color: c.color, width: 34, textAlign: "right" }}>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: c.color,
+              width: 34,
+              textAlign: "right",
+            }}
+          >
             {(c.sensitivity * 100).toFixed(0)}%
           </span>
         </div>
       ))}
-      <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, marginTop: 4, lineHeight: 1.5 }}>
-        CAV probes trained on {concepts.length} known deepfake artifact classes (TCAV score)
+      <p
+        style={{
+          fontFamily: "monospace",
+          fontSize: 10,
+          color: C.textMed,
+          marginTop: 4,
+          lineHeight: 1.5,
+        }}
+      >
+        CAV probes trained on {concepts.length} known deepfake artifact classes
+        (TCAV score)
       </p>
     </div>
   );
@@ -388,10 +602,30 @@ const TCAVAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
 const PrototypeAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.1);
   const prototypes = [
-    { id: "FAKE-001", label: "GAN v1 (StyleGAN2)", similarity: fakeProb * 0.97, verdict: "FAKE" },
-    { id: "FAKE-019", label: "FaceSwap-GAN", similarity: fakeProb * 0.91, verdict: "FAKE" },
-    { id: "FAKE-047", label: "DeepFaceLab HQ", similarity: fakeProb * 0.84, verdict: "FAKE" },
-    { id: "REAL-213", label: "Authentic Reference", similarity: (1 - fakeProb) * 0.73, verdict: "REAL" },
+    {
+      id: "FAKE-001",
+      label: "GAN v1 (StyleGAN2)",
+      similarity: fakeProb * 0.97,
+      verdict: "FAKE",
+    },
+    {
+      id: "FAKE-019",
+      label: "FaceSwap-GAN",
+      similarity: fakeProb * 0.91,
+      verdict: "FAKE",
+    },
+    {
+      id: "FAKE-047",
+      label: "DeepFaceLab HQ",
+      similarity: fakeProb * 0.84,
+      verdict: "FAKE",
+    },
+    {
+      id: "REAL-213",
+      label: "Authentic Reference",
+      similarity: (1 - fakeProb) * 0.73,
+      verdict: "REAL",
+    },
   ];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -409,8 +643,19 @@ const PrototypeAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
           }}
         >
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}>{p.id}</div>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: C.textHigh, marginTop: 2 }}>
+            <div
+              style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}
+            >
+              {p.id}
+            </div>
+            <div
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11,
+                color: C.textHigh,
+                marginTop: 2,
+              }}
+            >
               {p.label}
             </div>
           </div>
@@ -425,11 +670,23 @@ const PrototypeAnalysis: React.FC<{ frame: FrameData }> = ({ frame }) => {
             >
               {(p.similarity * 100).toFixed(0)}%
             </div>
-            <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}>cos. sim.</div>
+            <div
+              style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}
+            >
+              cos. sim.
+            </div>
           </div>
         </div>
       ))}
-      <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, marginTop: 4, lineHeight: 1.5 }}>
+      <p
+        style={{
+          fontFamily: "monospace",
+          fontSize: 10,
+          color: C.textMed,
+          marginTop: 4,
+          lineHeight: 1.5,
+        }}
+      >
         Nearest-neighbour search across &gt;50K labelled embedding vectors
       </p>
     </div>
@@ -443,11 +700,17 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.1);
   const THRESHOLD = 33;
 
-  const lipSyncData = Array.from({ length: 16 }, (_, i) => {
-    const base = fakeProb * 45 + Math.sin(i * 0.9) * 12;
-    const noise = (Math.random() - 0.5) * 10;
-    return { t: `${i * 2}s`, deviation: parseFloat(Math.max(0, base + noise).toFixed(1)) };
-  });
+  // Use real lipSyncData if available, otherwise generate mock data
+  const lipSyncData =
+    frame.lipSyncData ??
+    Array.from({ length: 16 }, (_, i) => {
+      const base = fakeProb * 45 + Math.sin(i * 0.9) * 12;
+      const noise = (Math.random() - 0.5) * 10;
+      return {
+        t: `${i * 2}s`,
+        deviation: parseFloat(Math.max(0, base + noise).toFixed(1)),
+      };
+    });
 
   const spikeCount = lipSyncData.filter((d) => d.deviation > THRESHOLD).length;
   const maxDeviation = Math.max(...lipSyncData.map((d) => d.deviation));
@@ -455,9 +718,23 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const renderDot = (props: LipSyncDot) => {
     const { cx, cy, payload } = props;
     return payload.deviation > THRESHOLD ? (
-      <circle key={`spike-${cx}`} cx={cx} cy={cy} r={4} fill={C.red} stroke="none" />
+      <circle
+        key={`spike-${cx}`}
+        cx={cx}
+        cy={cy}
+        r={4}
+        fill={C.red}
+        stroke="none"
+      />
     ) : (
-      <circle key={`ok-${cx}`} cx={cx} cy={cy} r={2} fill={C.teal} stroke="none" />
+      <circle
+        key={`ok-${cx}`}
+        cx={cx}
+        cy={cy}
+        r={2}
+        fill={C.teal}
+        stroke="none"
+      />
     );
   };
 
@@ -470,14 +747,22 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
             <XAxis dataKey="t" stroke="#444" fontSize={9} tickLine={false} />
             <YAxis stroke="#444" fontSize={9} tickLine={false} unit="ms" />
             <Tooltip
-              contentStyle={{ background: C.void, border: `1px solid ${C.border}`, fontSize: 11 }}
+              contentStyle={{
+                background: C.void,
+                border: `1px solid ${C.border}`,
+                fontSize: 11,
+              }}
               formatter={(v: number) => [`${v.toFixed(1)} ms`, "AV Offset"]}
             />
             <ReferenceLine
               y={THRESHOLD}
               stroke={C.amber}
               strokeDasharray="4 2"
-              label={{ value: `${THRESHOLD}ms limit`, fill: C.amber, fontSize: 9 }}
+              label={{
+                value: `${THRESHOLD}ms limit`,
+                fill: C.amber,
+                fontSize: 9,
+              }}
             />
             <Line
               type="monotone"
@@ -499,8 +784,19 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
             padding: "8px 12px",
           }}
         >
-          <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}>SYNC FAILURES</div>
-          <div style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: spikeCount > 2 ? C.red : C.green }}>
+          <div
+            style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}
+          >
+            SYNC FAILURES
+          </div>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 16,
+              fontWeight: 700,
+              color: spikeCount > 2 ? C.red : C.green,
+            }}
+          >
             {spikeCount} spike{spikeCount !== 1 ? "s" : ""}
           </div>
         </div>
@@ -513,8 +809,19 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
             padding: "8px 12px",
           }}
         >
-          <div style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}>MAX DEVIATION</div>
-          <div style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: C.teal }}>
+          <div
+            style={{ fontFamily: "monospace", fontSize: 9, color: C.textMed }}
+          >
+            MAX DEVIATION
+          </div>
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 16,
+              fontWeight: 700,
+              color: C.teal,
+            }}
+          >
             {maxDeviation.toFixed(1)} ms
           </div>
         </div>
@@ -525,9 +832,9 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
 
 // ─── Tab Config ───────────────────────────────────────────────────────────────
 const TABS = [
-  { id: "temporal",   label: "Temporal",           icon: "⏱" },
-  { id: "facial",     label: "Facial Artifacts",   icon: "👁" },
-  { id: "global",     label: "Global / Comparative", icon: "🔬" },
+  { id: "temporal", label: "Temporal", icon: "⏱" },
+  // { id: "facial", label: "Facial Artifacts", icon: "👁" },
+  { id: "global", label: "Global / Comparative", icon: "🔬" },
   // { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
 ];
 
@@ -536,15 +843,22 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
   const [activeTab, setActiveTab] = useState("temporal");
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   if (!mounted) return null;
 
   return (
     <div style={{ width: "100%" }}>
       {/* Section Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-     
-
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
         {/* Verdict badge */}
         <div style={{ marginLeft: "auto" }}>
           <span
@@ -624,7 +938,13 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
 
       {/* ── Facial Artifacts tab ──────────────────────────────────────────── */}
       {activeTab === "facial" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 16,
+          }}
+        >
           <TechCard
             id="xai-lime-superpixels"
             label="LIME with Facial Superpixels"
@@ -659,17 +979,13 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
 
       {/* ── Global / Comparative tab ──────────────────────────────────────── */}
       {activeTab === "global" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
-          <TechCard
-            id="xai-counterfactual"
-            label="Counterfactual Explanations"
-            tag="10 · GLOBAL"
-            accentColor={C.green}
-            subtitle="Minimum perturbation needed to flip FAKE → REAL. Tells investigators exactly what must change — highly actionable for forensic reporting."
-          >
-            <CounterfactualExplanations frame={frame} />
-          </TechCard>
-
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 16,
+          }}
+        >
           <TechCard
             id="xai-tcav"
             label="TCAV — Concept Activation Vectors"
@@ -678,16 +994,6 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
             subtitle="Concept probes trained on known deepfake artifact categories. Quantifies model sensitivity per concept — rigorous for academic evaluators."
           >
             <TCAVAnalysis frame={frame} />
-          </TechCard>
-
-          <TechCard
-            id="xai-prototype"
-            label="Prototype / Criticism Analysis"
-            tag="12 · GLOBAL"
-            accentColor={C.amber}
-            subtitle="Nearest known examples in model embedding space via cosine similarity. Builds a forensic chain of evidence for legal and investigative use."
-          >
-            <PrototypeAnalysis frame={frame} />
           </TechCard>
         </div>
       )}
@@ -721,9 +1027,18 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
         }}
       >
         <span style={{ fontSize: 14, flexShrink: 0 }}>ℹ</span>
-        <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed, margin: 0, lineHeight: 1.6 }}>
-          All XAI outputs are generated post-hoc from the X-DetectRT model backbone. Results shown for frame #
-          {frame.id} at timestamp {frame.timestamp}.{" "}
+        <p
+          style={{
+            fontFamily: "monospace",
+            fontSize: 10,
+            color: C.textMed,
+            margin: 0,
+            lineHeight: 1.6,
+          }}
+        >
+          All XAI outputs are generated post-hoc from the X-DetectRT model
+          backbone. Results shown for frame #{frame.id} at timestamp{" "}
+          {frame.timestamp}.{" "}
           {frame.isAnomaly
             ? `Verdict: FAKE · Confidence ${frame.confidenceScore.toFixed(1)}% · Fake prob ${(
                 (frame.fake_prob ?? 0.85) * 100
