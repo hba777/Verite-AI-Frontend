@@ -22,16 +22,45 @@ import {
 interface ForensicAnalysisSectionProps {
   frame: FrameData;
   onClose: () => void;
+  taskId?: string;
 }
 
 const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   frame,
   onClose,
+  taskId,
 }) => {
   const [heatmapConfig, setHeatmapConfig] = useState<HeatmapConfig>({
     show: true,
     opacity: 75,
   });
+  
+  // Local state for frame data to support live updates from XAI results
+  const [currentFrame, setCurrentFrame] = useState<FrameData>(frame);
+  
+  // Update local frame when prop changes
+  useEffect(() => {
+    setCurrentFrame(frame);
+  }, [frame]);
+  
+  // Listen for XAI updates via custom event
+  useEffect(() => {
+    const handleXAIUpdate = (event: CustomEvent) => {
+      const { frameIndex, gradcam_b64, task_id } = event.detail;
+      // Only update if this is the same frame and task
+      if (taskId && task_id === taskId && frameIndex === currentFrame.id && gradcam_b64) {
+        setCurrentFrame((prev) => ({
+          ...prev,
+          gradcam_b64: gradcam_b64
+        }));
+      }
+    };
+    
+    window.addEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
+    return () => {
+      window.removeEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
+    };
+  }, [taskId, currentFrame.id]);
 
   // Generate forensic summary based on real probability data from WebSocket
   const generateForensicSummary = (frame: FrameData): string => {
@@ -55,10 +84,10 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
     }
   };
 
-  const aiSummary = generateForensicSummary(frame);
+  const aiSummary = generateForensicSummary(currentFrame);
 
   // Generate frequency data based on real probability
-  const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.15);
+  const fakeProb = currentFrame.fake_prob ?? (currentFrame.isAnomaly ? 0.85 : 0.15);
   const freqData = [
     { name: "Low", value: Math.round(fakeProb * 20 + 15) },
     { name: "Mid", value: Math.round(fakeProb * 30 + 25) },
@@ -70,7 +99,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset =
-    circumference - (frame.confidenceScore / 100) * circumference;
+    circumference - (currentFrame.confidenceScore / 100) * circumference;
 
   return (
     <div className="w-full bg-surface border-t border-white/10 animate-in fade-in slide-in-from-bottom-10 duration-500">
@@ -86,10 +115,10 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
             </div>
             <div className="flex items-baseline gap-4">
               <h1 className="font-display text-4xl font-bold text-text-high">
-                Frame #{frame.id}
+                Frame #{currentFrame.id}
               </h1>
               <span className="font-mono text-xl text-text-med">
-                {frame.timestamp}
+                {currentFrame.timestamp}
               </span>
             </div>
           </div>
@@ -100,7 +129,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 Model Confidence
               </div>
               <div className="text-2xl font-display font-bold text-electric-teal">
-                {frame.confidenceScore}%
+                {currentFrame.confidenceScore}%
               </div>
             </div>
             <div className="relative w-16 h-16 flex items-center justify-center">
@@ -117,7 +146,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   cx="32"
                   cy="32"
                   r={radius}
-                  stroke={frame.isAnomaly ? "#FF2D55" : "#3b6bff"}
+                  stroke={currentFrame.isAnomaly ? "#FF2D55" : "#3b6bff"}
                   strokeWidth="4"
                   fill="transparent"
                   strokeDasharray={circumference}
@@ -181,7 +210,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           </div>
 
           <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl relative">
-            <HeatmapViewer frame={frame} config={heatmapConfig} />
+            <HeatmapViewer frame={currentFrame} config={heatmapConfig} />
           </div>
         </section>
 
@@ -214,7 +243,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                       Real Probability
                     </div>
                     <div className="text-lg font-display font-bold text-neural-green">
-                      {((frame.real_prob ?? 0.5) * 100).toFixed(2)}%
+                      {((currentFrame.real_prob ?? 0.5) * 100).toFixed(2)}%
                     </div>
                   </div>
                   <div className="flex-1 bg-black/30 rounded-lg p-3 border border-white/5">
@@ -222,15 +251,15 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                       Fake Probability
                     </div>
                     <div className="text-lg font-display font-bold text-hyper-red">
-                      {((frame.fake_prob ?? 0.5) * 100).toFixed(2)}%
+                      {((currentFrame.fake_prob ?? 0.5) * 100).toFixed(2)}%
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-white/5 flex gap-3">
-                  {frame.anomalyType && (
+                  {currentFrame.anomalyType && (
                     <span className="px-3 py-1 bg-black/40 border border-hyper-red/30 text-hyper-red text-xs font-mono rounded">
-                      DETECTED: {frame.anomalyType.toUpperCase()}
+                      DETECTED: {currentFrame.anomalyType.toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -247,7 +276,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
               Explainable AI (XAI) Analysis
             </h3>
           </div>
-          <XAITechniquesPanel frame={frame} />
+          <XAITechniquesPanel frame={currentFrame} />
         </section>
 
         <div className="flex justify-center pt-8">

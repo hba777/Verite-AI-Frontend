@@ -17,6 +17,7 @@ export interface FrameData {
   isAnomaly: boolean;
   confidenceScore: number; // 0-100
   isProcessed: boolean; // For waterfall effect
+  taskId?: string; // Task ID for XAI event tracking
   anomalyType?:
     | "FaceSwap-GAN"
     | "Lip-Sync"
@@ -69,4 +70,5 @@ export interface AnalysisDashboardProps {
   isProcessing?: boolean;
   processedFrames?: number;
   videoUrl?: string;
+  taskId?: string;
 }
