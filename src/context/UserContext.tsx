@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { decodeJwt, googleSignIn, loginUser, registerUser, logoutUser } from "../services/userApi";
+import { decodeJwt, googleSignIn, loginUser, registerUser, logoutUser, firebaseLogin, firebaseRegister } from "../services/userApi";
 
 type User = {
   id: number | null;
@@ -16,6 +16,9 @@ type UserContextType = {
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   signInWithGoogle: (credential: string) => Promise<void>;
+  // Firebase-based auth functions
+  firebaseLogin: (email: string) => Promise<void>;
+  firebaseRegister: (email: string) => Promise<void>;
   loginAsGuest: () => void;
   logout: () => void;
 };
@@ -66,6 +69,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setToken(res.access_token);
   }, []);
 
+  // Firebase login - sends email to backend to find/create user
+  const firebaseLoginFn = useCallback(async (email: string) => {
+    const res = await firebaseLogin(email);
+    setToken(res.access_token);
+  }, []);
+
+  // Firebase register - sends email to backend to create user
+  const firebaseRegisterFn = useCallback(async (email: string) => {
+    const res = await firebaseRegister(email);
+    setToken(res.access_token);
+  }, []);
+
   const loginAsGuest = useCallback(() => {
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
     const exp = Math.floor(Date.now() / 1000) + 60 * 60;
@@ -80,7 +95,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
   }, [setToken]);
 
-  const value = useMemo(() => ({ token, user, setToken, login, register, signInWithGoogle, loginAsGuest, logout }), [token, user, setToken, login, register, signInWithGoogle, loginAsGuest, logout]);
+  const value = useMemo(() => ({ 
+    token, 
+    user, 
+    setToken, 
+    login, 
+    register, 
+    signInWithGoogle, 
+    firebaseLogin: firebaseLoginFn,
+    firebaseRegister: firebaseRegisterFn,
+    loginAsGuest, 
+    logout 
+  }), [token, user, setToken, login, register, signInWithGoogle, firebaseLoginFn, firebaseRegisterFn, loginAsGuest, logout]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

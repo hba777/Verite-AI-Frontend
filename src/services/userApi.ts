@@ -12,8 +12,21 @@ export async function registerUser(username: string, email: string, password: st
   return data;
 }
 
-export async function googleSignIn(id_token: string): Promise<TokenResponse> {
-  const { data } = await api.post<TokenResponse>("/auth/google", { id_token });
+// Firebase-based login (sends email to backend)
+export async function firebaseLogin(email: string): Promise<TokenResponse> {
+  const { data } = await api.post<TokenResponse>("/auth/firebase/login", { id_token: email });
+  return data;
+}
+
+// Firebase-based register (sends email to backend)
+export async function firebaseRegister(email: string): Promise<TokenResponse> {
+  const { data } = await api.post<TokenResponse>("/auth/firebase/register", { id_token: email });
+  return data;
+}
+
+// Google Sign In (sends email to backend)
+export async function googleSignIn(email: string): Promise<TokenResponse> {
+  const { data } = await api.post<TokenResponse>("/auth/google", { id_token: email });
   return data;
 }
 
@@ -38,4 +51,3 @@ export function decodeJwt(token: string): any {
     return null;
   }
 }
-

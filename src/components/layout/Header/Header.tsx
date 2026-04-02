@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { RiGeminiFill } from "react-icons/ri";
 import { BiSquareRounded } from "react-icons/bi";
+import dynamic from "next/dynamic";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/router";
+
 
 // Helper component for the icon
 interface CustomFeatureIconProps {
@@ -62,6 +64,7 @@ const Header = ({
   const router = useRouter();
   const initial =
     (user?.username || user?.email || "").charAt(0).toUpperCase() || "U";
+
   return (
     <>
       <header
@@ -87,29 +90,6 @@ const Header = ({
 
             {/* Buttons - weight 450 */}
             <div className="flex items-center space-x-2">
-              {/* <a
-                href="#"
-                className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
-              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
-                style={{
-                  fontFamily: '"Poppins", sans-serif',
-                }}
-              >
-                <CustomFeatureIcon className="mr-2" />
-                Start Detecting
-              </a> */}
-
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
-              px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
-                style={{
-                  fontFamily: '"Poppins", sans-serif',
-                }}
-              >
-                <RiGeminiFill size={20} className="text-gray-400 mr-2" />
-                Try Detection
-              </button>
 
               {user ? (
                 <div className="relative">
@@ -145,6 +125,7 @@ const Header = ({
             </div>
           </nav>
         </div>
+
       </header>
     </>
   );
