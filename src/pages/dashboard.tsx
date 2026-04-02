@@ -255,18 +255,23 @@ const Dashboard: React.FC = () => {
                   // Handle XAI/Grad-CAM results
                   const xaiFrameIndex = jsonData.frame_index;
                   const gradcamB64 = jsonData.gradcam_b64;
+                  const elaB64 = jsonData.ela_b64;
+                  const fftData = jsonData.fft_data;
+                  const limeData = jsonData.lime_data;
 
-                  if (gradcamB64) {
-                    setFrames((prev) => {
-                      const updated = [...prev];
-                      if (updated[xaiFrameIndex]) {
-                        updated[xaiFrameIndex] = {
-                          ...updated[xaiFrameIndex],
-                          gradcam_b64: gradcamB64,
-                        };
-                      }
-                      return updated;
-                    });
+                  setFrames((prev) => {
+                    const updated = [...prev];
+                    if (updated[xaiFrameIndex]) {
+                      updated[xaiFrameIndex] = {
+                        ...updated[xaiFrameIndex],
+                        gradcam_b64: gradcamB64,
+                        ela_b64: elaB64,
+                        fft_data: fftData,
+                        lime_data: limeData,
+                      };
+                    }
+                    return updated;
+                  });
                     
                     // Dispatch custom event for ForensicAnalysisSection to update
                     const xaiEvent = new CustomEvent("xai_update", {
@@ -278,13 +283,41 @@ const Dashboard: React.FC = () => {
                     });
                     window.dispatchEvent(xaiEvent);
                     
-                    console.log(`XAI data received for frame ${xaiFrameIndex}`);
-                  }
+                  console.log(`XAI data received for frame ${xaiFrameIndex}`, jsonData);
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
                   setAppState(AppState.COMPLETE);
                   console.log("Processing completed:", jsonData);
+
+                  // Update frames with XAI data (Grad-CAM and TimeSHAP) if available
+                  if (jsonData.xai_results && jsonData.timeshap_result) {
+                    const timeshap = jsonData.timeshap_result;
+                    setFrames((prevFrames) => {
+                      return prevFrames.map((frame, idx) => {
+                        const xaiFrame = jsonData.xai_results.find(
+                          (x: any) => x.frame_index === idx,
+                        );
+                        if (xaiFrame) {
+                          return {
+                            ...frame,
+                            gradcam_b64: xaiFrame.gradcam_b64,
+                            timeshap_attribution:
+                              timeshap.attributions?.[idx] !== undefined
+                                ? [timeshap.attributions[idx]]
+                                : undefined,
+                            timeshap_baseline: timeshap.baseline_prob,
+                            timeshap_frame_probs: timeshap.frame_probs,
+                          };
+                        }
+                        return frame;
+                      });
+                    });
+                    console.log(
+                      "XAI results applied to frames:",
+                      jsonData.timeshap_result,
+                    );
+                  }
                 } else if (jsonData.type === "error") {
                   setStatus(`Error: ${jsonData.message}`);
                   setIsProcessing(false);
