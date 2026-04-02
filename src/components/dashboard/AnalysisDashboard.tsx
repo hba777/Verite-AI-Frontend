@@ -12,6 +12,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
   isProcessing = false,
   processedFrames = 0,
   videoUrl,
+  taskId,
 }) => {
   const [progress, setProgress] = useState(0);
   const [selectedFrame, setSelectedFrame] = useState<FrameData | null>(null);
@@ -648,6 +649,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
           <ForensicAnalysisSection
             frame={selectedFrame}
             onClose={() => setSelectedFrame(null)}
+            taskId={taskId}
           />
         </div>
       )}

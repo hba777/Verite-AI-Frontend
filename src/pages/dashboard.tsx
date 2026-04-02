@@ -15,6 +15,7 @@ const Dashboard: React.FC = () => {
   const [processedFrames, setProcessedFrames] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [videoTaskId, setVideoTaskId] = useState<string>("");
   const wsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const framesReceivedRef = useRef<boolean>(false); // Track if frames are coming via WebSocket
@@ -106,6 +107,7 @@ const Dashboard: React.FC = () => {
         const data = await res.json();
         const taskId = data.task_id;
         console.log("Task ID:", taskId);
+        setVideoTaskId(taskId);
         setAppState(AppState.ANALYZING);
 
         // Initialize empty frames array for now
@@ -240,6 +242,8 @@ const Dashboard: React.FC = () => {
                       frequencySpike: jsonData.frequency_spike,
                       real_prob: jsonData.real_prob,
                       fake_prob: jsonData.fake_prob,
+                      // Include Grad-CAM if available (sent together with detection for anomalies)
+                      gradcam_b64: jsonData.gradcam_b64,
                     };
                     return updated;
                   });
@@ -263,6 +267,17 @@ const Dashboard: React.FC = () => {
                       }
                       return updated;
                     });
+                    
+                    // Dispatch custom event for ForensicAnalysisSection to update
+                    const xaiEvent = new CustomEvent("xai_update", {
+                      detail: {
+                        frameIndex: xaiFrameIndex,
+                        gradcam_b64: gradcamB64,
+                        task_id: jsonData.task_id,
+                      },
+                    });
+                    window.dispatchEvent(xaiEvent);
+                    
                     console.log(`XAI data received for frame ${xaiFrameIndex}`);
                   }
                 } else if (jsonData.type === "processing_complete") {
@@ -392,6 +407,8 @@ const Dashboard: React.FC = () => {
                     frequencySpike: jsonData.detection_result.frequency_spike,
                     real_prob: jsonData.detection_result.real_prob,
                     fake_prob: jsonData.detection_result.fake_prob,
+                    // Include Grad-CAM if available (sent together with detection for anomalies)
+                    gradcam_b64: jsonData.detection_result.gradcam_b64,
                   };
                   setImageFrame(frame);
                   setIsImageProcessing(false);
@@ -491,6 +508,7 @@ const Dashboard: React.FC = () => {
           isProcessing={isProcessing}
           processedFrames={processedFrames}
           videoUrl={videoUrl || undefined}
+          taskId={videoTaskId}
         />
       )}
     </div>

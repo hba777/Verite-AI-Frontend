@@ -232,6 +232,7 @@ const ImageResult: React.FC<ImageResultProps> = ({
         <ForensicAnalysisSection
           frame={frame}
           onClose={() => setShowForensic(false)}
+          taskId={taskId}
         />
       )}
 
