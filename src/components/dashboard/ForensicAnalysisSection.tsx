@@ -32,6 +32,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
     show: true,
     opacity: 75,
   });
+  const [viewMode, setViewMode] = useState<"heatmap" | "ela" | "gradcam">("heatmap");
 
   // Generate forensic summary based on real probability data from WebSocket
   const generateForensicSummary = (frame: FrameData): string => {
@@ -139,49 +140,88 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
               </h3>
             </div>
             <div className="flex flex-wrap items-center gap-4 bg-black/20 px-4 py-2 rounded-full border border-white/5">
-              <div className="flex items-center gap-3">
-                <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
-                  Heatmap Overlay
-                </label>
-                <div
-                  className={`w-10 h-5 rounded-full cursor-pointer transition-colors relative ${
-                    heatmapConfig.show ? "bg-electric-teal" : "bg-white/10"
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setViewMode("heatmap")}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
+                    viewMode === "heatmap"
+                      ? "bg-electric-teal text-black"
+                      : "bg-white/10 text-text-med hover:bg-white/20"
                   }`}
-                  onClick={() =>
-                    setHeatmapConfig((p) => ({ ...p, show: !p.show }))
-                  }
                 >
-                  <div
-                    className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${
-                      heatmapConfig.show ? "left-6" : "left-1"
-                    }`}
-                  />
-                </div>
+                  Heatmap
+                </button>
+                <button
+                  onClick={() => setViewMode("ela")}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
+                    viewMode === "ela"
+                      ? "bg-electric-teal text-black"
+                      : "bg-white/10 text-text-med hover:bg-white/20"
+                  }`}
+                >
+                  ELA
+                </button>
+                <button
+                  onClick={() => setViewMode("gradcam")}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
+                    viewMode === "gradcam"
+                      ? "bg-electric-teal text-black"
+                      : "bg-white/10 text-text-med hover:bg-white/20"
+                  }`}
+                >
+                  GradCAM
+                </button>
               </div>
               <div className="hidden sm:block h-4 w-px bg-white/10"></div>
-              <div className="flex items-center gap-3">
-                <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
-                  Opacity
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={heatmapConfig.opacity}
-                  onChange={(e) =>
-                    setHeatmapConfig((p) => ({
-                      ...p,
-                      opacity: parseInt(e.target.value),
-                    }))
-                  }
-                  className="w-20 sm:w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-electric-teal"
-                />
-              </div>
+              {viewMode === "heatmap" && (
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
+                    Overlay
+                  </label>
+                  <div
+                    className={`w-10 h-5 rounded-full cursor-pointer transition-colors relative ${
+                      heatmapConfig.show ? "bg-electric-teal" : "bg-white/10"
+                    }`}
+                    onClick={() =>
+                      setHeatmapConfig((p) => ({ ...p, show: !p.show }))
+                    }
+                  >
+                    <div
+                      className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${
+                        heatmapConfig.show ? "left-6" : "left-1"
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+              {viewMode === "heatmap" && (
+                <>
+                  <div className="hidden sm:block h-4 w-px bg-white/10"></div>
+                  <div className="flex items-center gap-3">
+                      <label className="text-xs font-mono text-text-med uppercase whitespace-nowrap">
+                        Opacity
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={heatmapConfig.opacity}
+                        onChange={(e) =>
+                          setHeatmapConfig((p) => ({
+                            ...p,
+                            opacity: parseInt(e.target.value),
+                          }))
+                        }
+                        className="w-20 sm:w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-electric-teal"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl relative">
-            <HeatmapViewer frame={frame} config={heatmapConfig} />
+            <HeatmapViewer frame={frame} config={heatmapConfig} viewMode={viewMode} />
           </div>
         </section>
 
