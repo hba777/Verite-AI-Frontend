@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { RiGeminiFill } from "react-icons/ri";
 import { BiSquareRounded } from "react-icons/bi";
+import dynamic from "next/dynamic";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/router";
+
+const LoginForm = dynamic(() => import("@/components/home/LoginForm/LoginForm"), {
+  ssr: false,
+});
 
 // Helper component for the icon
 interface CustomFeatureIconProps {
@@ -58,10 +63,20 @@ const Header = ({
   isVisible: boolean;
   isAtTop: boolean;
 }) => {
-  const { user, logout } = useUser();
+  const { user, token, logout } = useUser();
   const router = useRouter();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const initial =
     (user?.username || user?.email || "").charAt(0).toUpperCase() || "U";
+
+  const openLoginForm = () => {
+    if (token) {
+      router.push("/dashboard");
+    } else {
+      setIsLoginOpen(true);
+    }
+  };
+  const closeLoginForm = () => setIsLoginOpen(false);
   return (
     <>
       <header
@@ -100,7 +115,7 @@ const Header = ({
               </a> */}
 
               <button
-                onClick={() => router.push("/dashboard")}
+                onClick={openLoginForm}
                 className="hidden items-center rounded-full text-gray-400 transition-colors sm:inline-flex bg-[#191919] hover:bg-[#222323] font-extralight
               px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
                 style={{
@@ -145,6 +160,19 @@ const Header = ({
             </div>
           </nav>
         </div>
+
+        <LoginForm
+          isOpen={isLoginOpen}
+          onClose={closeLoginForm}
+          onAuthenticated={(token) => {
+            try {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("auth_token", token);
+              }
+            } catch {}
+            router.push("/dashboard");
+          }}
+        />
       </header>
     </>
   );

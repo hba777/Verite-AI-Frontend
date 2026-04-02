@@ -1,8 +1,14 @@
 // src/components/home/HeroSection.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import ParticleBackground from "./ParticleBackground"; // <-- Import it here
+import dynamic from "next/dynamic";
+import { useUser } from "../../../context/UserContext";
+
+const LoginForm = dynamic(() => import("../LoginForm/LoginForm"), {
+  ssr: false,
+});
 
 // Helper component for the arrow icon
 const ArrowIcon = () => (
@@ -24,6 +30,19 @@ const ArrowIcon = () => (
 
 const HeroSection = () => {
   const router = useRouter();
+  const { user, token } = useUser();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  const openLoginForm = () => setIsLoginOpen(true);
+  const closeLoginForm = () => setIsLoginOpen(false);
+
+  const handleAnalyzeClick = () => {
+    if (token) {
+      router.push("/dashboard");
+    } else {
+      setIsLoginOpen(true);
+    }
+  };
 
   return (
     <main
@@ -55,7 +74,7 @@ const HeroSection = () => {
         <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           {/* First Button */}
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={handleAnalyzeClick}
             className="flex w-full items-center justify-center rounded-full py-3 px-8 sm:w-auto font-normal text-white"
             style={{
               backgroundImage:
@@ -75,6 +94,19 @@ const HeroSection = () => {
           </button>
         </div>
       </div>
+
+      <LoginForm
+        isOpen={isLoginOpen}
+        onClose={closeLoginForm}
+        onAuthenticated={(token) => {
+          try {
+            if (typeof window !== "undefined") {
+              localStorage.setItem("auth_token", token);
+            }
+          } catch {}
+          router.push("/dashboard");
+        }}
+      />
     </main>
   );
 };
