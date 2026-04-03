@@ -445,6 +445,58 @@ const Dashboard: React.FC = () => {
                   };
                   setImageFrame(frame);
                   setIsImageProcessing(false);
+
+                  // Update frames with XAI data if available
+                  if (jsonData.xai_result) {
+                    const xaiData = jsonData.xai_result;
+                    setImageFrame((prev) => {
+                      if (prev) {
+                        return {
+                          ...prev,
+                          gradcam_b64: xaiData.gradcam_b64 || prev.gradcam_b64,
+                          ela_b64: xaiData.ela_b64,
+                          fft_data: xaiData.fft_data,
+                          lime_data: xaiData.lime_data,
+                        };
+                      }
+                      return prev;
+                    });
+                    console.log("XAI results applied to image frame:", xaiData);
+                  }
+                } else if (jsonData.type === "xai_ready") {
+                  // Handle XAI/Grad-CAM results
+                  const gradcamB64 = jsonData.gradcam_b64;
+                  const elaB64 = jsonData.ela_b64;
+                  const fftData = jsonData.fft_data;
+                  const limeData = jsonData.lime_data;
+
+                  setImageFrame((prev) => {
+                    if (prev) {
+                      return {
+                        ...prev,
+                        gradcam_b64: gradcamB64,
+                        ela_b64: elaB64,
+                        fft_data: fftData,
+                        lime_data: limeData,
+                      };
+                    }
+                    return prev;
+                  });
+
+                  // Dispatch custom event for ImageResult to update
+                  const xaiEvent = new CustomEvent("xai_update", {
+                    detail: {
+                      frameIndex: 0, // Single frame for image
+                      gradcam_b64: gradcamB64,
+                      ela_b64: elaB64,
+                      fft_data: fftData,
+                      lime_data: limeData,
+                      task_id: jsonData.task_id,
+                    },
+                  });
+                  window.dispatchEvent(xaiEvent);
+
+                  console.log(`XAI data received for image`, jsonData);
                 } else if (jsonData.type === "error") {
                   console.error("Image processing error:", jsonData);
                   setIsImageProcessing(false);

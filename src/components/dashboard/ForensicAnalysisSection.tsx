@@ -47,16 +47,19 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   // Listen for XAI updates via custom event
   useEffect(() => {
     const handleXAIUpdate = (event: CustomEvent) => {
-      const { frameIndex, gradcam_b64, task_id } = event.detail;
+      const { frameIndex, gradcam_b64, ela_b64, fft_data, lime_data, task_id } = event.detail;
       // Only update if this is the same frame and task
-      if (taskId && task_id === taskId && frameIndex === currentFrame.id && gradcam_b64) {
+      if (taskId && task_id === taskId && frameIndex === currentFrame.id) {
         setCurrentFrame((prev) => ({
           ...prev,
-          gradcam_b64: gradcam_b64
+          ...(gradcam_b64 && { gradcam_b64 }),
+          ...(ela_b64 && { ela_b64 }),
+          ...(fft_data && { fft_data }),
+          ...(lime_data && { lime_data }),
         }));
       }
     };
-    
+
     window.addEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
     return () => {
       window.removeEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
@@ -250,7 +253,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           </div>
 
           <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl relative">
-            <HeatmapViewer frame={frame} config={heatmapConfig} viewMode={viewMode} />
+            <HeatmapViewer frame={currentFrame} config={heatmapConfig} viewMode={viewMode} />
           </div>
         </section>
 
