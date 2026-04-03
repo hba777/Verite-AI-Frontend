@@ -116,13 +116,37 @@ const TechCard: React.FC<{
 
 // ─── 03 · SHAP TimeShap ──────────────────────────────────────────────────────
 const SHAPTimeShap: React.FC<{ frame: FrameData }> = ({ frame }) => {
+  // Use real TimeSHAP data if available from backend
   const fakeProb = frame.fake_prob ?? (frame.isAnomaly ? 0.85 : 0.12);
-  const shapData = Array.from({ length: 12 }, (_, i) => {
-    const base = (Math.sin(i * 0.8 + 1) * 0.3 + (fakeProb - 0.5)) * 0.6;
-    const noise = (Math.random() - 0.5) * 0.15;
-    const val = parseFloat((base + noise).toFixed(3));
-    return { frame: `F${i * 4}`, value: val };
-  });
+
+  // Generate shapData from real timeshap_attribution if available
+  let shapData: { frame: string; value: number }[];
+
+  if (frame.timeshap_attribution && frame.timeshap_attribution.length > 0) {
+    // Use real TimeSHAP attribution data
+    shapData = frame.timeshap_attribution.map((val, i) => ({
+      frame: `F${i}`,
+      value: val,
+    }));
+  } else if (
+    frame.timeshap_frame_probs &&
+    frame.timeshap_frame_probs.length > 0
+  ) {
+    // Use frame probs from TimeSHAP
+    shapData = frame.timeshap_frame_probs.map((prob, i) => {
+      const baseline = frame.timeshap_baseline ?? 0.5;
+      const val = prob - baseline;
+      return { frame: `F${i}`, value: val };
+    });
+  } else {
+    // Fallback to synthetic data for demo/trial purposes
+    shapData = Array.from({ length: 12 }, (_, i) => {
+      const base = (Math.sin(i * 0.8 + 1) * 0.3 + (fakeProb - 0.5)) * 0.6;
+      const noise = (Math.random() - 0.5) * 0.15;
+      const val = parseFloat((base + noise).toFixed(3));
+      return { frame: `F${i * 4}`, value: val };
+    });
+  }
 
   return (
     <>
@@ -830,9 +854,245 @@ const CrossModalAttention: React.FC<{ frame: FrameData }> = ({ frame }) => {
   );
 };
 
+// ─── 14 · FFT Radial Profile — Line Chart ───────────────────────────────────────
+const FFTRadialProfile: React.FC<{ frame: FrameData }> = ({ frame }) => {
+  const radialProfile = frame.fft_data?.radial_profile ?? [];
+  const data = radialProfile.map((val) => ({
+    frequency: val.frequency,
+    log_power: val.log_power,
+  }));
+
+  if (data.length === 0) {
+    return (
+      <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>No FFT radial profile data</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ height: 160 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ left: -10, right: 8 }}>
+          <CartesianGrid stroke="#1a1a1a" strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="frequency" 
+            stroke="#444" 
+            fontSize={9} 
+            tickLine={false}
+            tickFormatter={(v) => `${(v * 1000).toFixed(1)}`}
+          />
+          <YAxis stroke="#444" fontSize={9} tickLine={false} />
+          <Tooltip
+            contentStyle={{
+              background: C.void,
+              border: `1px solid ${C.border}`,
+              fontSize: 11,
+            }}
+            formatter={(v: number) => [v.toFixed(3), "Log Power"]}
+            labelFormatter={(v) => `Freq: ${parseFloat(v).toFixed(4)}`}
+          />
+          <Line
+            type="monotone"
+            dataKey="log_power"
+            stroke={C.teal}
+            strokeWidth={2}
+            dot={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+// ─── 15 · FFT Frequency Band Energy — Bar Chart ─────────────────────────────────
+const FFTFrequencyBandEnergy: React.FC<{ frame: FrameData }> = ({ frame }) => {
+  const qe = frame.fft_data?.quadrant_energy;
+  const data = qe
+    ? [
+        { name: "DC", value: qe.dc, fill: C.teal },
+        { name: "Low", value: qe.low, fill: C.green },
+        { name: "Mid", value: qe.mid, fill: C.amber },
+        { name: "High", value: qe.high, fill: C.red },
+      ]
+    : [
+        { name: "DC", value: 0, fill: C.teal },
+        { name: "Low", value: 0, fill: C.green },
+        { name: "Mid", value: 0, fill: C.amber },
+        { name: "High", value: 0, fill: C.red },
+      ];
+
+  const maxVal = Math.max(...data.map((d) => d.value), 1);
+
+  return (
+    <div style={{ height: 160 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ left: -10, right: 8 }}>
+          <XAxis dataKey="name" stroke="#444" fontSize={10} tickLine={false} />
+          <YAxis stroke="#444" fontSize={9} tickLine={false} />
+          <Tooltip
+            contentStyle={{
+              background: C.void,
+              border: `1px solid ${C.border}`,
+              fontSize: 11,
+            }}
+            formatter={(v: number) => [v.toFixed(2), "Energy"]}
+          />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+            {data.map((d, i) => (
+              <Cell key={i} fill={d.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+// ─── 16 · LIME Superpixel Importance — Horizontal Bar Chart ──────────────────────
+const LIMESuperpixelImportance: React.FC<{ frame: FrameData }> = ({ frame }) => {
+  const features = frame.lime_data?.features ?? [];
+  const sortedFeatures = [...features]
+    .sort((a, b) => Math.abs(b.abs_importance) - Math.abs(a.abs_importance))
+    .slice(0, 10);
+
+  const getColor = (dir: string) => {
+    if (dir === "fake") return C.red;
+    if (dir === "real") return C.green;
+    return "#666";
+  };
+
+  const maxAbs = Math.max(...sortedFeatures.map(f => f.abs_importance), 0.001);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {sortedFeatures.map((f, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: C.textMed,
+              width: 90,
+              flexShrink: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            SP {f.superpixel_id}
+          </span>
+          <div
+            style={{
+              flex: 1,
+              height: 8,
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${(Math.abs(f.abs_importance) / maxAbs) * 100}%`,
+                height: "100%",
+                background: getColor(f.direction),
+                borderRadius: 4,
+                transition: "width 1s ease",
+              }}
+            />
+          </div>
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: 10,
+              color: getColor(f.direction),
+              width: 45,
+              textAlign: "right",
+            }}
+          >
+            {f.abs_importance.toFixed(3)}
+          </span>
+        </div>
+      ))}
+      {sortedFeatures.length === 0 && (
+        <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>
+          No LIME features available
+        </p>
+      )}
+    </div>
+  );
+};
+
+// ─── 17 · LIME Fake vs Real Contribution — Donut Chart ───────────────────────
+const LIMEFakeRealDonut: React.FC<{ frame: FrameData }> = ({ frame }) => {
+  const features = frame.lime_data?.features ?? [];
+  const fakeSum = features
+    .filter((f) => f.direction === "fake")
+    .reduce((sum, f) => sum + Math.abs(f.abs_importance), 0);
+  const realSum = features
+    .filter((f) => f.direction === "real")
+    .reduce((sum, f) => sum + Math.abs(f.abs_importance), 0);
+  const neutralSum = features
+    .filter((f) => f.direction === "neutral")
+    .reduce((sum, f) => sum + Math.abs(f.abs_importance), 0);
+
+  const data = [
+    { name: "FAKE", value: fakeSum, fill: C.red },
+    { name: "REAL", value: realSum, fill: C.green },
+    { name: "NEUTRAL", value: neutralSum, fill: "#666" },
+  ].filter((d) => d.value > 0);
+
+  const total = fakeSum + realSum + neutralSum || 1;
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, height: 120 }}>
+      <div style={{ width: 120, height: 120 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical" margin={{ left: -15, right: 5 }}>
+            <XAxis type="number" hide />
+            <YAxis type="category" dataKey="name" stroke="#444" fontSize={9} width={55} />
+            <Tooltip
+              contentStyle={{
+                background: C.void,
+                border: `1px solid ${C.border}`,
+                fontSize: 10,
+              }}
+              formatter={(v: number) => [v.toFixed(3), "Contribution"]}
+            />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              {data.map((d, i) => (
+                <Cell key={i} fill={d.fill} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {data.map((d, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 2,
+                background: d.fill,
+              }}
+            />
+            <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>
+              {d.name}: {(d.value / total).toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── Tab Config ───────────────────────────────────────────────────────────────
 const TABS = [
   { id: "temporal", label: "Temporal", icon: "⏱" },
+  { id: "fft", label: "FFT Analysis", icon: "📊" },
+  { id: "lime", label: "LIME", icon: "🔍" },
   // { id: "facial", label: "Facial Artifacts", icon: "👁" },
   { id: "global", label: "Global / Comparative", icon: "🔬" },
   // { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
@@ -932,6 +1192,68 @@ const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
             subtitle="Each bar represents one frame's SHAP contribution to the final verdict. Red bars push toward FAKE; teal bars push toward REAL. Most granular frame-level causal attribution."
           >
             <SHAPTimeShap frame={frame} />
+          </TechCard>
+        </div>
+      )}
+
+      {/* ── FFT Analysis tab ───────────────────────────────────────────────── */}
+      {activeTab === "fft" && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 16,
+          }}
+        >
+          <TechCard
+            id="xai-fft-radial"
+            label="FFT Radial Profile — Frequency Distribution"
+            tag="14 · FFT"
+            accentColor={C.teal}
+            subtitle="Radial frequency profile extracted from 2D FFT analysis. Shows how spectral energy is distributed across angular directions."
+          >
+            <FFTRadialProfile frame={frame} />
+          </TechCard>
+
+          <TechCard
+            id="xai-fft-energy"
+            label="FFT Frequency Band Energy"
+            tag="15 · FFT"
+            accentColor={C.blue}
+            subtitle="Energy distribution across frequency bands: DC (constant), Low, Mid, and High frequency components."
+          >
+            <FFTFrequencyBandEnergy frame={frame} />
+          </TechCard>
+        </div>
+      )}
+
+      {/* ── LIME tab ──────────────────────────────────────────────────────────── */}
+      {activeTab === "lime" && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 16,
+          }}
+        >
+          <TechCard
+            id="xai-lime-superpixels"
+            label="LIME Superpixel Importance"
+            tag="16 · LIME"
+            accentColor={C.orange}
+            subtitle="Local Interpretable Model-agnostic Explanations. Top 10 superpixels sorted by absolute importance contribution."
+          >
+            <LIMESuperpixelImportance frame={frame} />
+          </TechCard>
+
+          <TechCard
+            id="xai-lime-donut"
+            label="LIME Fake vs Real Contribution"
+            tag="17 · LIME"
+            accentColor={C.purple}
+            subtitle="Aggregated contribution scores: fake (red), real (green), and neutral (grey) features."
+          >
+            <LIMEFakeRealDonut frame={frame} />
           </TechCard>
         </div>
       )}
