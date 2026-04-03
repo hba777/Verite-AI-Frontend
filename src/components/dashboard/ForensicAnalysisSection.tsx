@@ -119,7 +119,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
             </div>
             <div className="flex items-baseline gap-4">
               <h1 className="font-display text-4xl font-bold text-text-high">
-                Frame #{currentFrame.id}
+                Frame #{currentFrame.id + 1}
               </h1>
               <span className="font-mono text-xl text-text-med">
                 {currentFrame.timestamp}
