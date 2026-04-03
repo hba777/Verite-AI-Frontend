@@ -552,7 +552,6 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
             {/* Time Display */}
             <div
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "12px",
                 color: colors.textMed,
               }}
@@ -606,7 +605,6 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 position: "absolute",
                 top: "32px",
                 right: "32px",
-                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "12px",
                 color: colors.textHigh,
                 backgroundColor: "rgba(0,0,0,0.5)",
@@ -615,7 +613,7 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 zIndex: 10,
               }}
             >
-              <div>FRAME: {selectedFrame.id}</div>
+              <div>FRAME: {selectedFrame.id + 1}</div>
               <div>TIME: {selectedFrame.timestamp}</div>
               {selectedFrame.isAnomaly && (
                 <div style={{ color: colors.hyperRed, marginTop: "4px" }}>
