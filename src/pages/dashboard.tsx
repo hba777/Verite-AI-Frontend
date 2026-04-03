@@ -278,6 +278,9 @@ const Dashboard: React.FC = () => {
                       detail: {
                         frameIndex: xaiFrameIndex,
                         gradcam_b64: gradcamB64,
+                        ela_b64: elaB64,
+                        fft_data: fftData,
+                        lime_data: limeData,
                         task_id: jsonData.task_id,
                       },
                     });
