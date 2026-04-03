@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import IngestionHub from "@/components/dashboard/IngestionHub";
 import AnalysisDashboard from "@/components/dashboard/AnalysisDashboard";
 import ImageResult from "@/components/dashboard/ImageResult";
-import { AppState, FrameData } from "@/types";
+import AudioResult from "@/components/dashboard/AudioResult";
+import { AppState, FrameData, AudioAnalysisResult } from "@/types";
 import { useUser } from "../context/UserContext";
 
 const Dashboard: React.FC = () => {
@@ -26,6 +27,13 @@ const Dashboard: React.FC = () => {
   const [imageFrame, setImageFrame] = useState<FrameData | null>(null);
   const [imageTaskId, setImageTaskId] = useState<string>("");
   const [isImageProcessing, setIsImageProcessing] = useState(false);
+
+  // Audio processing states
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioObjectUrl, setAudioObjectUrl] = useState<string | null>(null);
+  const [audioResult, setAudioResult] = useState<AudioAnalysisResult | null>(null);
+  const [isAudioProcessing, setIsAudioProcessing] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   // Generate mock frames for demo/initial state
   const generateMockFrames = useCallback((): FrameData[] => {
@@ -524,6 +532,48 @@ const Dashboard: React.FC = () => {
         console.error("Image upload failed:", error);
         setIsImageProcessing(false);
       }
+    } else if (file.type.startsWith('audio/')) {
+      // ── Audio processing — synchronous REST POST ──────────────────────────
+      try {
+        setAudioFile(file);
+        setAudioResult(null);
+        setAudioError(null);
+        setIsAudioProcessing(true);
+        // Option A: create a local object URL for HTML5 audio playback
+        if (audioObjectUrl) URL.revokeObjectURL(audioObjectUrl);
+        setAudioObjectUrl(URL.createObjectURL(file));
+
+        const formData = new FormData();
+        formData.append("audio", file);
+
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/audio/analyze`,
+          {
+            method: "POST",
+            headers,
+            body: formData,
+          },
+        );
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Audio analysis failed (${res.status}): ${errText}`);
+        }
+
+        const data: AudioAnalysisResult = await res.json();
+        console.log("[Audio] Analysis result:", data);
+        setAudioResult(data);
+        setIsAudioProcessing(false);
+      } catch (error: any) {
+        console.error("[Audio] Upload/analysis failed:", error);
+        setAudioError(error?.message ?? "Unknown error during audio analysis");
+        setIsAudioProcessing(false);
+      }
     }
   };
 
@@ -572,7 +622,32 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="font-sans text-text-high antialiased">
-      {isImageProcessing ? (
+      {/* ── Audio: loading spinner ────────────────────────────────────────── */}
+      {isAudioProcessing ? (
+        <div className="flex items-center justify-center min-h-screen bg-black">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto"></div>
+            <p className="mt-4 text-white text-xl">Analysing audio — running WavLM + XAI…</p>
+            <p className="mt-2 text-gray-500 text-sm">This may take 20–60 seconds</p>
+          </div>
+        </div>
+      ) : audioError ? (
+        /* ── Audio: error state ───────────────────────────────────────────── */
+        <div className="flex flex-col items-center justify-center min-h-screen bg-black gap-6">
+          <p className="text-red-400 text-lg font-mono">Audio analysis failed</p>
+          <p className="text-gray-500 text-sm max-w-md text-center">{audioError}</p>
+          <button
+            onClick={() => { setAudioError(null); setAudioFile(null); }}
+            className="px-6 py-2 rounded-lg border border-cyan-500 text-cyan-400 text-sm hover:bg-cyan-500 hover:text-black transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : audioResult && audioFile ? (
+        /* ── Audio: results page ─────────────────────────────────────────── */
+        <AudioResult result={audioResult} fileName={audioFile.name} audioObjectUrl={audioObjectUrl ?? undefined} />
+      ) : isImageProcessing ? (
+        /* ── Image: loading spinner ──────────────────────────────────────── */
         <div className="flex items-center justify-center min-h-screen bg-black">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white mx-auto"></div>

@@ -9,6 +9,13 @@ export enum View {
   ADMIN = "ADMIN",
 }
 
+/** Distinguishes which media pipeline is active in the dashboard. */
+export enum MediaType {
+  VIDEO = "video",
+  IMAGE = "image",
+  AUDIO = "audio",
+}
+
 export interface FrameData {
   id: number;
   timestamp: string; // e.g., "00:34:12"
@@ -92,3 +99,31 @@ export interface AnalysisDashboardProps {
   videoUrl?: string;
   taskId?: string;
 }
+
+/** STFT spectrogram payload from the backend */
+export interface StftData {
+  matrix: number[][];   // [freq_bins][time_frames] — dB values
+  times:  number[];     // time axis in seconds
+  freqs:  number[];     // frequency axis in Hz
+  db_min: number;
+  db_max: number;
+}
+
+/** Full synchronous response from POST /audio/analyze */
+export interface AudioAnalysisResult {
+  verdict:           "FAKE" | "REAL";
+  is_fake:           boolean;
+  confidence:        number;   // 0–100
+  fake_prob:         number;   // 0–1
+  real_prob:         number;   // 0–1
+  duration_seconds:  number;
+
+  // Canvas data layers
+  waveform_samples:  number[];        // ~2 000 downsampled amplitude points
+  stft?:             StftData;        // STFT spectrogram
+
+  // XAI score vectors (one float per STFT time-frame)
+  ig_scores?:        number[];        // Integrated Gradients
+  shap_scores?:      number[];        // SHAP KernelExplainer
+}
+

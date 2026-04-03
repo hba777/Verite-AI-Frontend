@@ -17,11 +17,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <main className={openSans.className}>
       <UserProvider>
-        <>
+        <div className={router.pathname !== "/" ? "pt-14" : ""}>
           {router.pathname !== "/" && <Header isVisible={true} isAtTop={false} />} 
           <Component {...pageProps} />
           <Footer />
-        </>
+        </div>
       </UserProvider>
     </main>
   );
