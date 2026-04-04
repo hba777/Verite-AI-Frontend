@@ -7,7 +7,7 @@ import { AppState, FrameData, AudioAnalysisResult } from "@/types";
 import { useUser } from "../context/UserContext";
 
 const Dashboard: React.FC = () => {
-  const { token } = useUser();
+  const { token, user } = useUser();
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [frames, setFrames] = useState<FrameData[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -132,6 +132,7 @@ const Dashboard: React.FC = () => {
             JSON.stringify({
               task_id: taskId,
               video_duration: videoDuration,
+              user_id: user?.id,
             }),
           );
           setStatus("Connected, ready to upload...");
@@ -412,6 +413,7 @@ const Dashboard: React.FC = () => {
             JSON.stringify({
               task_id: taskId,
               file_type: "image",
+              user_id: user?.id,
             }),
           );
         };
