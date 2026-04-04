@@ -11,12 +11,19 @@ import {
 } from "recharts";
 import { AdminStats } from "../../types";
 import { getAdminStats } from "../../services/adminDashboardapi";
+import { useUser } from "../../context/UserContext";
 
 const AdminDashboard: React.FC = () => {
+  const { user } = useUser();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
+    if (!user || user.role !== 'admin') {
+      // Don't fetch if not logged in or not admin
+      return;
+    }
+
     const fetchStats = async () => {
       try {
         const data = await getAdminStats();
@@ -44,7 +51,15 @@ const AdminDashboard: React.FC = () => {
       }
     };
     fetchStats();
-  }, []);
+  }, [user]);
+
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="p-20 text-center font-mono text-red-400">
+        ACCESS DENIED: ADMIN PRIVILEGES REQUIRED
+      </div>
+    );
+  }
 
   if (!stats)
     return (
