@@ -10,70 +10,40 @@ import {
   Area,
 } from "recharts";
 import { AdminStats } from "../../types";
+import { getAdminStats } from "../../services/adminDashboardapi";
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const mockData: AdminStats = {
-      totalUploads: 14202,
-      anomaliesFound: 842,
-      activeUsers: 124,
-      systemHealth: 98,
-      recentUploads: [
-        {
-          id: "TX-904",
-          user: "Investigator_Alpha",
-          filename: "deepfake_test_01.mp4",
-          timestamp: "2 mins ago",
-          status: "Malicious",
-          size: "124 MB",
-        },
-        {
-          id: "TX-903",
-          user: "Sentinel_Bot",
-          filename: "cctv_feed_104.avi",
-          timestamp: "14 mins ago",
-          status: "Clean",
-          size: "890 MB",
-        },
-        {
-          id: "TX-902",
-          user: "Analyst_J",
-          filename: "interview_raw.mov",
-          timestamp: "1 hour ago",
-          status: "Clean",
-          size: "2.4 GB",
-        },
-        {
-          id: "TX-901",
-          user: "Investigator_Beta",
-          filename: "social_media_clip.mp4",
-          timestamp: "3 hours ago",
-          status: "Clean",
-          size: "12 MB",
-        },
-        {
-          id: "TX-900",
-          user: "Root",
-          filename: "training_data_batch.zip",
-          timestamp: "5 hours ago",
-          status: "Clean",
-          size: "14.2 GB",
-        },
-      ],
-      trends: [
-        { date: "Mon", uploads: 400, anomalies: 24 },
-        { date: "Tue", uploads: 300, anomalies: 18 },
-        { date: "Wed", uploads: 600, anomalies: 45 },
-        { date: "Thu", uploads: 800, anomalies: 72 },
-        { date: "Fri", uploads: 500, anomalies: 30 },
-        { date: "Sat", uploads: 900, anomalies: 112 },
-        { date: "Sun", uploads: 700, anomalies: 65 },
-      ],
+    const fetchStats = async () => {
+      try {
+        const data = await getAdminStats();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch admin stats:', error);
+        // Fallback to mock data if API fails
+        const mockData: AdminStats = {
+          totalUploads: 0,
+          anomaliesFound: 0,
+          activeUsers: 0,
+          systemHealth: 98,
+          recentUploads: [],
+          trends: [
+            { date: "Mon", uploads: 0, anomalies: 0 },
+            { date: "Tue", uploads: 0, anomalies: 0 },
+            { date: "Wed", uploads: 0, anomalies: 0 },
+            { date: "Thu", uploads: 0, anomalies: 0 },
+            { date: "Fri", uploads: 0, anomalies: 0 },
+            { date: "Sat", uploads: 0, anomalies: 0 },
+            { date: "Sun", uploads: 0, anomalies: 0 },
+          ],
+        };
+        setStats(mockData);
+      }
     };
-    setStats(mockData);
+    fetchStats();
   }, []);
 
   if (!stats)
