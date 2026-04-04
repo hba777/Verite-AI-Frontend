@@ -48,6 +48,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     if (t) {
       const decoded = decodeJwt(t);
+      console.log("decoded", decoded);
       setUser({ id: decoded?.id ?? null, username: decoded?.sub ?? null, role: decoded?.role ?? null, email: decoded?.email ?? null });
     } else {
       setUser(null);

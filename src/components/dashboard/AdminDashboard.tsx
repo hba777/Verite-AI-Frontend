@@ -10,16 +10,19 @@ import {
   Area,
 } from "recharts";
 import { AdminStats } from "../../types";
+import { getAdminStats } from "../../services/adminDashboardapi";
+import { useUser } from "../../context/UserContext";
 
 const AdminDashboard: React.FC = () => {
+  const { user } = useUser();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const mockData: AdminStats = {
-      totalUploads: 167,
-      anomaliesFound: 42,
-      activeUsers: 4,
+      totalUploads: 14202,
+      anomaliesFound: 842,
+      activeUsers: 124,
       systemHealth: 98,
       recentUploads: [
         {
