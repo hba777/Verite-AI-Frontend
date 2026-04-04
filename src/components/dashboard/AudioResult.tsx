@@ -3,7 +3,7 @@ import { AudioAnalysisResult } from "@/types";
 import AudioSpectrogramCanvas from "./AudioSpectrogramCanvas";
 import {
   ShieldCheck, AlertTriangle, Activity,
-  Wand2, BarChart2, Play, Pause, Layers, CircleDot
+  Wand2, BarChart2, Play, Pause, Layers, CircleDot, FileDown
 } from "lucide-react";
 
 interface AudioResultProps {
@@ -36,6 +36,7 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
   const [playing, setPlaying] = useState(false);
   const [activeXai, setActiveXai] = useState<XaiTab>("ig");
   const [currentTime, setCurrentTime] = useState(0);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const togglePlay = useCallback(() => {
     const el = audioRef.current;
@@ -60,6 +61,71 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
     const sec = Math.floor(s % 60).toString().padStart(2, "0");
     const ms = Math.floor((s % 1) * 100).toString().padStart(2, "0");
     return `${min}:${sec}:${ms}`;
+  };
+
+  const handleDownloadReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            case_id: `CASE-${Date.now()}`,
+            module_type: "audio",
+            executive_summary: isFake
+              ? `WavLM feature extractor detected significant acoustic artifacts consistent with AI-generated audio or voice cloning. The classifier output indicates a ${(result.fake_prob * 100).toFixed(1)}% probability of synthetic generation.`
+              : `WavLM analysis found the acoustic profile to be consistent with natural human speech recordings. The classifier output indicates a ${(result.real_prob * 100).toFixed(1)}% probability of authentic audio.`,
+            audio_data: {
+              task_id: "",
+              file_name: fileName,
+              duration_seconds: result.duration_seconds,
+              verdict: isFake ? "FAKE" : "REAL",
+              is_fake: isFake,
+              confidence: result.confidence,
+              fake_prob: result.fake_prob,
+              real_prob: result.real_prob,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to generate report: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("Report generated:", data);
+      
+      const filename = data.file_path.split(/[\\/]/).pop();
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
+      console.log("Download URL:", downloadUrl);
+      
+      // Use fetch to download the file directly
+      const downloadResponse = await fetch(downloadUrl);
+      if (!downloadResponse.ok) {
+        throw new Error(`Failed to download: ${downloadResponse.status}`);
+      }
+      
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      alert("Failed to generate report. Please try again.");
+    } finally {
+      setIsGeneratingReport(false);
+    }
   };
 
   const isFake = result.is_fake;
@@ -127,6 +193,16 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
                 />
               </svg>
             </div>
+            <button
+              onClick={handleDownloadReport}
+              disabled={isGeneratingReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-electric-teal/20 border border-electric-teal/50 text-electric-teal hover:bg-electric-teal/30 transition-colors disabled:opacity-50"
+            >
+              <FileDown className="w-4 h-4" />
+              <span className="text-sm font-mono uppercase whitespace-nowrap">
+                {isGeneratingReport ? "Generating..." : "PDF"}
+              </span>
+            </button>
           </div>
         </div>
 

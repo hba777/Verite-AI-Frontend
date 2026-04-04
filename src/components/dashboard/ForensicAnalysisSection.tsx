@@ -6,6 +6,7 @@ import {
   Layers,
   X,
   FlaskConical,
+  FileDown,
 } from "lucide-react";
 import { FrameData, HeatmapConfig } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
@@ -35,6 +36,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
     opacity: 75,
   });
   const [viewMode, setViewMode] = useState<"heatmap" | "ela" | "gradcam">("heatmap");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   
   // Local state for frame data to support live updates from XAI results
   const [currentFrame, setCurrentFrame] = useState<FrameData>(frame);
@@ -89,6 +91,99 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   };
 
   const aiSummary = generateForensicSummary(currentFrame);
+
+  const handleDownloadReport = async () => {
+    console.log("Download button clicked, taskId:", taskId);
+    console.log("Current frame data:", {
+      isAnomaly: currentFrame.isAnomaly,
+      confidenceScore: currentFrame.confidenceScore,
+      fake_prob: currentFrame.fake_prob,
+      real_prob: currentFrame.real_prob,
+      anomalyType: currentFrame.anomalyType,
+    });
+    console.log("AI Summary:", aiSummary);
+    
+    // Even without taskId, we can generate a report based on frame data
+    // taskId is optional for the API
+    const effectiveTaskId = taskId || "offline-session";
+
+    setIsGeneratingReport(true);
+    try {
+      console.log("Calling report generate API...");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            case_id: `CASE-${Date.now()}`,
+            module_type: "video",
+            executive_summary: aiSummary,
+            video_data: {
+              task_id: effectiveTaskId,
+              file_name: "Video Analysis",
+              total_frames: 1,
+              duration_seconds: 0,
+              verdict: currentFrame.isAnomaly ? "FAKE" : "REAL",
+              is_fake: currentFrame.isAnomaly,
+              confidence: currentFrame.confidenceScore,
+              fake_prob: currentFrame.fake_prob ?? 0.5,
+              real_prob: currentFrame.real_prob ?? 0.5,
+              anomaly_frames: currentFrame.isAnomaly ? [currentFrame.id] : [],
+              detected_type: currentFrame.anomalyType,
+            },
+          }),
+        }
+      );
+
+      console.log("API response status:", response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API error response:", errorText);
+        throw new Error(`Failed to generate report: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("Report generated:", data);
+      
+      if (!data.file_path) {
+        throw new Error("No file path returned from API");
+      }
+      
+      // Extract just the filename from the path
+      const filename = data.file_path.split(/[\\/]/).pop();
+      if (!filename) {
+        throw new Error("Could not extract filename from path");
+      }
+      
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
+      console.log("Download URL:", downloadUrl);
+      
+      // Use fetch to download the file directly
+      const downloadResponse = await fetch(downloadUrl);
+      if (!downloadResponse.ok) {
+        throw new Error(`Failed to download: ${downloadResponse.status}`);
+      }
+      
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      console.log("Download completed successfully");
+    } catch (error) {
+      console.error("Error generating report:", error);
+      alert(`Failed to generate report: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
 
   // Generate frequency data based on real probability
   const fakeProb = currentFrame.fake_prob ?? (currentFrame.isAnomaly ? 0.85 : 0.15);
@@ -159,6 +254,16 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 />
               </svg>
             </div>
+            <button
+              onClick={handleDownloadReport}
+              disabled={isGeneratingReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-electric-teal/20 border border-electric-teal/50 text-electric-teal hover:bg-electric-teal/30 transition-colors disabled:opacity-50"
+            >
+              <FileDown className="w-4 h-4" />
+              <span className="text-sm font-mono uppercase">
+                {isGeneratingReport ? "Generating..." : "Download PDF"}
+              </span>
+            </button>
           </div>
         </div>
 

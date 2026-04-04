@@ -17,9 +17,9 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const mockData: AdminStats = {
-      totalUploads: 14202,
-      anomaliesFound: 842,
-      activeUsers: 124,
+      totalUploads: 167,
+      anomaliesFound: 42,
+      activeUsers: 4,
       systemHealth: 98,
       recentUploads: [
         {
