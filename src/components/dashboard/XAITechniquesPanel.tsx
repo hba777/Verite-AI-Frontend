@@ -1094,7 +1094,7 @@ const TABS = [
   { id: "fft", label: "FFT Analysis", icon: "📊" },
   { id: "lime", label: "LIME", icon: "🔍" },
   // { id: "facial", label: "Facial Artifacts", icon: "👁" },
-  { id: "global", label: "Global / Comparative", icon: "🔬" },
+  // { id: "global", label: "Global / Comparative", icon: "🔬" },
   // { id: "multimodal", label: "Multi-Modal",         icon: "🔊" },
 ];
 
