@@ -9,8 +9,9 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { AdminStats } from "../../types";
+import { AdminStats, AudioAnalysis } from "../../types";
 import { getAdminStats } from "../../services/adminDashboardapi";
+import { fetchAudioHistory } from "../../services/videoApi";
 import { useUser } from "../../context/UserContext";
 
 const AdminDashboard: React.FC = () => {
@@ -20,6 +21,9 @@ const AdminDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPeriod, setSelectedPeriod] = useState("7D");
   const itemsPerPage = 10;
+  const [audios, setAudios] = useState<AudioAnalysis[]>([]);
+  const [audioCurrentPage, setAudioCurrentPage] = useState(1);
+  const audioItemsPerPage = 10;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -60,6 +64,21 @@ const AdminDashboard: React.FC = () => {
     fetchStats();
   }, [user, selectedPeriod]);
 
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return;
+
+    const fetchAudio = async () => {
+      try {
+        const audioData = await fetchAudioHistory();
+        setAudios(audioData.audio_analyses || []);
+      } catch (error) {
+        console.error('Failed to fetch audio history:', error);
+        setAudios([]);
+      }
+    };
+    fetchAudio();
+  }, [user]);
+
   if (!user || user.role !== 'admin') {
     return (
       <div className="p-20 text-center font-mono text-red-400">
@@ -93,6 +112,22 @@ const AdminDashboard: React.FC = () => {
 
   const handlePageClick = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const audioTotalPages = Math.ceil(audios.length / audioItemsPerPage);
+  const audioStartIndex = (audioCurrentPage - 1) * audioItemsPerPage;
+  const paginatedAudios = audios.slice(audioStartIndex, audioStartIndex + audioItemsPerPage);
+
+  const handleAudioPrevious = () => {
+    if (audioCurrentPage > 1) setAudioCurrentPage(audioCurrentPage - 1);
+  };
+
+  const handleAudioNext = () => {
+    if (audioCurrentPage < audioTotalPages) setAudioCurrentPage(audioCurrentPage + 1);
+  };
+
+  const handleAudioPageClick = (page: number) => {
+    setAudioCurrentPage(page);
   };
 
   // Reset to page 1 when search changes
@@ -287,6 +322,90 @@ const AdminDashboard: React.FC = () => {
             <button
               onClick={handleNext}
               disabled={currentPage === totalPages}
+              className="hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              NEXT
+              <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Audio Table Section */}
+      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+        <div className="px-8 py-6 border-b border-white/10">
+          <h3 className="font-semibold text-white">Audio Analysis Ledger</h3>
+        </div>
+
+        <table className="w-full text-left">
+          <thead className="bg-white/5 text-xs text-gray-400 uppercase border-b border-white/10">
+            <tr>
+              <th className="px-8 py-4">User</th>
+              <th className="px-8 py-4">Filename</th>
+              <th className="px-8 py-4">Analysis Time</th>
+              <th className="px-8 py-4">Verdict</th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-white/5">
+            {paginatedAudios.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-8 py-5 text-center text-gray-500">
+                  No audio analyses found
+                </td>
+              </tr>
+            ) : (
+              paginatedAudios.map(audio => (
+                <tr key={audio.analysis_id} className="hover:bg-white/[0.03]">
+                  <td className="px-8 py-5 text-sm text-white">{(audio.audio_file as any).user?.username || 'N/A'}</td>
+                  <td className="px-8 py-5 text-sm text-gray-400 truncate max-w-xs">{audio.audio_file.filename}</td>
+                  <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time || 'N/A'}</td>
+                  <td className="px-8 py-5">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        audio.verdict === 'FAKE'
+                          ? "bg-red-400/10 text-red-400 border border-red-400/20"
+                          : "bg-green-400/10 text-green-400 border border-green-400/20"
+                      }`}
+                    >
+                      {audio.verdict}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        <div className="px-8 py-4 border-t border-white/10 flex justify-between text-xs text-gray-400">
+          <span>
+            SHOWING {paginatedAudios.length} OF {audios.length} RECORDS (PAGE {audioCurrentPage} OF {audioTotalPages})
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAudioPrevious}
+              disabled={audioCurrentPage === 1}
+              className="hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft className="w-3 h-3" />
+              PREV
+            </button>
+            {Array.from({ length: audioTotalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handleAudioPageClick(page)}
+                className={`px-2 py-1 rounded text-xs ${
+                  page === audioCurrentPage
+                    ? "bg-white/10 text-white"
+                    : "hover:text-white"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={handleAudioNext}
+              disabled={audioCurrentPage === audioTotalPages}
               className="hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
             >
               NEXT
