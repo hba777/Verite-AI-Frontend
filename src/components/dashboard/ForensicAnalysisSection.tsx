@@ -93,92 +93,80 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   const aiSummary = generateForensicSummary(currentFrame);
 
   const handleDownloadReport = async () => {
-    console.log("Download button clicked, taskId:", taskId);
-    console.log("Current frame data:", {
-      isAnomaly: currentFrame.isAnomaly,
-      confidenceScore: currentFrame.confidenceScore,
-      fake_prob: currentFrame.fake_prob,
-      real_prob: currentFrame.real_prob,
-      anomalyType: currentFrame.anomalyType,
-    });
-    console.log("AI Summary:", aiSummary);
-    
-    // Even without taskId, we can generate a report based on frame data
-    // taskId is optional for the API
+    console.log("[VideoReport] Download triggered, frame:", currentFrame.id, "taskId:", taskId);
     const effectiveTaskId = taskId || "offline-session";
-
     setIsGeneratingReport(true);
+
+    // Helper: strip data URI prefix so backend receives raw base64
+    const stripDataUri = (s?: string | null) =>
+      s?.startsWith("data:") ? s.split(",")[1] : (s ?? null);
+
     try {
-      console.log("Calling report generate API...");
+      const body = {
+        case_id: `CASE-${Date.now()}`,
+        module_type: "video",
+        executive_summary: aiSummary,
+        video_data: {
+          task_id:          effectiveTaskId,
+          file_name:        "Video Analysis",
+          total_frames:     1,
+          duration_seconds: 0,
+          verdict:          currentFrame.isAnomaly ? "FAKE" : "REAL",
+          is_fake:          currentFrame.isAnomaly,
+          confidence:       currentFrame.confidenceScore,
+          fake_prob:        currentFrame.fake_prob   ?? 0.5,
+          real_prob:        currentFrame.real_prob   ?? 0.5,
+          anomaly_count:    currentFrame.isAnomaly ? 1 : 0,
+          detected_type:    currentFrame.anomalyType ?? null,
+        },
+        // Embed real frame image + GradCAM so the PDF renders them side-by-side
+        flagged_frames: currentFrame.isAnomaly
+          ? [
+              {
+                frame_index:  currentFrame.id,
+                timestamp:    currentFrame.timestamp,
+                is_anomaly:   true,
+                confidence:   currentFrame.confidenceScore,
+                fake_prob:    currentFrame.fake_prob   ?? 0.5,
+                real_prob:    currentFrame.real_prob   ?? 0.5,
+                anomaly_type: currentFrame.anomalyType ?? "GenD Deepfake",
+                frame_data:   stripDataUri(currentFrame.thumbnailUrl),
+                gradcam_b64:  stripDataUri(currentFrame.gradcam_b64),
+                ela_b64:      stripDataUri(currentFrame.ela_b64),
+              },
+            ]
+          : [],
+      };
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            case_id: `CASE-${Date.now()}`,
-            module_type: "video",
-            executive_summary: aiSummary,
-            video_data: {
-              task_id: effectiveTaskId,
-              file_name: "Video Analysis",
-              total_frames: 1,
-              duration_seconds: 0,
-              verdict: currentFrame.isAnomaly ? "FAKE" : "REAL",
-              is_fake: currentFrame.isAnomaly,
-              confidence: currentFrame.confidenceScore,
-              fake_prob: currentFrame.fake_prob ?? 0.5,
-              real_prob: currentFrame.real_prob ?? 0.5,
-              anomaly_frames: currentFrame.isAnomaly ? [currentFrame.id] : [],
-              detected_type: currentFrame.anomalyType,
-            },
-          }),
-        }
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
       );
 
-      console.log("API response status:", response.status);
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API error response:", errorText);
-        throw new Error(`Failed to generate report: ${response.status} - ${errorText}`);
+        const err = await response.text();
+        throw new Error(`Report generation failed (${response.status}): ${err}`);
       }
 
       const data = await response.json();
-      console.log("Report generated:", data);
-      
-      if (!data.file_path) {
-        throw new Error("No file path returned from API");
-      }
-      
-      // Extract just the filename from the path
-      const filename = data.file_path.split(/[\\/]/).pop();
-      if (!filename) {
-        throw new Error("Could not extract filename from path");
-      }
-      
+      if (!data.file_path) throw new Error("No file_path in response");
+
+      const filename    = data.file_path.split(/[\\\/]/).pop()!;
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
-      console.log("Download URL:", downloadUrl);
-      
-      // Use fetch to download the file directly
-      const downloadResponse = await fetch(downloadUrl);
-      if (!downloadResponse.ok) {
-        throw new Error(`Failed to download: ${downloadResponse.status}`);
-      }
-      
-      const blob = await downloadResponse.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
+
+      const dlRes = await fetch(downloadUrl);
+      if (!dlRes.ok) throw new Error(`Download failed (${dlRes.status})`);
+
+      const blob = await dlRes.blob();
+      const url  = window.URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement("a"), { href: url, download: filename });
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      console.log("Download completed successfully");
+      console.log("[VideoReport] ✅ Downloaded:", filename);
     } catch (error) {
-      console.error("Error generating report:", error);
+      console.error("[VideoReport] Error:", error);
       alert(`Failed to generate report: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setIsGeneratingReport(false);
