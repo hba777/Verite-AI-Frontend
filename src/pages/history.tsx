@@ -75,8 +75,8 @@ const History = () => {
                   <tr key={video.task_id} className="hover:bg-white/[0.03]">
                     <td className="px-8 py-5 text-sm text-white font-mono">{video.task_id}</td>
                     <td className="px-8 py-5 text-sm text-gray-400 truncate max-w-xs">{video.video_path}</td>
-                    <td className="px-8 py-5 text-sm text-gray-400">{video.created_at || 'N/A'}</td>
-                    <td className="px-8 py-5 text-sm text-gray-400">{video.completed_at || 'N/A'}</td>
+                    <td className="px-8 py-5 text-sm text-gray-400">{video.created_at ? new Date(video.created_at).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
+                    <td className="px-8 py-5 text-sm text-gray-400">{video.completed_at ? new Date(video.completed_at).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
                     <td className="px-8 py-5">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -169,8 +169,8 @@ const History = () => {
                     <td className="px-8 py-5 text-sm text-gray-400">{audio.fake_prob.toFixed(4)}</td>
                     <td className="px-8 py-5 text-sm text-gray-400">{audio.real_prob.toFixed(4)}</td>
                     <td className="px-8 py-5 text-sm text-gray-400">{audio.duration_seconds.toFixed(2)}</td>
-                    <td className="px-8 py-5 text-sm text-gray-400">{audio.audio_file.upload_time || 'N/A'}</td>
-                    <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time || 'N/A'}</td>
+                    <td className="px-8 py-5 text-sm text-gray-400">{audio.audio_file.upload_time ? new Date(audio.audio_file.upload_time).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
+                    <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time ? new Date(audio.analysis_time).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
                   </tr>
                 ))
               )}
