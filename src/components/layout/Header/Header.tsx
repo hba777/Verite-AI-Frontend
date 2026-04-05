@@ -110,9 +110,15 @@ const Header = ({
                     </summary>
                     <div className="absolute right-0 mt-2 w-44 rounded-lg border border-white/10 bg-black/90 text-white shadow-lg">
                       <button
+                        onClick={() => router.push('/history')}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                      >
+                        View History
+                      </button>
+                      <button
                         onClick={async () => {
                           await logout();
-                          router.back();
+                          router.push('/');
                         }}
                         className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
                       >

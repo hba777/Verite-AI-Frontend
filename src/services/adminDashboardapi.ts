@@ -1,30 +1,27 @@
-import axios from 'axios';
+import api from '../lib/api';
 import { AdminStats } from '../types';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
     // Get total users
-    const usersRes = await axios.get(`${API_BASE}/users/test/count`);
+    const usersRes = await api.get('/users/count');
     const totalUsers = usersRes.data.total_users;
 
     // Get total anomalies
-    const anomaliesRes = await axios.get(`${API_BASE}/video/test/anomalies/count`);
+    const anomaliesRes = await api.get('/video/anomalies/count');
     const totalAnomalies = anomaliesRes.data.total_anomalies;
 
-    // Get all videos for recent uploads
-    const videosRes = await axios.get(`${API_BASE}/video/test/all`);
+    // Get all videos for uploads
+    const videosRes = await api.get('/video/all');
     const videos = videosRes.data.videos;
 
-    // Map recent uploads (last 5)
-    const recentUploads = videos.slice(-5).map((video: any) => ({
+    // Map all uploads
+    const recentUploads = videos.map((video: any) => ({
       id: video.task_id,
       user: video.user.username,
       filename: video.video_path.split('/').pop() || video.video_path,
       timestamp: new Date(video.created_at).toLocaleString(),
-      status: video.has_anomalies ? 'Malicious' as const : video.status === 'completed' ? 'Clean' as const : 'Suspicious' as const,
-      size: 'Unknown', // Not stored
+      status: video.has_anomalies ? 'Malicious' as const : 'Clean' as const, size: 'Unknown', // Not stored
     }));
 
     // Mock trends for now
