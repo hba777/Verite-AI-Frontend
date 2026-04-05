@@ -864,8 +864,17 @@ const FFTRadialProfile: React.FC<{ frame: FrameData }> = ({ frame }) => {
 
   if (data.length === 0) {
     return (
-      <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>No FFT radial profile data</p>
+      <div
+        style={{
+          height: 160,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>
+          No FFT radial profile data
+        </p>
       </div>
     );
   }
@@ -875,10 +884,10 @@ const FFTRadialProfile: React.FC<{ frame: FrameData }> = ({ frame }) => {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ left: -10, right: 8 }}>
           <CartesianGrid stroke="#1a1a1a" strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="frequency" 
-            stroke="#444" 
-            fontSize={9} 
+          <XAxis
+            dataKey="frequency"
+            stroke="#444"
+            fontSize={9}
             tickLine={false}
             tickFormatter={(v) => `${(v * 1000).toFixed(1)}`}
           />
@@ -950,7 +959,9 @@ const FFTFrequencyBandEnergy: React.FC<{ frame: FrameData }> = ({ frame }) => {
 };
 
 // ─── 16 · LIME Superpixel Importance — Horizontal Bar Chart ──────────────────────
-const LIMESuperpixelImportance: React.FC<{ frame: FrameData }> = ({ frame }) => {
+const LIMESuperpixelImportance: React.FC<{ frame: FrameData }> = ({
+  frame,
+}) => {
   const features = frame.lime_data?.features ?? [];
   const sortedFeatures = [...features]
     .sort((a, b) => Math.abs(b.abs_importance) - Math.abs(a.abs_importance))
@@ -962,7 +973,10 @@ const LIMESuperpixelImportance: React.FC<{ frame: FrameData }> = ({ frame }) => 
     return "#666";
   };
 
-  const maxAbs = Math.max(...sortedFeatures.map(f => f.abs_importance), 0.001);
+  const maxAbs = Math.max(
+    ...sortedFeatures.map((f) => f.abs_importance),
+    0.001,
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1045,12 +1059,24 @@ const LIMEFakeRealDonut: React.FC<{ frame: FrameData }> = ({ frame }) => {
   const total = fakeSum + realSum + neutralSum || 1;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 16, height: 120 }}>
+    <div
+      style={{ display: "flex", alignItems: "center", gap: 16, height: 120 }}
+    >
       <div style={{ width: 120, height: 120 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: -15, right: 5 }}>
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ left: -15, right: 5 }}
+          >
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="name" stroke="#444" fontSize={9} width={55} />
+            <YAxis
+              type="category"
+              dataKey="name"
+              stroke="#444"
+              fontSize={9}
+              width={55}
+            />
             <Tooltip
               contentStyle={{
                 background: C.void,
@@ -1069,7 +1095,10 @@ const LIMEFakeRealDonut: React.FC<{ frame: FrameData }> = ({ frame }) => {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {data.map((d, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            key={i}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
             <div
               style={{
                 width: 8,
@@ -1078,7 +1107,13 @@ const LIMEFakeRealDonut: React.FC<{ frame: FrameData }> = ({ frame }) => {
                 background: d.fill,
               }}
             />
-            <span style={{ fontFamily: "monospace", fontSize: 10, color: C.textMed }}>
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: 10,
+                color: C.textMed,
+              }}
+            >
               {d.name}: {(d.value / total).toFixed(1)}%
             </span>
           </div>
@@ -1090,7 +1125,7 @@ const LIMEFakeRealDonut: React.FC<{ frame: FrameData }> = ({ frame }) => {
 
 // ─── Tab Config ───────────────────────────────────────────────────────────────
 const TABS = [
-  { id: "temporal", label: "Temporal", icon: "⏱" },
+  // { id: "temporal", label: "Temporal", icon: "⏱" },
   { id: "fft", label: "FFT Analysis", icon: "📊" },
   { id: "lime", label: "LIME", icon: "🔍" },
   // { id: "facial", label: "Facial Artifacts", icon: "👁" },
@@ -1100,7 +1135,7 @@ const TABS = [
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
-  const [activeTab, setActiveTab] = useState("temporal");
+  const [activeTab, setActiveTab] = useState("fft");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
