@@ -124,7 +124,7 @@ const Dashboard: React.FC = () => {
         setFrames([]);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
         wsRef.current = ws;
         ws.binaryType = "arraybuffer";
 
@@ -265,6 +265,7 @@ const Dashboard: React.FC = () => {
                   const elaB64 = jsonData.ela_b64;
                   const fftData = jsonData.fft_data;
                   const limeData = jsonData.lime_data;
+                  const llmAnalysis = jsonData.llm_analysis;
 
                   setFrames((prev) => {
                     const updated = [...prev];
@@ -275,6 +276,7 @@ const Dashboard: React.FC = () => {
                         ela_b64: elaB64,
                         fft_data: fftData,
                         lime_data: limeData,
+                        llm_analysis: llmAnalysis,
                       };
                     }
                     return updated;
@@ -288,10 +290,23 @@ const Dashboard: React.FC = () => {
                       ela_b64: elaB64,
                       fft_data: fftData,
                       lime_data: limeData,
+                      llm_analysis: llmAnalysis,
                       task_id: jsonData.task_id,
                     },
                   });
                   window.dispatchEvent(xaiEvent);
+
+                  // Also dispatch LLM analysis event
+                  if (llmAnalysis) {
+                    const llmEvent = new CustomEvent("llm_analysis", {
+                      detail: {
+                        frame_index: xaiFrameIndex,
+                        analysis: llmAnalysis,
+                        task_id: jsonData.task_id,
+                      },
+                    });
+                    window.dispatchEvent(llmEvent);
+                  }
                 } else if (jsonData.type === "llm_ready") {
                   const llmFrameIndex = jsonData.frame_index;
                   const analysis = jsonData.analysis;
@@ -413,7 +428,7 @@ const Dashboard: React.FC = () => {
         setImageTaskId(taskId);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {

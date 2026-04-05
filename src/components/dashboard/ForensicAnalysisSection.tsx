@@ -96,7 +96,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   // Listen for XAI updates via custom event
   useEffect(() => {
     const handleXAIUpdate = (event: CustomEvent) => {
-      const { frameIndex, gradcam_b64, ela_b64, fft_data, lime_data, task_id } = event.detail;
+      const { frameIndex, gradcam_b64, ela_b64, fft_data, lime_data, llm_analysis, task_id } = event.detail;
       // Only update if this is the same frame and task
       if (taskId && task_id === taskId && frameIndex === currentFrame.id) {
         setCurrentFrame((prev) => ({
@@ -105,8 +105,13 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           ...(ela_b64 && { ela_b64 }),
           ...(fft_data && { fft_data }),
           ...(lime_data && { lime_data }),
+          ...(llm_analysis && { llm_analysis }),
         }));
         setIsXaiLoading(false);
+        if (llm_analysis) {
+          setIsLlmLoading(false);
+          setLlmAnalysis(llm_analysis);
+        }
       }
     };
 
@@ -136,11 +141,11 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
       }
     };
 
-    window.addEventListener('llm_analysis', handleLLMUpdate);
+    window.addEventListener('llm_analysis' as keyof WindowEventMap, handleLLMUpdate as EventListener);
     console.log('[ForensicSection] LLM listener registered');
-    
+
     return () => {
-      window.removeEventListener('llm_analysis', handleLLMUpdate);
+      window.removeEventListener('llm_analysis' as keyof WindowEventMap, handleLLMUpdate as EventListener);
       console.log('[ForensicSection] LLM listener cleanup');
     };
   }, [taskId, currentFrame.id]);
