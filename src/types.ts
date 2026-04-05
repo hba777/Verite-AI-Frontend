@@ -127,3 +127,31 @@ export interface AudioAnalysisResult {
   shap_scores?:      number[];        // SHAP KernelExplainer
 }
 
+/** Video analysis history item */
+export interface Video {
+  task_id: string;
+  status: string;
+  created_at: string;
+  has_anomalies: boolean;
+  video_path: string;
+  completed_at: string;
+  faces_detected_frames: number;
+  frames_skipped: number;
+}
+
+/** Audio analysis history item */
+export interface AudioAnalysis {
+  analysis_id: number;
+  verdict: string;
+  confidence: number;
+  analysis_time: string;
+  fake_prob: number;
+  real_prob: number;
+  duration_seconds: number;
+  audio_file: {
+    filename: string;
+    file_size: number;
+    upload_time: string;
+  };
+}
+
