@@ -275,7 +275,7 @@ const AdminDashboard: React.FC = () => {
                   {row.filename}
                 </td>
                 <td className="px-8 py-5 text-sm text-gray-400">
-                  {row.timestamp}
+                  {new Date(row.timestamp).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'})}
                 </td>
                 <td className="px-8 py-5">
                   <span
@@ -359,7 +359,7 @@ const AdminDashboard: React.FC = () => {
                 <tr key={audio.analysis_id} className="hover:bg-white/[0.03]">
                   <td className="px-8 py-5 text-sm text-white">{(audio.audio_file as any).user?.username || 'N/A'}</td>
                   <td className="px-8 py-5 text-sm text-gray-400 truncate max-w-xs">{audio.audio_file.filename}</td>
-                  <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time || 'N/A'}</td>
+                  <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time ? new Date(audio.analysis_time).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
                   <td className="px-8 py-5">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold ${
