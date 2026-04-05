@@ -22,7 +22,7 @@ const ImageResult: React.FC<ImageResultProps> = ({
   taskId,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [showForensic, setShowForensic] = useState(true); // Auto-open for images
+  const [showForensic, setShowForensic] = useState(true); // Show button for images
 
   const colors = {
     deepVoid: "#08090A",
@@ -226,6 +226,37 @@ const ImageResult: React.FC<ImageResultProps> = ({
         </div>
 
       </div>
+
+      {/* Open Analysis Button */}
+      {!showForensic && (
+        <button
+          onClick={() => setShowForensic(true)}
+          style={{
+            marginTop: "24px",
+            padding: "12px 32px",
+            backgroundColor: "transparent",
+            color: colors.textMed,
+            border: `1px solid ${colors.borderWhite}`,
+            borderRadius: "8px",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "12px",
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surface;
+            e.currentTarget.style.color = colors.textHigh;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = colors.textMed;
+          }}
+        >
+          Open Forensic Analysis
+        </button>
+      )}
 
       {/* Forensic Analysis Section */}
       {showForensic && frame && (

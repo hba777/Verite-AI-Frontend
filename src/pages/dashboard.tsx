@@ -132,6 +132,7 @@ const Dashboard: React.FC = () => {
             JSON.stringify({
               task_id: taskId,
               video_duration: videoDuration,
+              file_name: file.name,
               user_id: user?.id,
             }),
           );
@@ -182,7 +183,8 @@ const Dashboard: React.FC = () => {
 
                 if (
                   jsonData.type === "frame_ready" ||
-                  jsonData.type === "detection_ready"
+                  jsonData.type === "detection_ready" ||
+                  jsonData.type === "frame_with_detection"
                 ) {
                   // Mark that frames are being received via WebSocket
                   framesReceivedRef.current = true;
@@ -204,18 +206,8 @@ const Dashboard: React.FC = () => {
                     while (updated.length <= frameIndex) {
                       updated.push({
                         id: updated.length,
-                        // Use timestamp from backend if available
-                        timestamp:
-                          typeof jsonData.timestamp === "string"
-                            ? jsonData.timestamp
-                            : formatTimestamp(
-                                jsonData.timestamp || updated.length,
-                              ),
-                        thumbnailUrl: jsonData.frame_data
-                          ? `data:image/jpeg;base64,${jsonData.frame_data}`
-                          : jsonData.original_frame_data
-                            ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                            : "", // No mock images - will show placeholder
+                        timestamp: formatTimestamp(updated.length),
+                        thumbnailUrl: "",
                         isAnomaly: false,
                         confidenceScore: 0,
                         isProcessed: false,
@@ -225,6 +217,8 @@ const Dashboard: React.FC = () => {
                       });
                     }
                     // Update the specific frame
+                    const frameData = jsonData.frame_data || jsonData.original_frame_data || "";
+                    const detection = jsonData.type === "frame_with_detection" ? jsonData.detection : jsonData;
                     updated[frameIndex] = {
                       id: frameIndex,
                       // Use timestamp from backend if available, otherwise format from seconds
@@ -237,22 +231,20 @@ const Dashboard: React.FC = () => {
                         (typeof jsonData.timestamp === "number"
                           ? jsonData.timestamp
                           : frameIndex),
-                      thumbnailUrl: jsonData.frame_data
-                        ? `data:image/jpeg;base64,${jsonData.frame_data}`
-                        : jsonData.original_frame_data
-                          ? `data:image/jpeg;base64,${jsonData.original_frame_data}`
-                          : "", // No mock images - will show placeholder
-                      isAnomaly: jsonData.is_anomaly ?? false,
-                      confidenceScore: jsonData.confidence ?? 0,
+                      thumbnailUrl: frameData
+                        ? `data:image/jpeg;base64,${frameData}`
+                        : updated[frameIndex].thumbnailUrl || "", // Keep existing if no new frame data
+                      isAnomaly: detection.is_anomaly ?? false,
+                      confidenceScore: detection.confidence ?? 0,
                       // Mark as processed if it's frame_ready or detection_ready
                       isProcessed: true,
-                      anomalyType: jsonData.anomaly_type,
-                      elaScore: jsonData.ela_score,
-                      frequencySpike: jsonData.frequency_spike,
-                      real_prob: jsonData.real_prob,
-                      fake_prob: jsonData.fake_prob,
+                      anomalyType: detection.anomaly_type,
+                      elaScore: detection.ela_score,
+                      frequencySpike: detection.frequency_spike,
+                      real_prob: detection.real_prob,
+                      fake_prob: detection.fake_prob,
                       // Include Grad-CAM if available (sent together with detection for anomalies)
-                      gradcam_b64: jsonData.gradcam_b64,
+                      gradcam_b64: detection.gradcam_b64,
                     };
                     return updated;
                   });
@@ -413,6 +405,7 @@ const Dashboard: React.FC = () => {
             JSON.stringify({
               task_id: taskId,
               file_type: "image",
+              file_name: file.name,
               user_id: user?.id,
             }),
           );
