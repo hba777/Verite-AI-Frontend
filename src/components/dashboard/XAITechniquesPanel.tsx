@@ -1135,7 +1135,7 @@ const TABS = [
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 const XAITechniquesPanel: React.FC<XAITechniquesPanelProps> = ({ frame }) => {
-  const [activeTab, setActiveTab] = useState("temporal");
+  const [activeTab, setActiveTab] = useState("fft");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
