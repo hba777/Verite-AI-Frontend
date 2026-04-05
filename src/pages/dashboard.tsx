@@ -267,6 +267,8 @@ const Dashboard: React.FC = () => {
                   const limeData = jsonData.lime_data;
                   const llmAnalysis = jsonData.llm_analysis;
 
+                  console.log(`Received xai_ready for video frame ${xaiFrameIndex}, llm_analysis:`, llmAnalysis);
+
                   setFrames((prev) => {
                     const updated = [...prev];
                     if (updated[xaiFrameIndex]) {
@@ -295,31 +297,7 @@ const Dashboard: React.FC = () => {
                     },
                   });
                   window.dispatchEvent(xaiEvent);
-
-                  // Also dispatch LLM analysis event
-                  if (llmAnalysis) {
-                    const llmEvent = new CustomEvent("llm_analysis", {
-                      detail: {
-                        frame_index: xaiFrameIndex,
-                        analysis: llmAnalysis,
-                        task_id: jsonData.task_id,
-                      },
-                    });
-                    window.dispatchEvent(llmEvent);
-                  }
-                } else if (jsonData.type === "llm_ready") {
-                  const llmFrameIndex = jsonData.frame_index;
-                  const analysis = jsonData.analysis;
-                  const taskIdVal = jsonData.task_id;
-
-                  const llmEvent = new CustomEvent("llm_analysis", {
-                    detail: {
-                      frame_index: llmFrameIndex,
-                      analysis: analysis,
-                      task_id: taskIdVal,
-                    },
-                  });
-                  window.dispatchEvent(llmEvent);
+                  console.log(`Dispatched xai_update event for frame ${xaiFrameIndex}`);
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
@@ -466,22 +444,29 @@ const Dashboard: React.FC = () => {
                   jsonData.detection_result
                 ) {
                   setImageDetectionResult(jsonData.detection_result);
-                  const frame: FrameData = {
-                    id: 0,
-                    timestamp: "00:00:00",
-                    thumbnailUrl: URL.createObjectURL(file),
-                    isAnomaly: jsonData.detection_result.is_anomaly ?? false,
-                    confidenceScore: jsonData.detection_result.confidence ?? 0,
-                    isProcessed: true,
-                    anomalyType: jsonData.detection_result.anomaly_type,
-                    elaScore: jsonData.detection_result.ela_score,
-                    frequencySpike: jsonData.detection_result.frequency_spike,
-                    real_prob: jsonData.detection_result.real_prob,
-                    fake_prob: jsonData.detection_result.fake_prob,
-                    // Include Grad-CAM if available (sent together with detection for anomalies)
-                    gradcam_b64: jsonData.detection_result.gradcam_b64,
-                  };
-                  setImageFrame(frame);
+                  setImageFrame((prev) => {
+                    const frame: FrameData = {
+                      id: 0,
+                      timestamp: "00:00:00",
+                      thumbnailUrl: prev?.thumbnailUrl || URL.createObjectURL(file),
+                      isAnomaly: jsonData.detection_result.is_anomaly ?? false,
+                      confidenceScore: jsonData.detection_result.confidence ?? 0,
+                      isProcessed: true,
+                      anomalyType: jsonData.detection_result.anomaly_type,
+                      elaScore: jsonData.detection_result.ela_score,
+                      frequencySpike: jsonData.detection_result.frequency_spike,
+                      real_prob: jsonData.detection_result.real_prob,
+                      fake_prob: jsonData.detection_result.fake_prob,
+                      // Include Grad-CAM if available (sent together with detection for anomalies)
+                      gradcam_b64: jsonData.detection_result.gradcam_b64,
+                      // Preserve existing XAI data
+                      ela_b64: prev?.ela_b64,
+                      fft_data: prev?.fft_data,
+                      lime_data: prev?.lime_data,
+                      llm_analysis: prev?.llm_analysis,
+                    };
+                    return frame;
+                  });
                   setIsImageProcessing(false);
 
                   // Update frames with XAI data if available
@@ -495,6 +480,7 @@ const Dashboard: React.FC = () => {
                           ela_b64: xaiData.ela_b64,
                           fft_data: xaiData.fft_data,
                           lime_data: xaiData.lime_data,
+                          llm_analysis: xaiData.llm_analysis || prev.llm_analysis,
                         };
                       }
                       return prev;
@@ -508,6 +494,8 @@ const Dashboard: React.FC = () => {
                   const fftData = jsonData.fft_data;
                   const limeData = jsonData.lime_data;
 
+                  console.log(`Received xai_ready for image, llm_analysis:`, jsonData.llm_analysis);
+
                   setImageFrame((prev) => {
                     if (prev) {
                       return {
@@ -516,38 +504,13 @@ const Dashboard: React.FC = () => {
                         ela_b64: elaB64,
                         fft_data: fftData,
                         lime_data: limeData,
+                        llm_analysis: jsonData.llm_analysis,
                       };
                     }
                     return prev;
                   });
 
-                  // Dispatch custom event for ImageResult to update
-                  const xaiEvent = new CustomEvent("xai_update", {
-                    detail: {
-                      frameIndex: 0, // Single frame for image
-                      gradcam_b64: gradcamB64,
-                      ela_b64: elaB64,
-                      fft_data: fftData,
-                      lime_data: limeData,
-                      task_id: jsonData.task_id,
-                    },
-                  });
-                  window.dispatchEvent(xaiEvent);
-
                   console.log(`XAI data received for image`, jsonData);
-                } else if (jsonData.type === "llm_ready") {
-                  const analysis = jsonData.analysis;
-
-                  const llmEvent = new CustomEvent("llm_analysis", {
-                    detail: {
-                      frame_index: 0,
-                      analysis: analysis,
-                      task_id: jsonData.task_id,
-                    },
-                  });
-                  window.dispatchEvent(llmEvent);
-
-                  console.log(`LLM analysis received for image`, jsonData);
                 } else if (jsonData.type === "error") {
                   console.error("Image processing error:", jsonData);
                   setIsImageProcessing(false);
