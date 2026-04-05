@@ -6,6 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/router";
 
+const LoginForm = dynamic(() => import("../../home/LoginForm/LoginForm"), {
+  ssr: false,
+});
+
 
 // Helper component for the icon
 interface CustomFeatureIconProps {
@@ -62,8 +66,12 @@ const Header = ({
 }) => {
   const { user, logout } = useUser();
   const router = useRouter();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const initial =
     (user?.username || user?.email || "").charAt(0).toUpperCase() || "U";
+
+  const openLoginForm = () => setIsLoginOpen(true);
+  const closeLoginForm = () => setIsLoginOpen(false);
 
   return (
     <>
@@ -109,15 +117,40 @@ const Header = ({
                       </Avatar>
                     </summary>
                     <div className="absolute right-0 mt-2 w-44 rounded-lg border border-white/10 bg-black/90 text-white shadow-lg">
-                      <button
-                        onClick={async () => {
-                          await logout();
-                          router.back();
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
-                      >
-                        Logout
-                      </button>
+                      {user.role === 'user' ? (
+                        <button
+                          onClick={openLoginForm}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                        >
+                          Sign In
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => router.push('/history')}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                          >
+                            View History
+                          </button>
+                          {user?.role === 'admin' && (
+                            <button
+                              onClick={() => router.push('/admin')}
+                              className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                            >
+                              Admin Dashboard
+                            </button>
+                          )}
+                          <button
+                            onClick={async () => {
+                              await logout();
+                              router.push('/');
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                          >
+                            Logout
+                          </button>
+                        </>
+                      )}
                     </div>
                   </details>
                 </div>
@@ -127,6 +160,19 @@ const Header = ({
         </div>
 
       </header>
+
+      <LoginForm
+        isOpen={isLoginOpen}
+        onClose={closeLoginForm}
+        onAuthenticated={(token) => {
+          try {
+            if (typeof window !== "undefined") {
+              localStorage.setItem("auth_token", token);
+            }
+          } catch {}
+          router.push("/dashboard");
+        }}
+      />
     </>
   );
 };

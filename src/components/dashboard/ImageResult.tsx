@@ -78,21 +78,21 @@ const ImageResult: React.FC<ImageResultProps> = ({
         s?.startsWith("data:") ? s.split(",")[1] : (s ?? null);
 
       const body = {
-        case_id:           `CASE-${Date.now()}`,
-        module_type:       "image",
+        case_id: `CASE-${Date.now()}`,
+        module_type: "image",
         executive_summary: summary,
         image_data: {
-          file_name:    "Image Analysis",
-          is_fake:      isFk,
-          confidence:   confidenceScore,
-          fake_prob:    detectionResult?.fake_prob  ?? 0,
-          real_prob:    detectionResult?.real_prob  ?? 1,
+          file_name: "Image Analysis",
+          is_fake: isFk,
+          confidence: confidenceScore,
+          fake_prob: detectionResult?.fake_prob ?? 0,
+          real_prob: detectionResult?.real_prob ?? 1,
           anomaly_type: detectionResult?.anomaly_type ?? detectionResult?.predicted_class ?? null,
           thumbnail_b64: stripDataUri(frame?.thumbnailUrl),
-          gradcam_b64:  stripDataUri(detectionResult?.gradcam_b64 ?? frame?.gradcam_b64),
-          ela_b64:      stripDataUri(detectionResult?.ela_b64     ?? frame?.ela_b64),
-          fft_data:     detectionResult?.fft_data  ?? frame?.fft_data  ?? null,
-          lime_data:    detectionResult?.lime_data ?? frame?.lime_data ?? null,
+          gradcam_b64: stripDataUri(detectionResult?.gradcam_b64 ?? frame?.gradcam_b64),
+          ela_b64: stripDataUri(detectionResult?.ela_b64 ?? frame?.ela_b64),
+          fft_data: detectionResult?.fft_data ?? frame?.fft_data ?? null,
+          lime_data: detectionResult?.lime_data ?? frame?.lime_data ?? null,
         },
       };
 
@@ -109,15 +109,15 @@ const ImageResult: React.FC<ImageResultProps> = ({
       const data = await response.json();
       if (!data.file_path) throw new Error("No file_path in response");
 
-      const filename    = data.file_path.split(/[\\/]/).pop()!;
+      const filename = data.file_path.split(/[\\/]/).pop()!;
       const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
 
       const dlRes = await fetch(downloadUrl);
       if (!dlRes.ok) throw new Error(`Download failed (${dlRes.status})`);
 
       const blob = await dlRes.blob();
-      const url  = window.URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement("a"), { href: url, download: filename });
+      const url = window.URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement("a"), { href: url, download: filename });
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -315,6 +315,37 @@ const ImageResult: React.FC<ImageResultProps> = ({
         </div>
 
       </div>
+
+      {/* Open Analysis Button */}
+      {!showForensic && (
+        <button
+          onClick={() => setShowForensic(true)}
+          style={{
+            marginTop: "24px",
+            padding: "12px 32px",
+            backgroundColor: "transparent",
+            color: colors.textMed,
+            border: `1px solid ${colors.borderWhite}`,
+            borderRadius: "8px",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "12px",
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surface;
+            e.currentTarget.style.color = colors.textHigh;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = colors.textMed;
+          }}
+        >
+          Open Forensic Analysis
+        </button>
+      )}
 
       {/* Forensic Analysis Section */}
       {showForensic && frame && (

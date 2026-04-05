@@ -85,7 +85,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const loginAsGuest = useCallback(() => {
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
     const exp = Math.floor(Date.now() / 1000) + 60 * 60;
-    const payload = btoa(JSON.stringify({ sub: "guest", id: -1, role: "user", exp }));
+    const payload = btoa(JSON.stringify({ sub: "guest", id: null, role: "user", exp }));
     const signature = btoa("guest-signature");
     setToken(`${header}.${payload}.${signature}`);
   }, []);
