@@ -18,6 +18,7 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPeriod, setSelectedPeriod] = useState("7D");
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const AdminDashboard: React.FC = () => {
 
     const fetchStats = async () => {
       try {
-        const data = await getAdminStats();
+        const data = await getAdminStats(selectedPeriod.toLowerCase());
         setStats(data);
       } catch (error) {
         console.error('Failed to fetch admin stats:', error);
@@ -57,7 +58,7 @@ const AdminDashboard: React.FC = () => {
       }
     };
     fetchStats();
-  }, [user]);
+  }, [user, selectedPeriod]);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -150,8 +151,9 @@ const AdminDashboard: React.FC = () => {
             {["24H", "7D", "30D"].map((t) => (
               <button
                 key={t}
+                onClick={() => setSelectedPeriod(t)}
                 className={`px-3 py-1 rounded-md text-xs font-mono ${
-                  t === "7D"
+                  t === selectedPeriod
                     ? "bg-white/10 text-white"
                     : "text-gray-400 hover:text-white"
                 }`}
