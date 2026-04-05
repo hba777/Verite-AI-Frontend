@@ -1,7 +1,7 @@
 import api from '../lib/api';
 import { AdminStats } from '../types';
 
-export const getAdminStats = async (): Promise<AdminStats> => {
+export const getAdminStats = async (period: string = '7d'): Promise<AdminStats> => {
   try {
     // Get total users
     const usersRes = await api.get('/users/count');
@@ -21,19 +21,13 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       user: video.user.username,
       filename: video.video_path.split('/').pop() || video.video_path,
       timestamp: new Date(video.created_at).toLocaleString(),
-      status: video.has_anomalies ? 'Malicious' as const : 'Clean' as const, size: 'Unknown', // Not stored
+      status: video.has_anomalies ? 'Malicious' as const : video.status === 'completed' ? 'Clean' as const : 'Suspicious' as const,
+      size: 'Unknown', // Not stored
     }));
 
-    // Mock trends for now
-    const trends = [
-      { date: "Mon", uploads: 400, anomalies: 24 },
-      { date: "Tue", uploads: 300, anomalies: 18 },
-      { date: "Wed", uploads: 600, anomalies: 45 },
-      { date: "Thu", uploads: 800, anomalies: 72 },
-      { date: "Fri", uploads: 500, anomalies: 30 },
-      { date: "Sat", uploads: 900, anomalies: 112 },
-      { date: "Sun", uploads: 700, anomalies: 65 },
-    ];
+    // Get trends
+    const trendsRes = await api.get(`/video/trends?period=${period}`);
+    const trends = trendsRes.data.trends;
 
     return {
       totalUploads: videos.length,
