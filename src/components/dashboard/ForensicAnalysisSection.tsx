@@ -1,14 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   AlertTriangle,
   Cpu,
   Layers,
   X,
   FlaskConical,
+  Loader2,
 } from "lucide-react";
 import { FrameData } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
 import XAITechniquesPanel from "./XAITechniquesPanel";
+
+const TypewriterText = ({ text, speed = 30 }: { text: string; speed?: number }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!text) {
+      setDisplayedText("");
+      setIsComplete(false);
+      return;
+    }
+
+    setDisplayedText("");
+    setIsComplete(false);
+
+    let currentIndex = 0;
+    intervalRef.current = setInterval(() => {
+      if (currentIndex < text.length) {
+        setDisplayedText(text.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        setIsComplete(true);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }
+    }, speed);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [text, speed]);
+
+  return (
+    <span className={isComplete ? "" : "animate-pulse"}>
+      {displayedText}
+    </span>
+  );
+};
+
+const LoadingSkeleton = () => (
+  <div className="space-y-3">
+    <div className="h-4 bg-white/10 rounded animate-pulse w-3/4"></div>
+    <div className="h-4 bg-white/10 rounded animate-pulse w-1/2"></div>
+    <div className="h-4 bg-white/10 rounded animate-pulse w-5/6"></div>
+    <div className="flex items-center gap-2 mt-4">
+      <Loader2 className="w-4 h-4 text-electric-teal animate-spin" />
+      <span className="text-sm font-mono text-electric-teal animate-pulse">
+        Generating Analysis...
+      </span>
+    </div>
+  </div>
+);
 
 interface ForensicAnalysisSectionProps {
   frame: FrameData;
@@ -23,13 +76,22 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<"ela" | "gradcam">("gradcam");
   
-  // Local state for frame data to support live updates from XAI results
   const [currentFrame, setCurrentFrame] = useState<FrameData>(frame);
+  const [isLlmLoading, setIsLlmLoading] = useState(true);
+  const [llmAnalysis, setLlmAnalysis] = useState<string | null>(null);
+  const [isXaiLoading, setIsXaiLoading] = useState(true);
   
   // Update local frame when prop changes
   useEffect(() => {
     setCurrentFrame(frame);
-  }, [frame]);
+    // Always show loading initially when frame is anomaly and taskId exists
+    // Data will arrive via WebSocket and clear the loading state
+    if (frame.isAnomaly && taskId) {
+      setIsLlmLoading(true);
+      setIsXaiLoading(true);
+      setLlmAnalysis(null);
+    }
+  }, [frame, taskId]);
   
   // Listen for XAI updates via custom event
   useEffect(() => {
@@ -44,6 +106,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
           ...(fft_data && { fft_data }),
           ...(lime_data && { lime_data }),
         }));
+        setIsXaiLoading(false);
       }
     };
 
@@ -52,7 +115,39 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
       window.removeEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
     };
   }, [taskId, currentFrame.id]);
+  
+  useEffect(() => {
+    console.log('[ForensicSection] Mounting - taskId:', taskId, 'frame id:', currentFrame.id);
+    
+    if (!taskId) {
+      console.log('[ForensicSection] No taskId, skipping LLM listener');
+      return;
+    }
 
+    const handleLLMUpdate = (event: CustomEvent) => {
+      console.log('[ForensicSection] LLM event detail:', event.detail);
+      const { frame_index, analysis, task_id } = event.detail;
+      console.log('[ForensicSection] Comparing task:', task_id, '===', taskId, 'frame:', frame_index, '===', currentFrame.id);
+      
+      if (String(task_id) === String(taskId) && Number(frame_index) === Number(currentFrame.id)) {
+        console.log('[ForensicSection] Match! Setting LLM analysis');
+        setIsLlmLoading(false);
+        setLlmAnalysis(analysis);
+      }
+    };
+
+    window.addEventListener('llm_analysis', handleLLMUpdate);
+    console.log('[ForensicSection] LLM listener registered');
+    
+    return () => {
+      window.removeEventListener('llm_analysis', handleLLMUpdate);
+      console.log('[ForensicSection] LLM listener cleanup');
+    };
+  }, [taskId, currentFrame.id]);
+
+  // Check if XAI data is available (for showing XAI content or loading)
+  const hasXaiData = currentFrame.gradcam_b64 || currentFrame.ela_b64 || currentFrame.fft_data;
+  
   // Generate forensic summary based on real probability data from WebSocket
   const generateForensicSummary = (frame: FrameData): string => {
     const realProb = frame.real_prob ?? 0.5;
@@ -193,9 +288,9 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
 
         {currentFrame.isAnomaly && (
           <>
-            <div className="flex gap-12">
+            <div className="w-full">
               {/* Section 2: XAI + LLM */}
-              <section className="space-y-6">
+              <section className="space-y-6 w-full">
                 <div className="flex items-center gap-3">
                   <Cpu className="w-5 h-5 text-electric-teal" />
                   <h3 className="font-display text-xl font-bold text-text-high">
@@ -203,17 +298,28 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   </h3>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-8 relative overflow-hidden group h-full">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-8 relative overflow-hidden group w-full">
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-electric-teal to-transparent" />
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-electric-teal/5 rounded-full blur-3xl group-hover:bg-electric-teal/10 transition-colors duration-500"></div>
 
-                  <div className="relative z-10">
+                  <div className="relative z-10 w-full">
                     <h4 className="font-mono text-sm text-electric-teal mb-4 uppercase tracking-wider">
                       GenD Model Analysis
                     </h4>
-                    <p className="font-sans text-base text-text-high leading-relaxed">
-                      {aiSummary}
-                    </p>
+                    
+                    {isLlmLoading ? (
+                      <LoadingSkeleton />
+                    ) : (
+                      <div className="max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                        <p className="font-sans text-base text-text-high leading-relaxed">
+                          {llmAnalysis ? (
+                            <TypewriterText text={llmAnalysis} speed={20} />
+                          ) : (
+                            aiSummary
+                          )}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Real/Fake Probability Display */}
                     <div className="mt-4 flex gap-4">
@@ -255,7 +361,16 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   Explainable AI (XAI) Analysis
                 </h3>
               </div>
-              <XAITechniquesPanel frame={currentFrame} />
+              {isXaiLoading || !hasXaiData ? (
+                <div className="flex items-center justify-center py-12 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="w-6 h-6 text-electric-teal animate-spin" />
+                    <span className="text-sm font-mono text-text-med">Generating XAI Analysis...</span>
+                  </div>
+                </div>
+              ) : (
+                <XAITechniquesPanel frame={currentFrame} />
+              )}
             </section>
           </>
         )}

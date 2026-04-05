@@ -31,7 +31,9 @@ const Dashboard: React.FC = () => {
   // Audio processing states
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioObjectUrl, setAudioObjectUrl] = useState<string | null>(null);
-  const [audioResult, setAudioResult] = useState<AudioAnalysisResult | null>(null);
+  const [audioResult, setAudioResult] = useState<AudioAnalysisResult | null>(
+    null,
+  );
   const [isAudioProcessing, setIsAudioProcessing] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
 
@@ -122,7 +124,7 @@ const Dashboard: React.FC = () => {
         setFrames([]);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
         wsRef.current = ws;
         ws.binaryType = "arraybuffer";
 
@@ -217,8 +219,12 @@ const Dashboard: React.FC = () => {
                       });
                     }
                     // Update the specific frame
-                    const frameData = jsonData.frame_data || jsonData.original_frame_data || "";
-                    const detection = jsonData.type === "frame_with_detection" ? jsonData.detection : jsonData;
+                    const frameData =
+                      jsonData.frame_data || jsonData.original_frame_data || "";
+                    const detection =
+                      jsonData.type === "frame_with_detection"
+                        ? jsonData.detection
+                        : jsonData;
                     updated[frameIndex] = {
                       id: frameIndex,
                       // Use timestamp from backend if available, otherwise format from seconds
@@ -273,21 +279,32 @@ const Dashboard: React.FC = () => {
                     }
                     return updated;
                   });
-                    
-                    // Dispatch custom event for ForensicAnalysisSection to update
-                    const xaiEvent = new CustomEvent("xai_update", {
-                      detail: {
-                        frameIndex: xaiFrameIndex,
-                        gradcam_b64: gradcamB64,
-                        ela_b64: elaB64,
-                        fft_data: fftData,
-                        lime_data: limeData,
-                        task_id: jsonData.task_id,
-                      },
-                    });
-                    window.dispatchEvent(xaiEvent);
-                    
-                  console.log(`XAI data received for frame ${xaiFrameIndex}`, jsonData);
+
+                  // Dispatch custom event for ForensicAnalysisSection to update
+                  const xaiEvent = new CustomEvent("xai_update", {
+                    detail: {
+                      frameIndex: xaiFrameIndex,
+                      gradcam_b64: gradcamB64,
+                      ela_b64: elaB64,
+                      fft_data: fftData,
+                      lime_data: limeData,
+                      task_id: jsonData.task_id,
+                    },
+                  });
+                  window.dispatchEvent(xaiEvent);
+                } else if (jsonData.type === "llm_ready") {
+                  const llmFrameIndex = jsonData.frame_index;
+                  const analysis = jsonData.analysis;
+                  const taskIdVal = jsonData.task_id;
+
+                  const llmEvent = new CustomEvent("llm_analysis", {
+                    detail: {
+                      frame_index: llmFrameIndex,
+                      analysis: analysis,
+                      task_id: taskIdVal,
+                    },
+                  });
+                  window.dispatchEvent(llmEvent);
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
@@ -396,7 +413,7 @@ const Dashboard: React.FC = () => {
         setImageTaskId(taskId);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {
@@ -503,6 +520,19 @@ const Dashboard: React.FC = () => {
                   window.dispatchEvent(xaiEvent);
 
                   console.log(`XAI data received for image`, jsonData);
+                } else if (jsonData.type === "llm_ready") {
+                  const analysis = jsonData.analysis;
+
+                  const llmEvent = new CustomEvent("llm_analysis", {
+                    detail: {
+                      frame_index: 0,
+                      analysis: analysis,
+                      task_id: jsonData.task_id,
+                    },
+                  });
+                  window.dispatchEvent(llmEvent);
+
+                  console.log(`LLM analysis received for image`, jsonData);
                 } else if (jsonData.type === "error") {
                   console.error("Image processing error:", jsonData);
                   setIsImageProcessing(false);
@@ -527,7 +557,7 @@ const Dashboard: React.FC = () => {
         console.error("Image upload failed:", error);
         setIsImageProcessing(false);
       }
-    } else if (file.type.startsWith('audio/')) {
+    } else if (file.type.startsWith("audio/")) {
       // ── Audio processing — synchronous REST POST ──────────────────────────
       try {
         setAudioFile(file);
@@ -622,17 +652,28 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-center min-h-screen bg-black">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto"></div>
-            <p className="mt-4 text-white text-xl">Analysing audio — running WavLM + XAI…</p>
-            <p className="mt-2 text-gray-500 text-sm">This may take 20–60 seconds</p>
+            <p className="mt-4 text-white text-xl">
+              Analysing audio — running WavLM + XAI…
+            </p>
+            <p className="mt-2 text-gray-500 text-sm">
+              This may take 20–60 seconds
+            </p>
           </div>
         </div>
       ) : audioError ? (
         /* ── Audio: error state ───────────────────────────────────────────── */
         <div className="flex flex-col items-center justify-center min-h-screen bg-black gap-6">
-          <p className="text-red-400 text-lg font-mono">Audio analysis failed</p>
-          <p className="text-gray-500 text-sm max-w-md text-center">{audioError}</p>
+          <p className="text-red-400 text-lg font-mono">
+            Audio analysis failed
+          </p>
+          <p className="text-gray-500 text-sm max-w-md text-center">
+            {audioError}
+          </p>
           <button
-            onClick={() => { setAudioError(null); setAudioFile(null); }}
+            onClick={() => {
+              setAudioError(null);
+              setAudioFile(null);
+            }}
             className="px-6 py-2 rounded-lg border border-cyan-500 text-cyan-400 text-sm hover:bg-cyan-500 hover:text-black transition-all"
           >
             Try Again
@@ -640,7 +681,11 @@ const Dashboard: React.FC = () => {
         </div>
       ) : audioResult && audioFile ? (
         /* ── Audio: results page ─────────────────────────────────────────── */
-        <AudioResult result={audioResult} fileName={audioFile.name} audioObjectUrl={audioObjectUrl ?? undefined} />
+        <AudioResult
+          result={audioResult}
+          fileName={audioFile.name}
+          audioObjectUrl={audioObjectUrl ?? undefined}
+        />
       ) : isImageProcessing ? (
         /* ── Image: loading spinner ──────────────────────────────────────── */
         <div className="flex items-center justify-center min-h-screen bg-black">
