@@ -133,7 +133,7 @@ const Dashboard: React.FC = () => {
               task_id: taskId,
               video_duration: videoDuration,
               file_name: file.name,
-              user_id: user?.id,
+              user_id: user?.id || null,
             }),
           );
           setStatus("Connected, ready to upload...");
@@ -406,7 +406,7 @@ const Dashboard: React.FC = () => {
               task_id: taskId,
               file_type: "image",
               file_name: file.name,
-              user_id: user?.id,
+              user_id: user?.id || null,
             }),
           );
         };
