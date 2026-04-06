@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
         setFrames([]);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
         wsRef.current = ws;
         ws.binaryType = "arraybuffer";
 
@@ -396,7 +396,7 @@ const Dashboard: React.FC = () => {
         setImageTaskId(taskId);
 
         // 2. Open WebSocket
-        const ws = new WebSocket(`ws://localhost:8000/ws/task`);
+        const ws = new WebSocket(`ws://localhost:8001/ws/task`);
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {
