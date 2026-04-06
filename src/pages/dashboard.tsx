@@ -267,7 +267,10 @@ const Dashboard: React.FC = () => {
                   const limeData = jsonData.lime_data;
                   const llmAnalysis = jsonData.llm_analysis;
 
-                  console.log(`Received xai_ready for video frame ${xaiFrameIndex}, llm_analysis:`, llmAnalysis);
+                  console.log(
+                    `Received xai_ready for video frame ${xaiFrameIndex}, llm_analysis:`,
+                    llmAnalysis,
+                  );
 
                   setFrames((prev) => {
                     const updated = [...prev];
@@ -297,7 +300,9 @@ const Dashboard: React.FC = () => {
                     },
                   });
                   window.dispatchEvent(xaiEvent);
-                  console.log(`Dispatched xai_update event for frame ${xaiFrameIndex}`);
+                  console.log(
+                    `Dispatched xai_update event for frame ${xaiFrameIndex}`,
+                  );
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
@@ -448,9 +453,11 @@ const Dashboard: React.FC = () => {
                     const frame: FrameData = {
                       id: 0,
                       timestamp: "00:00:00",
-                      thumbnailUrl: prev?.thumbnailUrl || URL.createObjectURL(file),
+                      thumbnailUrl:
+                        prev?.thumbnailUrl || URL.createObjectURL(file),
                       isAnomaly: jsonData.detection_result.is_anomaly ?? false,
-                      confidenceScore: jsonData.detection_result.confidence ?? 0,
+                      confidenceScore:
+                        jsonData.detection_result.confidence ?? 0,
                       isProcessed: true,
                       anomalyType: jsonData.detection_result.anomaly_type,
                       elaScore: jsonData.detection_result.ela_score,
@@ -480,7 +487,8 @@ const Dashboard: React.FC = () => {
                           ela_b64: xaiData.ela_b64,
                           fft_data: xaiData.fft_data,
                           lime_data: xaiData.lime_data,
-                          llm_analysis: xaiData.llm_analysis || prev.llm_analysis,
+                          llm_analysis:
+                            xaiData.llm_analysis || prev.llm_analysis,
                         };
                       }
                       return prev;
@@ -494,7 +502,10 @@ const Dashboard: React.FC = () => {
                   const fftData = jsonData.fft_data;
                   const limeData = jsonData.lime_data;
 
-                  console.log(`Received xai_ready for image, llm_analysis:`, jsonData.llm_analysis);
+                  console.log(
+                    `Received xai_ready for image, llm_analysis:`,
+                    jsonData.llm_analysis,
+                  );
 
                   setImageFrame((prev) => {
                     if (prev) {
