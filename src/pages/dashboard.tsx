@@ -31,7 +31,9 @@ const Dashboard: React.FC = () => {
   // Audio processing states
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioObjectUrl, setAudioObjectUrl] = useState<string | null>(null);
-  const [audioResult, setAudioResult] = useState<AudioAnalysisResult | null>(null);
+  const [audioResult, setAudioResult] = useState<AudioAnalysisResult | null>(
+    null,
+  );
   const [isAudioProcessing, setIsAudioProcessing] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
 
@@ -217,8 +219,12 @@ const Dashboard: React.FC = () => {
                       });
                     }
                     // Update the specific frame
-                    const frameData = jsonData.frame_data || jsonData.original_frame_data || "";
-                    const detection = jsonData.type === "frame_with_detection" ? jsonData.detection : jsonData;
+                    const frameData =
+                      jsonData.frame_data || jsonData.original_frame_data || "";
+                    const detection =
+                      jsonData.type === "frame_with_detection"
+                        ? jsonData.detection
+                        : jsonData;
                     updated[frameIndex] = {
                       id: frameIndex,
                       // Use timestamp from backend if available, otherwise format from seconds
@@ -259,6 +265,12 @@ const Dashboard: React.FC = () => {
                   const elaB64 = jsonData.ela_b64;
                   const fftData = jsonData.fft_data;
                   const limeData = jsonData.lime_data;
+                  const llmAnalysis = jsonData.llm_analysis;
+
+                  console.log(
+                    `Received xai_ready for video frame ${xaiFrameIndex}, llm_analysis:`,
+                    llmAnalysis,
+                  );
 
                   setFrames((prev) => {
                     const updated = [...prev];
@@ -269,25 +281,28 @@ const Dashboard: React.FC = () => {
                         ela_b64: elaB64,
                         fft_data: fftData,
                         lime_data: limeData,
+                        llm_analysis: llmAnalysis,
                       };
                     }
                     return updated;
                   });
-                    
-                    // Dispatch custom event for ForensicAnalysisSection to update
-                    const xaiEvent = new CustomEvent("xai_update", {
-                      detail: {
-                        frameIndex: xaiFrameIndex,
-                        gradcam_b64: gradcamB64,
-                        ela_b64: elaB64,
-                        fft_data: fftData,
-                        lime_data: limeData,
-                        task_id: jsonData.task_id,
-                      },
-                    });
-                    window.dispatchEvent(xaiEvent);
-                    
-                  console.log(`XAI data received for frame ${xaiFrameIndex}`, jsonData);
+
+                  // Dispatch custom event for ForensicAnalysisSection to update
+                  const xaiEvent = new CustomEvent("xai_update", {
+                    detail: {
+                      frameIndex: xaiFrameIndex,
+                      gradcam_b64: gradcamB64,
+                      ela_b64: elaB64,
+                      fft_data: fftData,
+                      lime_data: limeData,
+                      llm_analysis: llmAnalysis,
+                      task_id: jsonData.task_id,
+                    },
+                  });
+                  window.dispatchEvent(xaiEvent);
+                  console.log(
+                    `Dispatched xai_update event for frame ${xaiFrameIndex}`,
+                  );
                 } else if (jsonData.type === "processing_complete") {
                   setStatus("Processing complete!");
                   setIsProcessing(false);
@@ -434,22 +449,31 @@ const Dashboard: React.FC = () => {
                   jsonData.detection_result
                 ) {
                   setImageDetectionResult(jsonData.detection_result);
-                  const frame: FrameData = {
-                    id: 0,
-                    timestamp: "00:00:00",
-                    thumbnailUrl: URL.createObjectURL(file),
-                    isAnomaly: jsonData.detection_result.is_anomaly ?? false,
-                    confidenceScore: jsonData.detection_result.confidence ?? 0,
-                    isProcessed: true,
-                    anomalyType: jsonData.detection_result.anomaly_type,
-                    elaScore: jsonData.detection_result.ela_score,
-                    frequencySpike: jsonData.detection_result.frequency_spike,
-                    real_prob: jsonData.detection_result.real_prob,
-                    fake_prob: jsonData.detection_result.fake_prob,
-                    // Include Grad-CAM if available (sent together with detection for anomalies)
-                    gradcam_b64: jsonData.detection_result.gradcam_b64,
-                  };
-                  setImageFrame(frame);
+                  setImageFrame((prev) => {
+                    const frame: FrameData = {
+                      id: 0,
+                      timestamp: "00:00:00",
+                      thumbnailUrl:
+                        prev?.thumbnailUrl || URL.createObjectURL(file),
+                      isAnomaly: jsonData.detection_result.is_anomaly ?? false,
+                      confidenceScore:
+                        jsonData.detection_result.confidence ?? 0,
+                      isProcessed: true,
+                      anomalyType: jsonData.detection_result.anomaly_type,
+                      elaScore: jsonData.detection_result.ela_score,
+                      frequencySpike: jsonData.detection_result.frequency_spike,
+                      real_prob: jsonData.detection_result.real_prob,
+                      fake_prob: jsonData.detection_result.fake_prob,
+                      // Include Grad-CAM if available (sent together with detection for anomalies)
+                      gradcam_b64: jsonData.detection_result.gradcam_b64,
+                      // Preserve existing XAI data
+                      ela_b64: prev?.ela_b64,
+                      fft_data: prev?.fft_data,
+                      lime_data: prev?.lime_data,
+                      llm_analysis: prev?.llm_analysis,
+                    };
+                    return frame;
+                  });
                   setIsImageProcessing(false);
 
                   // Update frames with XAI data if available
@@ -463,6 +487,8 @@ const Dashboard: React.FC = () => {
                           ela_b64: xaiData.ela_b64,
                           fft_data: xaiData.fft_data,
                           lime_data: xaiData.lime_data,
+                          llm_analysis:
+                            xaiData.llm_analysis || prev.llm_analysis,
                         };
                       }
                       return prev;
@@ -476,6 +502,11 @@ const Dashboard: React.FC = () => {
                   const fftData = jsonData.fft_data;
                   const limeData = jsonData.lime_data;
 
+                  console.log(
+                    `Received xai_ready for image, llm_analysis:`,
+                    jsonData.llm_analysis,
+                  );
+
                   setImageFrame((prev) => {
                     if (prev) {
                       return {
@@ -484,23 +515,11 @@ const Dashboard: React.FC = () => {
                         ela_b64: elaB64,
                         fft_data: fftData,
                         lime_data: limeData,
+                        llm_analysis: jsonData.llm_analysis,
                       };
                     }
                     return prev;
                   });
-
-                  // Dispatch custom event for ImageResult to update
-                  const xaiEvent = new CustomEvent("xai_update", {
-                    detail: {
-                      frameIndex: 0, // Single frame for image
-                      gradcam_b64: gradcamB64,
-                      ela_b64: elaB64,
-                      fft_data: fftData,
-                      lime_data: limeData,
-                      task_id: jsonData.task_id,
-                    },
-                  });
-                  window.dispatchEvent(xaiEvent);
 
                   console.log(`XAI data received for image`, jsonData);
                 } else if (jsonData.type === "error") {
@@ -527,7 +546,7 @@ const Dashboard: React.FC = () => {
         console.error("Image upload failed:", error);
         setIsImageProcessing(false);
       }
-    } else if (file.type.startsWith('audio/')) {
+    } else if (file.type.startsWith("audio/")) {
       // ── Audio processing — synchronous REST POST ──────────────────────────
       try {
         setAudioFile(file);
@@ -622,17 +641,28 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-center min-h-screen bg-black">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto"></div>
-            <p className="mt-4 text-white text-xl">Analysing audio — running WavLM + XAI…</p>
-            <p className="mt-2 text-gray-500 text-sm">This may take 20–60 seconds</p>
+            <p className="mt-4 text-white text-xl">
+              Analysing audio — running WavLM + XAI…
+            </p>
+            <p className="mt-2 text-gray-500 text-sm">
+              This may take 20–60 seconds
+            </p>
           </div>
         </div>
       ) : audioError ? (
         /* ── Audio: error state ───────────────────────────────────────────── */
         <div className="flex flex-col items-center justify-center min-h-screen bg-black gap-6">
-          <p className="text-red-400 text-lg font-mono">Audio analysis failed</p>
-          <p className="text-gray-500 text-sm max-w-md text-center">{audioError}</p>
+          <p className="text-red-400 text-lg font-mono">
+            Audio analysis failed
+          </p>
+          <p className="text-gray-500 text-sm max-w-md text-center">
+            {audioError}
+          </p>
           <button
-            onClick={() => { setAudioError(null); setAudioFile(null); }}
+            onClick={() => {
+              setAudioError(null);
+              setAudioFile(null);
+            }}
             className="px-6 py-2 rounded-lg border border-cyan-500 text-cyan-400 text-sm hover:bg-cyan-500 hover:text-black transition-all"
           >
             Try Again
@@ -640,7 +670,11 @@ const Dashboard: React.FC = () => {
         </div>
       ) : audioResult && audioFile ? (
         /* ── Audio: results page ─────────────────────────────────────────── */
-        <AudioResult result={audioResult} fileName={audioFile.name} audioObjectUrl={audioObjectUrl ?? undefined} />
+        <AudioResult
+          result={audioResult}
+          fileName={audioFile.name}
+          audioObjectUrl={audioObjectUrl ?? undefined}
+        />
       ) : isImageProcessing ? (
         /* ── Image: loading spinner ──────────────────────────────────────── */
         <div className="flex items-center justify-center min-h-screen bg-black">

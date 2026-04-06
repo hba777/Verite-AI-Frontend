@@ -57,6 +57,8 @@ gradcam_b64?: string; // Base64 encoded Grad-CAM image from XAI
     top_fake_superpixels: number[];
     top_real_superpixels: number[];
   };
+  // LLM Analysis
+  llm_analysis?: string;
 }
 
 export interface AnalysisResult {
