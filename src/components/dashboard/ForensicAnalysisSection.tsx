@@ -5,11 +5,13 @@ import {
   Layers,
   X,
   FlaskConical,
+  Loader2,
   FileDown,
 } from "lucide-react";
 import { FrameData } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
 import XAITechniquesPanel from "./XAITechniquesPanel";
+import LLMCard from "./LLMCard";
 
 interface ForensicAnalysisSectionProps {
   frame: FrameData;
@@ -22,67 +24,51 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   onClose,
   taskId,
 }) => {
-  const [heatmapConfig, setHeatmapConfig] = useState<HeatmapConfig>({
-    show: true,
-    opacity: 75,
-  });
-  const [viewMode, setViewMode] = useState<"heatmap" | "ela" | "gradcam">("heatmap");
+  const [viewMode, setViewMode] = useState<"ela" | "gradcam">("gradcam");
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  // Local state for frame data to support live updates from XAI results
   const [currentFrame, setCurrentFrame] = useState<FrameData>(frame);
+  const [isXaiLoading, setIsXaiLoading] = useState(true);
 
   // Update local frame when prop changes
   useEffect(() => {
     setCurrentFrame(frame);
-  }, [frame]);
+    // Set loading based on data availability
+    if (frame.isAnomaly && taskId) {
+      setIsXaiLoading(!(frame.gradcam_b64 || frame.ela_b64 || frame.fft_data));
+    }
+  }, [frame, taskId]);
 
   // Listen for XAI updates via custom event
   useEffect(() => {
-    const handleXAIUpdate = (event: CustomEvent) => {
-      const { frameIndex, gradcam_b64, ela_b64, fft_data, lime_data, task_id } = event.detail;
-      // Only update if this is the same frame and task
-      if (taskId && task_id === taskId && frameIndex === currentFrame.id) {
+    if (!taskId) return;
+
+    const handleXaiUpdate = (event: CustomEvent) => {
+      const { frameIndex, gradcam_b64, ela_b64, fft_data, lime_data, llm_analysis, task_id } = event.detail;
+      if (String(task_id) === String(taskId) && frameIndex === currentFrame.id) {
         setCurrentFrame((prev) => ({
           ...prev,
-          ...(gradcam_b64 && { gradcam_b64 }),
-          ...(ela_b64 && { ela_b64 }),
-          ...(fft_data && { fft_data }),
-          ...(lime_data && { lime_data }),
+          gradcam_b64: gradcam_b64 || prev.gradcam_b64,
+          ela_b64: ela_b64 || prev.ela_b64,
+          fft_data: fft_data || prev.fft_data,
+          lime_data: lime_data || prev.lime_data,
+          llm_analysis: llm_analysis || prev.llm_analysis,
         }));
+        setIsXaiLoading(!(gradcam_b64 || ela_b64 || fft_data));
       }
     };
 
-    window.addEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
+    window.addEventListener('xai_update', handleXaiUpdate as EventListener);
     return () => {
-      window.removeEventListener('xai_update' as keyof WindowEventMap, handleXAIUpdate as EventListener);
+      window.removeEventListener('xai_update', handleXaiUpdate as EventListener);
     };
   }, [taskId, currentFrame.id]);
+  
+  
 
-  // Generate forensic summary based on real probability data from WebSocket
-  const generateForensicSummary = (frame: FrameData): string => {
-    const realProb = frame.real_prob ?? 0.5;
-    const fakeProb = frame.fake_prob ?? 0.5;
-    const confidence = frame.confidenceScore;
-    const anomalyType = frame.anomalyType || "Unknown";
-
-    if (frame.isAnomaly) {
-      return (
-        `GenD deepfake detection model identified this frame as ${anomalyType} with ${confidence.toFixed(1)}% confidence. ` +
-        `Real probability: ${(realProb * 100).toFixed(2)}%, Fake probability: ${(fakeProb * 100).toFixed(2)}%. ` +
-        `The model detected significant artifacts consistent with AI-generated content, including potential GAN fingerprints and temporal inconsistencies.`
-      );
-    } else {
-      return (
-        `GenD deepfake detection model classified this frame as authentic with ${confidence.toFixed(1)}% confidence. ` +
-        `Real probability: ${(realProb * 100).toFixed(2)}%, Fake probability: ${(fakeProb * 100).toFixed(2)}%. ` +
-        `No significant manipulation artifacts were detected in this frame.`
-      );
-    }
-  };
-
-  const aiSummary = generateForensicSummary(currentFrame);
-
+  // Check if XAI data is available (for showing XAI content or loading)
+  const hasXaiData = currentFrame.gradcam_b64 || currentFrame.ela_b64 || currentFrame.fft_data;
+  
   const handleDownloadReport = async () => {
     console.log("[VideoReport] Download triggered, frame:", currentFrame.id, "taskId:", taskId);
     const effectiveTaskId = taskId || "offline-session";
@@ -163,15 +149,6 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
       setIsGeneratingReport(false);
     }
   };
-
-  // Generate frequency data based on real probability
-  const fakeProb = currentFrame.fake_prob ?? (currentFrame.isAnomaly ? 0.85 : 0.15);
-  const freqData = [
-    { name: "Low", value: Math.round(fakeProb * 20 + 15) },
-    { name: "Mid", value: Math.round(fakeProb * 30 + 25) },
-    { name: "High", value: Math.round(fakeProb * 70 + 10) }, // Spike in high freq typical of GANs
-    { name: "V.High", value: Math.round(fakeProb * 55 + 5) },
-  ];
 
   // Confidence Radial Gauge Calculation
   const radius = 18;
@@ -288,9 +265,9 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
 
         {currentFrame.isAnomaly && (
           <>
-            <div className="flex gap-12">
+            <div className="w-full">
               {/* Section 2: XAI + LLM */}
-              <section className="space-y-6">
+              <section className="space-y-6 w-full">
                 <div className="flex items-center gap-3">
                   <Cpu className="w-5 h-5 text-electric-teal" />
                   <h3 className="font-display text-xl font-bold text-text-high">
@@ -298,47 +275,7 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   </h3>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-8 relative overflow-hidden group h-full">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-electric-teal to-transparent" />
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-electric-teal/5 rounded-full blur-3xl group-hover:bg-electric-teal/10 transition-colors duration-500"></div>
-
-                  <div className="relative z-10">
-                    <h4 className="font-mono text-sm text-electric-teal mb-4 uppercase tracking-wider">
-                      GenD Model Analysis
-                    </h4>
-                    <p className="font-sans text-base text-text-high leading-relaxed">
-                      {aiSummary}
-                    </p>
-
-                    {/* Real/Fake Probability Display */}
-                    <div className="mt-4 flex gap-4">
-                      <div className="flex-1 bg-black/30 rounded-lg p-3 border border-white/5">
-                        <div className="text-[10px] font-mono text-text-med uppercase tracking-wider mb-1">
-                          Real Probability
-                        </div>
-                        <div className="text-lg font-display font-bold text-neural-green">
-                          {((currentFrame.real_prob ?? 0.5) * 100).toFixed(2)}%
-                        </div>
-                      </div>
-                      <div className="flex-1 bg-black/30 rounded-lg p-3 border border-white/5">
-                        <div className="text-[10px] font-mono text-text-med uppercase tracking-wider mb-1">
-                          Fake Probability
-                        </div>
-                        <div className="text-lg font-display font-bold text-hyper-red">
-                          {((currentFrame.fake_prob ?? 0.5) * 100).toFixed(2)}%
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-6 border-t border-white/5 flex gap-3">
-                      {currentFrame.anomalyType && (
-                        <span className="px-3 py-1 bg-black/40 border border-hyper-red/30 text-hyper-red text-xs font-mono rounded">
-                          DETECTED: {currentFrame.anomalyType.toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <LLMCard frame={currentFrame} />
               </section>
             </div>
 
@@ -350,7 +287,16 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                   Explainable AI (XAI) Analysis
                 </h3>
               </div>
-              <XAITechniquesPanel frame={currentFrame} />
+              {isXaiLoading || !hasXaiData ? (
+                <div className="flex items-center justify-center py-12 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="w-6 h-6 text-electric-teal animate-spin" />
+                    <span className="text-sm font-mono text-text-med">Generating XAI Analysis...</span>
+                  </div>
+                </div>
+              ) : (
+                <XAITechniquesPanel frame={currentFrame} />
+              )}
             </section>
           </>
         )}
