@@ -243,47 +243,49 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 />
               </svg>
             </div>
-            {isXaiLoading ? (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "10px 20px",
-                  backgroundColor: `${colors.electricTeal}1A`,
-                  border: `1px solid ${colors.electricTeal}80`,
-                  borderRadius: "8px",
-                  color: colors.electricTeal,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "12px",
-                }}
-              >
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Preparing Report...
-              </div>
-            ) : (
-              <button
-                onClick={handleDownloadReport}
-                disabled={isGeneratingReport}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "10px 20px",
-                  backgroundColor: `${colors.electricTeal}1A`,
-                  border: `1px solid ${colors.electricTeal}80`,
-                  borderRadius: "8px",
-                  color: colors.electricTeal,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: "12px",
-                  cursor: isGeneratingReport ? "not-allowed" : "pointer",
-                  opacity: isGeneratingReport ? 0.5 : 1,
-                  transition: "all 0.2s",
-                }}
-              >
-                <FileDown style={{ width: 16, height: 16 }} />
-                {isGeneratingReport ? "Generating..." : "Download PDF"}
-              </button>
+            {currentFrame.isAnomaly && (
+              isXaiLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "10px 20px",
+                    backgroundColor: `${colors.electricTeal}1A`,
+                    border: `1px solid ${colors.electricTeal}80`,
+                    borderRadius: "8px",
+                    color: colors.electricTeal,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "12px",
+                  }}
+                >
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Preparing Report...
+                </div>
+              ) : (
+                <button
+                  onClick={handleDownloadReport}
+                  disabled={isGeneratingReport}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "10px 20px",
+                    backgroundColor: `${colors.electricTeal}1A`,
+                    border: `1px solid ${colors.electricTeal}80`,
+                    borderRadius: "8px",
+                    color: colors.electricTeal,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "12px",
+                    cursor: isGeneratingReport ? "not-allowed" : "pointer",
+                    opacity: isGeneratingReport ? 0.5 : 1,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <FileDown style={{ width: 16, height: 16 }} />
+                  {isGeneratingReport ? "Generating..." : "Download PDF"}
+                </button>
+              )
             )}
           </div>
         </div>
