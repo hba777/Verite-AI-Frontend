@@ -187,11 +187,10 @@ const AdminDashboard: React.FC = () => {
               <button
                 key={t}
                 onClick={() => setSelectedPeriod(t)}
-                className={`px-3 py-1 rounded-md text-xs font-mono ${
-                  t === selectedPeriod
+                className={`px-3 py-1 rounded-md text-xs font-mono ${t === selectedPeriod
                     ? "bg-white/10 text-white"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 {t}
               </button>
@@ -275,15 +274,14 @@ const AdminDashboard: React.FC = () => {
                   {row.filename}
                 </td>
                 <td className="px-8 py-5 text-sm text-gray-400">
-                  {new Date(row.timestamp).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'})}
+                  {new Date(row.timestamp).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </td>
                 <td className="px-8 py-5">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      row.status === "Malicious"
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${row.status === "Malicious"
                         ? "bg-red-400/10 text-red-400 border border-red-400/20"
                         : "bg-green-400/10 text-green-400 border border-green-400/20"
-                    }`}
+                      }`}
                   >
                     {row.status}
                   </span>
@@ -310,11 +308,10 @@ const AdminDashboard: React.FC = () => {
               <button
                 key={page}
                 onClick={() => handlePageClick(page)}
-                className={`px-2 py-1 rounded text-xs ${
-                  page === currentPage
+                className={`px-2 py-1 rounded text-xs ${page === currentPage
                     ? "bg-white/10 text-white"
                     : "hover:text-white"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -359,14 +356,13 @@ const AdminDashboard: React.FC = () => {
                 <tr key={audio.analysis_id} className="hover:bg-white/[0.03]">
                   <td className="px-8 py-5 text-sm text-white">{(audio.audio_file as any).user?.username || 'N/A'}</td>
                   <td className="px-8 py-5 text-sm text-gray-400 truncate max-w-xs">{audio.audio_file.filename}</td>
-                  <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time ? new Date(audio.analysis_time).toLocaleString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'}</td>
+                  <td className="px-8 py-5 text-sm text-gray-400">{audio.analysis_time ? new Date(audio.analysis_time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'N/A'}</td>
                   <td className="px-8 py-5">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        audio.verdict === 'FAKE'
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${audio.verdict === 'FAKE'
                           ? "bg-red-400/10 text-red-400 border border-red-400/20"
                           : "bg-green-400/10 text-green-400 border border-green-400/20"
-                      }`}
+                        }`}
                     >
                       {audio.verdict}
                     </span>
@@ -394,11 +390,10 @@ const AdminDashboard: React.FC = () => {
               <button
                 key={page}
                 onClick={() => handleAudioPageClick(page)}
-                className={`px-2 py-1 rounded text-xs ${
-                  page === audioCurrentPage
+                className={`px-2 py-1 rounded text-xs ${page === audioCurrentPage
                     ? "bg-white/10 text-white"
                     : "hover:text-white"
-                }`}
+                  }`}
               >
                 {page}
               </button>

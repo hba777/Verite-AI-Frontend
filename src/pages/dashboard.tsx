@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
   // Generate mock frames for demo/initial state
   const generateMockFrames = useCallback((): FrameData[] => {
     const newFrames: FrameData[] = [];
-    const totalFrames = 50;
+    const totalFrames = 15;
 
     for (let i = 0; i < totalFrames; i++) {
       const isAnomaly = [15, 32, 45].includes(i);

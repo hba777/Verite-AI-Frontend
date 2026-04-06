@@ -11,99 +11,64 @@ interface BenchmarkData {
   details_sub?: string;
 }
 
-// Header data for the table columns
+// Header data combined for Image & Video focusing on GenD (PE)
 const tableHeaders = [
-  { title: "VERITÉ AI", subtitle: "IMAGE", details: "Synchronous" },
-  { title: "VERITÉ AI", subtitle: "VIDEO", details: "Async Celery" },
-  {
-    title: "VERITÉ AI",
-    subtitle: "AUDIO",
-    details: "SSL-AASIST",
-  },
-  {
-    title: "Deepware",
-    subtitle: "Scanner",
-    details: "Video-only",
-  },
-  {
-    title: "MS Video",
-    subtitle: "Auth.",
-    details: "Frame-Level",
+  { 
+    title: "VERITÉ AI", 
+    subtitle: "IMAGE & VIDEO", 
+    details: "GenD (PE)" 
   },
 ];
 
 // Main table component
 const BenchmarkTable: React.FC = () => {
+  // Data strictly sourced from the research paper for GenD (PE) backbone
   const benchmarkData: BenchmarkData[] = [
     {
       benchmark: "Processing Speed",
-      details: "Avg. inference time",
-      values: ["~1.2 s", "~8–25 s", "~4–10 s", "N/A", "<2 s"],
+      details: "Inference on A100 GPU (Batch size 1)",
+      values: ["120 FPS"],
     },
     {
-      benchmark: "Accuracy (AUC)",
-      details: "Area under ROC curve",
-      values: ["97.2%", "94.6%", "95.1%", "~89%", "~92%"],
+      benchmark: "Average Accuracy (AUC)",
+      details: "Mean across 14 cross-dataset benchmarks",
+      values: ["91.4%"],
     },
     {
-      category: "Image Detection",
-      benchmark: "FaceForensics++",
-      details: "FF++ c23 split",
-      values: ["97.2%", "—", "—", "—", "~92%"],
+      category: "In-Domain Visual Detection",
+      benchmark: "FaceForensics++ (FF++)",
+      details: "Mean AUROC (DF, F2F, FS, NT)",
+      values: ["98.9%"],
     },
     {
-      category: "Image Detection",
-      benchmark: "DeepFake Detection Challenge",
-      details: "DFDC preview set",
-      values: ["~88%", "—", "—", "~84%", "—"],
-    },
-    {
-      category: "Video Detection",
+      category: "Cross-Dataset Visual Detection",
       benchmark: "Celeb-DF v2",
-      details: "Temporal aggregation",
-      values: ["—", "94.6%", "—", "~86%", "—"],
+      details: "Cross-dataset test",
+      values: ["95.0%"],
     },
     {
-      category: "Video Detection",
-      benchmark: "FaceForensics++ (Video)",
-      details: "Frame-level inference",
-      values: ["—", "~93%", "—", "—", "—"],
+      category: "Cross-Dataset Visual Detection",
+      benchmark: "Face Forensics in the Wild (FFIW)",
+      details: "Cross-dataset test",
+      values: ["93.7%"],
     },
     {
-      category: "Audio Detection",
-      benchmark: "ASVspoof 2019 LA",
-      details: "EER metric",
-      values: ["—", "—", "1.22% EER", "—", "—"],
+      category: "Cross-Dataset Visual Detection",
+      benchmark: "DeepFake Detection Challenge (DFDC)",
+      details: "Cross-dataset test",
+      values: ["82.2%"],
     },
     {
-      category: "Audio Detection",
-      benchmark: "ASVspoof 2021 DF",
-      details: "Out-of-domain test",
-      values: ["—", "—", "~5.8% EER", "—", "—"],
+      category: "Cross-Dataset Visual Detection",
+      benchmark: "FakeAVCeleb (FAVC)",
+      details: "Cross-dataset test",
+      values: ["97.3%"],
     },
     {
-      category: "Explainability",
-      benchmark: "Grad-CAM Localisation",
-      details: "Qualitative assessment",
-      values: ["✓ Heatmap", "✓ Per-frame", "✓ Temporal", "✗", "✗"],
-    },
-    {
-      category: "XAI Output",
-      benchmark: "LLM Narrative",
-      details: "Natural language justification",
-      values: ["✓ GPT-4", "✓ GPT-4", "✓ GPT-4", "✗", "✗"],
-    },
-    {
-      category: "Features",
-      benchmark: "PDF Report Download",
-      details: "Exportable analysis report",
-      values: ["✓", "✓", "✓", "✗", "✗"],
-    },
-    {
-      category: "Features",
-      benchmark: "Audio Modality Support",
-      details: "Voice cloning / TTS detection",
-      values: ["—", "—", "✓", "✗", "✗"],
+      category: "Cross-Dataset Visual Detection",
+      benchmark: "IDForge (IDF)",
+      details: "Cross-dataset test",
+      values: ["97.9%"],
     },
   ];
 
@@ -118,28 +83,28 @@ const BenchmarkTable: React.FC = () => {
           transition={{ duration: 0.7 }}
           viewport={{ once: false, amount: 0.4 }}
         >
-          Benchmarks
+          Research Benchmarks: GenD (PE)
         </motion.h2>
 
         {/* Description Text */}
         <motion.p
-          className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5 text-center"
+          className="mt-4 max-w-2xl mx-auto text-[1.75rem] text-gray-400 font-medium pb-5 text-center leading-tight"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: false, amount: 0.4 }}
         >
-          XDetect-RT demonstrates superior performance across industry-standard
+          Verité AI demonstrates superior performance across industry-standard
           detection benchmarks and real-world media authenticity challenges.
         </motion.p>
       </div>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left font-normal text-sm text-gray-400 p-4">
-                  Benchmark
+                  Benchmark Dataset
                 </th>
                 {tableHeaders.map((header, index) => (
                   <th
@@ -151,8 +116,10 @@ const BenchmarkTable: React.FC = () => {
                       <span className="font-bold">{header.subtitle}</span>
                     </div>
                     <div className="text-gray-400">{header.details}</div>
+                    {/* @ts-expect-error - Handling optional link property from format template */}
                     {header.link && (
                       <a href="#" className="text-blue-400 underline text-xs">
+                        {/* @ts-expect-error */}
                         {header.link}
                       </a>
                     )}
@@ -174,7 +141,7 @@ const BenchmarkTable: React.FC = () => {
                     {/* Benchmark Name */}
                     <td className={`p-4 ${row.isSubRow ? "pl-8" : ""}`}>
                       {!row.isSubRow && row.category && (
-                        <div className="text-xs text-gray-400 uppercase tracking-wider">
+                        <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">
                           {row.category}
                         </div>
                       )}
@@ -187,7 +154,7 @@ const BenchmarkTable: React.FC = () => {
                         <div className="text-white">{row.benchmark}</div>
                       )}
                       {row.details && (
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-400 mt-1">
                           {row.details}
                         </div>
                       )}
@@ -195,10 +162,10 @@ const BenchmarkTable: React.FC = () => {
 
                     {/* Value Columns */}
                     {row.values.map((value, valueIndex) => (
-                      <td key={valueIndex} className="text-right p-4">
+                      <td key={valueIndex} className="text-right p-4 align-middle">
                         <div className="font-bold text-lg">{value}</div>
                         {row.details_sub && valueIndex === 4 && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-400 mt-1">
                             {row.details_sub}
                           </div>
                         )}

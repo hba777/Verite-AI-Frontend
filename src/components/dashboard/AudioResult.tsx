@@ -3,7 +3,7 @@ import { AudioAnalysisResult } from "@/types";
 import AudioSpectrogramCanvas from "./AudioSpectrogramCanvas";
 import {
   ShieldCheck, AlertTriangle, Activity,
-  Wand2, BarChart2, Play, Pause, Layers, CircleDot
+  Wand2, BarChart2, Play, Pause, Layers, CircleDot, FileDown
 } from "lucide-react";
 
 interface AudioResultProps {
@@ -36,6 +36,7 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
   const [playing, setPlaying] = useState(false);
   const [activeXai, setActiveXai] = useState<XaiTab>("ig");
   const [currentTime, setCurrentTime] = useState(0);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const togglePlay = useCallback(() => {
     const el = audioRef.current;
@@ -58,8 +59,69 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
   const formatTime = (s: number) => {
     const min = Math.floor(s / 60).toString().padStart(2, "0");
     const sec = Math.floor(s % 60).toString().padStart(2, "0");
-    const ms = Math.floor((s % 1) * 100).toString().padStart(2, "0");
+    const ms  = Math.floor((s % 1) * 100).toString().padStart(2, "0");
     return `${min}:${sec}:${ms}`;
+  };
+
+  const handleDownloadReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      const summary = isFake
+        ? `WavLM feature extractor detected significant acoustic artifacts consistent with AI-generated audio or voice cloning. The classifier output indicates a ${(result.fake_prob * 100).toFixed(1)}% probability of synthetic generation.`
+        : `WavLM analysis found the acoustic profile to be consistent with natural human speech recordings. The classifier output indicates a ${(result.real_prob * 100).toFixed(1)}% probability of authentic audio.`;
+
+      const body = {
+        case_id:           `CASE-${Date.now()}`,
+        module_type:       "audio",
+        executive_summary: summary,
+        audio_data: {
+          file_name:        fileName,
+          duration_seconds: result.duration_seconds,
+          verdict:          isFake ? "FAKE" : "REAL",
+          is_fake:          isFake,
+          confidence:       result.confidence,
+          fake_prob:        result.fake_prob,
+          real_prob:        result.real_prob,
+        },
+        // Forward STFT spectrogram matrix so the PDF can render it
+        stft:        result.stft        ?? null,
+        // Forward XAI score vectors for the attribution charts
+        ig_scores:   result.ig_scores   ?? null,
+        shap_scores: result.shap_scores ?? null,
+      };
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+      );
+
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`Report generation failed (${response.status}): ${err}`);
+      }
+
+      const data = await response.json();
+      if (!data.file_path) throw new Error("No file_path in response");
+
+      const filename    = data.file_path.split(/[\\/]/).pop()!;
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
+
+      const dlRes = await fetch(downloadUrl);
+      if (!dlRes.ok) throw new Error(`Download failed (${dlRes.status})`);
+
+      const blob = await dlRes.blob();
+      const url  = window.URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement("a"), { href: url, download: filename });
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      alert("Failed to generate report. Please try again.");
+    } finally {
+      setIsGeneratingReport(false);
+    }
   };
 
   const isFake = result.is_fake;
@@ -127,6 +189,16 @@ const AudioResult: React.FC<AudioResultProps> = ({ result, fileName, audioObject
                 />
               </svg>
             </div>
+            <button
+              onClick={handleDownloadReport}
+              disabled={isGeneratingReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-electric-teal/20 border border-electric-teal/50 text-electric-teal hover:bg-electric-teal/30 transition-colors disabled:opacity-50"
+            >
+              <FileDown className="w-4 h-4" />
+              <span className="text-sm font-mono uppercase whitespace-nowrap">
+                {isGeneratingReport ? "Generating..." : "PDF"}
+              </span>
+            </button>
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import {
   X,
   FlaskConical,
   Loader2,
+  FileDown,
 } from "lucide-react";
 import { FrameData } from "@/types";
 import HeatmapViewer from "./HeatmapViewer";
@@ -24,9 +25,21 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   taskId,
 }) => {
   const [viewMode, setViewMode] = useState<"ela" | "gradcam">("gradcam");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const [currentFrame, setCurrentFrame] = useState<FrameData>(frame);
   const [isXaiLoading, setIsXaiLoading] = useState(true);
+ const colors = {
+    deepVoid: "#08090A",
+    surface: "#121416",
+    electricTeal: "#00E5FF",
+    neuralGreen: "#00E676",
+    hyperRed: "#FF2D55",
+    warningOrange: "#FF9500",
+    textHigh: "#F5F5F5",
+    textMed: "#A0A0A0",
+    borderWhite: "rgba(255,255,255,0.1)",
+  };
 
   // Update local frame when prop changes
   useEffect(() => {
@@ -67,6 +80,108 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
   // Check if XAI data is available (for showing XAI content or loading)
   const hasXaiData = currentFrame.gradcam_b64 || currentFrame.ela_b64 || currentFrame.fft_data;
   
+  const handleDownloadReport = async () => {
+    console.log("[VideoReport] Download triggered, frame:", currentFrame.id, "taskId:", taskId);
+    const effectiveTaskId = taskId || "offline-session";
+    setIsGeneratingReport(true);
+
+    // Helper: strip data URI prefix so backend receives raw base64
+    const stripDataUri = (s?: string | null) =>
+      s?.startsWith("data:") ? s.split(",")[1] : (s ?? null);
+
+    // Helper: convert blob URL to data URL
+    const blobToDataUrl = async (blobUrl: string): Promise<string | null> => {
+      try {
+        const response = await fetch(blobUrl);
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error("Failed to convert blob to data URL:", error);
+        return null;
+      }
+    };
+
+    // Convert thumbnailUrl if it's a blob URL
+    let frameData = currentFrame.thumbnailUrl;
+    if (frameData?.startsWith("blob:")) {
+      frameData = await blobToDataUrl(frameData) || "";
+    }
+
+    try {
+      const body = {
+        case_id: `CASE-${Date.now()}`,
+        module_type: "video",
+        executive_summary: currentFrame.llm_analysis,
+        video_data: {
+          task_id: effectiveTaskId,
+          file_name: "Video Analysis",
+          total_frames: 1,
+          duration_seconds: 0,
+          verdict: currentFrame.isAnomaly ? "FAKE" : "REAL",
+          is_fake: currentFrame.isAnomaly,
+          confidence: currentFrame.confidenceScore,
+          fake_prob: currentFrame.fake_prob ?? 0.5,
+          real_prob: currentFrame.real_prob ?? 0.5,
+          anomaly_count: currentFrame.isAnomaly ? 1 : 0,
+          detected_type: currentFrame.anomalyType ?? null,
+        },
+        // Embed real frame image + GradCAM so the PDF renders them side-by-side
+        flagged_frames: currentFrame.isAnomaly
+          ? [
+            {
+              frame_index: currentFrame.id,
+              timestamp: currentFrame.timestamp,
+              is_anomaly: currentFrame.isAnomaly,
+              confidence: currentFrame.confidenceScore,
+              fake_prob: currentFrame.fake_prob ?? 0.5,
+              real_prob: currentFrame.real_prob ?? 0.5,
+              anomaly_type: currentFrame.anomalyType ?? "GenD Deepfake",
+              frame_data: frameData,
+              gradcam_b64: stripDataUri(currentFrame.gradcam_b64),
+              ela_b64: stripDataUri(currentFrame.ela_b64),
+            },
+          ]
+          : [],
+      };
+      console.log("Thumbnail", currentFrame.thumbnailUrl)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+      );
+
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`Report generation failed (${response.status}): ${err}`);
+      }
+
+      const data = await response.json();
+      if (!data.file_path) throw new Error("No file_path in response");
+
+      const filename = data.file_path.split(/[\\\/]/).pop()!;
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
+
+      const dlRes = await fetch(downloadUrl);
+      if (!dlRes.ok) throw new Error(`Download failed (${dlRes.status})`);
+
+      const blob = await dlRes.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement("a"), { href: url, download: filename });
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      console.log("[VideoReport] ✅ Downloaded:", filename);
+    } catch (error) {
+      console.error("[VideoReport] Error:", error);
+      alert(`Failed to generate report: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
 
   // Confidence Radial Gauge Calculation
   const radius = 18;
@@ -128,6 +243,48 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 />
               </svg>
             </div>
+            {isXaiLoading ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 20px",
+                  backgroundColor: `${colors.electricTeal}1A`,
+                  border: `1px solid ${colors.electricTeal}80`,
+                  borderRadius: "8px",
+                  color: colors.electricTeal,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "12px",
+                }}
+              >
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Preparing Report...
+              </div>
+            ) : (
+              <button
+                onClick={handleDownloadReport}
+                disabled={isGeneratingReport}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 20px",
+                  backgroundColor: `${colors.electricTeal}1A`,
+                  border: `1px solid ${colors.electricTeal}80`,
+                  borderRadius: "8px",
+                  color: colors.electricTeal,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "12px",
+                  cursor: isGeneratingReport ? "not-allowed" : "pointer",
+                  opacity: isGeneratingReport ? 0.5 : 1,
+                  transition: "all 0.2s",
+                }}
+              >
+                <FileDown style={{ width: 16, height: 16 }} />
+                {isGeneratingReport ? "Generating..." : "Download PDF"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -145,21 +302,19 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setViewMode("ela")}
-                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
-                      viewMode === "ela"
+                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${viewMode === "ela"
                         ? "bg-electric-teal text-black"
                         : "bg-white/10 text-text-med hover:bg-white/20"
-                    }`}
+                      }`}
                   >
                     ELA
                   </button>
                   <button
                     onClick={() => setViewMode("gradcam")}
-                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
-                      viewMode === "gradcam"
+                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all ${viewMode === "gradcam"
                         ? "bg-electric-teal text-black"
                         : "bg-white/10 text-text-med hover:bg-white/20"
-                    }`}
+                      }`}
                   >
                     GradCAM
                   </button>
@@ -225,12 +380,12 @@ const ForensicAnalysisSection: React.FC<ForensicAnalysisSectionProps> = ({
                 "background-color 0.3s ease, background-image 0.3s ease",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            (e.currentTarget.style.backgroundImage =
+              "linear-gradient(#222323, #222323), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundImage =
-                "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
+            (e.currentTarget.style.backgroundImage =
+              "linear-gradient(#060606, #060606), linear-gradient(90deg, #3b6bff, #2e96ff 65%, #acb7ff)")
             }
           >
             <X className="w-4 h-4" />
