@@ -7,7 +7,6 @@ import {
   RefreshCw,
   Download,
   Share2,
-  FileDown,
 } from "lucide-react";
 import ForensicAnalysisSection from "./ForensicAnalysisSection";
 
@@ -24,7 +23,6 @@ const ImageResult: React.FC<ImageResultProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showForensic, setShowForensic] = useState(true); // Auto-open for images
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const colors = {
     deepVoid: "#08090A",
@@ -65,70 +63,6 @@ const ImageResult: React.FC<ImageResultProps> = ({
     }
   }, [detectionResult]);
 
-  const handleDownloadReport = async () => {
-    setIsGeneratingReport(true);
-    try {
-      const isFk = detectionResult?.is_anomaly || detectionResult?.is_fake || false;
-      const summary = isFk
-        ? `GenD deepfake detection identified this image as synthetic with ${confidenceScore.toFixed(1)}% confidence. Fake probability: ${((detectionResult?.fake_prob ?? 0) * 100).toFixed(1)}%.`
-        : `GenD deepfake detection classified this image as authentic with ${confidenceScore.toFixed(1)}% confidence. Real probability: ${((detectionResult?.real_prob ?? 1) * 100).toFixed(1)}%.`;
-
-      // Strip data URI prefix if present
-      const stripDataUri = (s?: string | null) =>
-        s?.startsWith("data:") ? s.split(",")[1] : (s ?? null);
-
-      const body = {
-        case_id: `CASE-${Date.now()}`,
-        module_type: "image",
-        executive_summary: summary,
-        image_data: {
-          file_name: "Image Analysis",
-          is_fake: isFk,
-          confidence: confidenceScore,
-          fake_prob: detectionResult?.fake_prob ?? 0,
-          real_prob: detectionResult?.real_prob ?? 1,
-          anomaly_type: detectionResult?.anomaly_type ?? detectionResult?.predicted_class ?? null,
-          thumbnail_b64: stripDataUri(frame?.thumbnailUrl),
-          gradcam_b64: stripDataUri(detectionResult?.gradcam_b64 ?? frame?.gradcam_b64),
-          ela_b64: stripDataUri(detectionResult?.ela_b64 ?? frame?.ela_b64),
-          fft_data: detectionResult?.fft_data ?? frame?.fft_data ?? null,
-          lime_data: detectionResult?.lime_data ?? frame?.lime_data ?? null,
-        },
-      };
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/report/generate`,
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
-      );
-
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`Report generation failed (${response.status}): ${err}`);
-      }
-
-      const data = await response.json();
-      if (!data.file_path) throw new Error("No file_path in response");
-
-      const filename = data.file_path.split(/[\\/]/).pop()!;
-      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/report/download/${filename}`;
-
-      const dlRes = await fetch(downloadUrl);
-      if (!dlRes.ok) throw new Error(`Download failed (${dlRes.status})`);
-
-      const blob = await dlRes.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement("a"), { href: url, download: filename });
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("[ImageReport] Error:", error);
-      alert(`Failed to generate report: ${error instanceof Error ? error.message : "Unknown error"}`);
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
 
   const getStatusIcon = () => {
     if (isLoading) {
@@ -188,29 +122,6 @@ const ImageResult: React.FC<ImageResultProps> = ({
             Image Analysis Result
           </h1>
         </div>
-        {/* PDF Download Button */}
-        <button
-          onClick={handleDownloadReport}
-          disabled={isGeneratingReport || isLoading}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "10px 20px",
-            backgroundColor: `${colors.electricTeal}1A`,
-            border: `1px solid ${colors.electricTeal}80`,
-            borderRadius: "8px",
-            color: colors.electricTeal,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "12px",
-            cursor: isGeneratingReport || isLoading ? "not-allowed" : "pointer",
-            opacity: isGeneratingReport || isLoading ? 0.5 : 1,
-            transition: "all 0.2s",
-          }}
-        >
-          <FileDown style={{ width: 16, height: 16 }} />
-          {isGeneratingReport ? "Generating..." : "Download PDF"}
-        </button>
       </div>
 
       {/* Main Result Card */}
