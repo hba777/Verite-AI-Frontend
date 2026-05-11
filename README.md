@@ -104,22 +104,6 @@ npm install
 npm run dev
 ```
 
-## Project Structure
-
-```text
-frontend/
-│
-├── app/
-├── components/
-├── hooks/
-├── services/
-├── store/
-├── styles/
-├── public/
-├── utils/
-└── README.md
-```
-
 ## Research & Thesis
 
 This project was developed as a Final Year Project at National University of Sciences and Technology under the title:
