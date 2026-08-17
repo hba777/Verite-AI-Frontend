@@ -11,7 +11,7 @@ Frontend application for **Vérité AI**, a modern deepfake detection platform s
 
 ## Related Repositories
 
-- Backend: [Vérité AI Backend](https://github.com/your-username/verite-ai-backend)
+- Backend: [Vérité AI Backend](https://github.com/Redgerd/verite-deepfake-detector)
 - Hugging Face Collection: [Explainable Deepfake Detection](https://huggingface.co/collections/Redgerd/explainable-deepfake-detection)
 
 ## Features
